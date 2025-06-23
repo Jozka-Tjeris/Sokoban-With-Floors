@@ -1,0 +1,47 @@
+Idea: Sokoban but 3D
+
+20 June 2025: Creation of the document
+
+Idea: Use files to store the configuration of each level
+
+Space Types:
+- Empty space (Default block)
+- Target spaces (Fill Entirely) (Can be drawn as a frame box)
+- Directional target spaces (Can only be hit from certain direction(s)) (Can be drawn as a partially open frame box with added glow on open sides)
+
+Basic Block Types:
+- Immovable blocks (Obstacles)
+- Ramps (Changing block heights)
+- Solid blocks (Pushable)
+- Solid blocks (Pullable)
+- Add ID tags to blocks and target spaces so only matching IDs work
+
+Miscellaneous Effects:
+- Gravity 
+- Gates
+- Switches
+- Moving walls & Obstacles
+- Fragile floors
+
+Functions:
+- Undo
+
+Ways to deal with multiple layers:
+- Transparency filters (30-50%) or dimming
+- Grayscaling different layers to add context or numbering
+- Camera lock
+- Toggle visibility on other layers
+- Isometric (but rotatable camera), 30 degree-ish downward camera angle
+- 2.5D
+
+Add a level editor for easy testing and mockups.
+
+Todo: create an encoding for storing level information into a JSON-esque file.
+
+Notes:
+
+22 June: 
+- Grid generation mockup
+- Player movement mockup
+- Key binding
+
