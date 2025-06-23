@@ -31,8 +31,8 @@ export class GridOfBlocks{
         return row*-1;
     }
 
-    addBlockToGrid(blockType, floor, col, row){
-        if(this.checkCoordinateInBounds(floor - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1)) == false){
+    addBlockToGrid(blockType, height, col, row){
+        if(this.checkCoordinateInBounds(height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1)) == false){
             console.log("Block generation failed");
             return;
         }
@@ -40,19 +40,19 @@ export class GridOfBlocks{
         let block = null;
         switch(blockType){
             case Blocks.BlockType.FLOOR:
-                block = new Blocks.Floor(floor - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
+                block = new Blocks.Floor(height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
                 break;
             case Blocks.BlockType.WALL:
-                block = new Blocks.Wall(floor - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
+                block = new Blocks.Wall(height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
                 break;
             case Blocks.BlockType.PLAYER:
-                block = new Blocks.Player(floor - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
+                block = new Blocks.Player(height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
                 break;
             case Blocks.BlockType.PUSHABLE:
-                block = new Blocks.PushableBlock(floor - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
+                block = new Blocks.PushableBlock(height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
                 break;
         }
-        this.#gridArray[floor - 1][col - 1][row - 1] = block;
+        this.#gridArray[height - 1][col - 1][row - 1] = block;
         this.#gridGroup.add(block.getObject());
 
         return block;
@@ -62,12 +62,13 @@ export class GridOfBlocks{
         Helpers.addPositionToItem(this.#gridGroup, x, y, z);
     }
 
-    removeBlock(floor, col, row){
-        this.#gridGroup.remove(this.#gridArray[floor - 1][col - 1][row - 1].getObject());
-        this.#gridArray[floor - 1][col - 1][row - 1] = null;
+    removeBlock(height, col, row){
+        this.#gridGroup.remove(this.#gridArray[height - 1][col - 1][row - 1].getObject());
+        this.#gridArray[height - 1][col - 1][row - 1] = null;
     }
 
     swapBlocks(height1, col1, row1, height2, col2, row2){
+        //check raw coordinates
         if(this.checkCoordinateInBounds(height1, col1, row1) == false){
             console.log("First set of coordinates are invalid");
             return;
@@ -76,10 +77,17 @@ export class GridOfBlocks{
             console.log("Second set of coordinates are invalid");
             return;
         }
-        let block1 = this.#gridArray[height1][col1][row1];
-        let block2 = this.#gridArray[height2][col2][row2];
-        this.#gridArray[height1][col1][row1] = block2;
-        this.#gridArray[height2][col2][row2] = block1;
+        //get index in gridArray
+        const rowInGrid1 = GridOfBlocks.getRowInGrid(row1);
+        const rowInGrid2 = GridOfBlocks.getRowInGrid(row2);
+
+        //swaps blocks around
+        let block1 = this.#gridArray[height1][col1][rowInGrid1];
+        let block2 = this.#gridArray[height2][col2][rowInGrid2];
+        this.#gridArray[height1][col1][rowInGrid1] = block2;
+        this.#gridArray[height2][col2][rowInGrid2] = block1;
+
+        //use true coordinate system
         if(block1 != null){
             block1.addDistanceToObject(height2 - height1, col2 - col1, row2 - row1);
         }
@@ -100,9 +108,9 @@ export class GridOfBlocks{
         Helpers.applyIsometricRotation(this.#gridGroup);
     }
 
-    checkCoordinateInBounds(floor, col, row){
-        if(floor < 0 || floor >= this.#height){
-            console.log("Out of bounds; target floor: " + (floor + 1) + ", max floors: " + this.#height);
+    checkCoordinateInBounds(height, col, row){
+        if(height < 0 || height >= this.#height){
+            console.log("Out of bounds; target height: " + (height + 1) + ", max height: " + this.#height);
             return false;
         }
         if(col < 0 || col >= this.#cols){
@@ -117,13 +125,13 @@ export class GridOfBlocks{
         return true;
     }
 
-    isBlockBelowWalkable(floor, col, row){
-        const isNull = this.#gridArray[floor - 1][col][GridOfBlocks.getRowInGrid(row)] == null;
+    isBlockBelowWalkable(height, col, row){
+        const isNull = this.#gridArray[height - 1][col][GridOfBlocks.getRowInGrid(row)] == null;
         if(isNull == true){
             console.log("Block below is null");
             return false;
         }
-        const isWalkable = this.#gridArray[floor - 1][col][GridOfBlocks.getRowInGrid(row)].isWalkable();
+        const isWalkable = this.#gridArray[height - 1][col][GridOfBlocks.getRowInGrid(row)].isWalkable();
         if(isWalkable == false){
             console.log("Block below not walkable");
             return false;
@@ -131,15 +139,29 @@ export class GridOfBlocks{
         return true;
     }
 
-    isBlockPassable(floor, col, row){
-        const isNull = this.#gridArray[floor][col][GridOfBlocks.getRowInGrid(row)] == null;
+    isBlockPassable(height, col, row){
+        const isNull = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)] == null;
         if(isNull == true){
             console.log("Block in front is null");
             return true;
         }
-        const isSolid = this.#gridArray[floor][col][GridOfBlocks.getRowInGrid(row)].isSolid();
+        const isSolid = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)].isSolid();
         if(isSolid == true){
             console.log("There is a block blocking the way");
+            return false;
+        }
+        return true;
+    }
+
+    isBlockPushable(height, col, row){
+        const isNull = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)] == null;
+        if(isNull == true){
+            console.log("Block in front is null");
+            return false;
+        }
+        const isPushable = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)].isPushable();
+        if(isPushable == false){
+            console.log("Block in front is not pushable");
             return false;
         }
         return true;

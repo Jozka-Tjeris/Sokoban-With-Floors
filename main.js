@@ -61,12 +61,46 @@ function moveItemInGrid(grid, item, direction){
         positionDiffs = [0, 0, 1];
     }
     const newPosition = item.getPosition().map((value, index) => value + positionDiffs[index]);
-    if(newPosition.some(element => isNaN(element)) == false && 
-        positionDiffs.some(element => isNaN(element)) == false &&
-        grid.checkCoordinateInBounds(...newPosition) && 
-        grid.isBlockBelowWalkable(...newPosition) && 
-        grid.isBlockPassable(...newPosition)){
+
+    if(newPosition.some(element => isNaN(element)) || 
+        positionDiffs.some(element => isNaN(element)) || 
+        grid.checkCoordinateInBounds(...newPosition) == false){
+        return;
+    }
+
+    //Idea: When checking to change floors, two options: make a special case for checking in bounds
+    //or make the grid size n+1 * m, n+1 denoting the position where the changing floor block resides
+
+    //check if player's next tile is a walkable tile
+    if(grid.isBlockBelowWalkable(...newPosition) == false){
+        return;
+    }
+    //check if block in front is pushable
+    if(grid.isBlockPushable(...newPosition)){
+        //check if pushable block can be moved
+        const newPushableBlockPosition = newPosition.map((value, index) => value + positionDiffs[index]);
+        //check if pushable block will stay in bounds
+        if(grid.checkCoordinateInBounds(...newPushableBlockPosition) == false){
+            console.log("Pushable block can't go out of bounds");
+            return;
+        }
+        //check if the new position is passable
+        if(grid.isBlockPassable(...newPushableBlockPosition) == false){
+            console.log("Player can't push current pushable block");
+            return;
+        }
+        //(ignore if the ground below is solid for now, check after pushing)
+
+        //apply change if prerequisites are met
+        grid.swapBlocks(...newPosition, ...newPushableBlockPosition);
+        grid.swapBlocks(...item.getPosition(), ...newPosition);
+    }
+    else{
+        //non-pushable block, check if block is passable instead
+        if(grid.isBlockPassable(...newPosition)){
+            //optional check: check if new block is a goal state, in which case do sth else
             grid.swapBlocks(...item.getPosition(), ...newPosition);
+        }
     }
 }
 
@@ -77,7 +111,7 @@ light.position.set(-1, 2, 4);
 scene.add(light);
 
 //Format: Height, Columns, Rows
-const dimensions = [2, 3, 5];
+const dimensions = [2, 4, 6];
 let grid = new GridOfBlocks(...dimensions);
 
 for(let i = 0; i < grid.getCols(); i++){
