@@ -45,3 +45,7 @@ Notes:
 - Player movement mockup
 - Key binding
 
+23 June:
+- Refactored sections to separate files
+- Changed from perspective camera to orthographic camera
+- Simplified grid generation

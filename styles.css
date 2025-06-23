@@ -14,8 +14,10 @@ html, body {
 }
 
 #game-container{
-    width: 85vw;
-    height: 85vh;
+    /* width: 85vw;
+    height: 85vh; */
+    width: 100vw;
+    height: 100vh;
 }
 
 #game-canvas{
