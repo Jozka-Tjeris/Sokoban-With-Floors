@@ -77,7 +77,7 @@ function moveItemInGrid(grid, item, direction){
     }
     //check if block in front is pushable
     if(grid.isBlockPushable(...newPosition)){
-        //check if pushable block can be moved
+        //check if pushable block can be moved (assumed to go in the same direction)
         const newPushableBlockPosition = newPosition.map((value, index) => value + positionDiffs[index]);
         //check if pushable block will stay in bounds
         if(grid.checkCoordinateInBounds(...newPushableBlockPosition) == false){
@@ -94,6 +94,7 @@ function moveItemInGrid(grid, item, direction){
         //apply change if prerequisites are met
         grid.swapBlocks(...newPosition, ...newPushableBlockPosition);
         grid.swapBlocks(...item.getPosition(), ...newPosition);
+        console.log("Current target spaces all filled from pushable: " + grid.verifyTargetSpaces());
     }
     else{
         //non-pushable block, check if block is passable instead
@@ -101,17 +102,18 @@ function moveItemInGrid(grid, item, direction){
             //optional check: check if new block is a goal state, in which case do sth else
             grid.swapBlocks(...item.getPosition(), ...newPosition);
         }
+        console.log("Current target spaces all filled: " + grid.verifyTargetSpaces());
     }
 }
 
 const [gameContainer, canvas, scene, camera, renderer] = initApplication();
 scene.background = new THREE.Color("rgb(150, 150, 150)");
 const light = createLight(0xffffff);
-light.position.set(-1, 2, 4);
+light.position.set(0, 2, 4);
 scene.add(light);
 
 //Format: Height, Columns, Rows
-const dimensions = [2, 4, 6];
+const dimensions = [2, 6, 8];
 let grid = new GridOfBlocks(...dimensions);
 
 for(let i = 0; i < grid.getCols(); i++){
@@ -120,11 +122,22 @@ for(let i = 0; i < grid.getCols(); i++){
     }
 }
 grid.addIsometricRotation();
-grid.addOffset(-1.5, -0.5, 0);
+grid.addOffset(-3, -2, 0);
+
 grid.removeBlock(1, 2, 2);
+grid.removeBlock(1, 5, 5);
+
 grid.addBlockToGrid(BlockType.WALL, 2, 2, 4);
+grid.addBlockToGrid(BlockType.WALL, 2, 2, 5);
+grid.addBlockToGrid(BlockType.WALL, 2, 4, 5);
+
 const playerObject = grid.addBlockToGrid(BlockType.PLAYER, 2, 1, 1);
-const pushableObject = grid.addBlockToGrid(BlockType.PUSHABLE, 2, 2, 3);
+
+grid.addBlockToGrid(BlockType.PUSHABLE, 2, 2, 3);
+grid.addBlockToGrid(BlockType.PUSHABLE, 2, 3, 6);
+
+grid.addBlockToGrid(BlockType.TARGET, 2, 3, 5);
+grid.addBlockToGrid(BlockType.TARGET, 2, 5, 7);
 
 grid.attachToItem(scene);
 
@@ -139,7 +152,6 @@ function animate(){
         camera.updateProjectionMatrix();
     }
     renderer.render(scene, camera);
-
 }
 renderer.setAnimationLoop(animate);
 
