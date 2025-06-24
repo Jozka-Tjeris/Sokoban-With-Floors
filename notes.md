@@ -51,5 +51,11 @@ Notes:
 - Changed from perspective camera to orthographic camera
 - Simplified grid generation
 - Added pushable blocks
+
+24 June:
 - Added target spaces
 - Added logic to check target spaces when other blocks interact with them (i.e. basic win condition)
+- Added pullable blocks
+- Updated color scheme to improve contrast between block types
+- Added support for target spaces to handle pullable blocks
+- Refactored main animation loop
