@@ -44,8 +44,12 @@ Notes:
 - Grid generation mockup
 - Player movement mockup
 - Key binding
+- Added logic to prevent walking into holes or solid walls
 
 23 June:
 - Refactored sections to separate files
 - Changed from perspective camera to orthographic camera
 - Simplified grid generation
+- Added pushable blocks
+- Added target spaces
+- Added logic to check target spaces when other blocks interact with them (i.e. basic win condition)
