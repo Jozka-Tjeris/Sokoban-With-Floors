@@ -9,12 +9,14 @@ export class GridOfBlocks{
     //Format: yxz
     #gridGroup;
     #gridArray;
+    #targetSpaces;
     #height;
     #cols;
     #rows;
 
     constructor(height, col, row){
         this.#gridGroup = new THREE.Object3D();
+        this.#targetSpaces = new Map();
         this.#height = height;
         this.#cols = col;
         this.#rows = row;
@@ -32,29 +34,45 @@ export class GridOfBlocks{
     }
 
     addBlockToGrid(blockType, height, col, row){
-        if(this.checkCoordinateInBounds(height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1)) == false){
+        const dimensionParams = [height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1)];
+        if(this.checkCoordinateInBounds(...dimensionParams) == false){
             console.log("Block generation failed");
             return;
         }
+        if(this.#gridArray[height - 1][col - 1][row - 1] != null){
+            console.log("A block already exists at the position: ", height, col, row);
+            return;
+        }
+        if(this.#targetSpaces.get(dimensionParams.toString().replaceAll(',', ':')) != null){
+            console.log("A target space already exists at the position: ", height, col, row);
+            return;
+        }
 
-        let block = null;
+        let cttrClass = null;
         switch(blockType){
             case Blocks.BlockType.FLOOR:
-                block = new Blocks.Floor(height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
+                cttrClass = Blocks.Floor; 
                 break;
             case Blocks.BlockType.WALL:
-                block = new Blocks.Wall(height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
+                cttrClass = Blocks.Wall;
                 break;
             case Blocks.BlockType.PLAYER:
-                block = new Blocks.Player(height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
+                cttrClass = Blocks.Player;
                 break;
             case Blocks.BlockType.PUSHABLE:
-                block = new Blocks.PushableBlock(height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1));
+                cttrClass = Blocks.PushableBlock;
                 break;
+            case Blocks.BlockType.TARGET:
+                const targetBlock = new Blocks.TargetSpace(...dimensionParams);
+                const keyPosition = targetBlock.getPosition().toString().replaceAll(',', ':');
+                console.log(keyPosition);
+                this.#targetSpaces.set(keyPosition, targetBlock);
+                this.#gridGroup.add(targetBlock.getObject());
+                return;
         }
+        const block = new cttrClass(...dimensionParams);
         this.#gridArray[height - 1][col - 1][row - 1] = block;
         this.#gridGroup.add(block.getObject());
-
         return block;
     }
 
@@ -165,6 +183,19 @@ export class GridOfBlocks{
             return false;
         }
         return true;
+    }
+
+    verifyTargetSpaces(){
+        let state = true;
+        //checks if every target space is filled
+        this.#targetSpaces.forEach((value, key) => {
+            const position = value.getPosition();
+            const currentBlock = this.#gridArray[position[0]][position[1]][GridOfBlocks.getRowInGrid(position[2])];
+            const containsPushable = currentBlock instanceof Blocks.PushableBlock;
+            state &&= containsPushable;
+            value.setFilled(containsPushable);
+        });
+        return state;
     }
 
     getCols(){ 
