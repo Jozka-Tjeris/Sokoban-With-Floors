@@ -5,6 +5,7 @@ export const BlockType = {
     BLOCK: 'block',
     PLAYER: 'player',
     PUSHABLE: 'pushable',
+    PULLABLE: 'pullable',
     WALL: 'wall',
     FLOOR: 'floor',
     TARGET: 'target'
@@ -19,11 +20,21 @@ export const Direction = {
     NEG_Z: 5
 };
 
+export const PlayerAction = {
+    UP: 0,
+    DOWN: 1,
+    LEFT: 2,
+    RIGHT: 3,
+    PULL: 4,
+    INTERACT: 5
+}
+
 class Block{
     type = BlockType.BLOCK;
     walkable = false;
     solid = true;
     pushable = false;
+    pullable = false;
     #object;
     #height;
     #col;
@@ -84,6 +95,10 @@ class Block{
     isPushable(){
         return this.pushable;
     }
+
+    isPullable(){
+        return this.pullable;
+    }
 }
 
 export class Floor extends Block{
@@ -91,6 +106,7 @@ export class Floor extends Block{
     walkable = true;
     solid = true;
     pushable = false;
+    pullable = false;
 
     generateColor(argument){
         let color = 0x00cc00;
@@ -116,6 +132,7 @@ export class Wall extends Block{
     walkable = false;
     solid = true;
     pushable = false;
+    pullable = false;
 
     generateColor(argument){
         let color = 0x00ff00;
@@ -129,6 +146,9 @@ export class Player extends Block{
     walkable = false;
     solid = true;
     pushable = false;
+    pullable = false;
+    //up, down, left, right, pull, interact
+    #currentStates = [false, false, false, false, false, false];
 
     generateColor(argument){
         return 0xffff00;
@@ -140,6 +160,14 @@ export class Player extends Block{
         const sphere = new THREE.Mesh(geometry, material);
         return sphere;
     }
+
+    toggleActionState(state, action){
+        this.#currentStates[action] = state;
+    }
+
+    getActionState(action){
+        return this.#currentStates[action];
+    }
 }
 
 export class PushableBlock extends Block{
@@ -147,6 +175,7 @@ export class PushableBlock extends Block{
     walkable = true;
     solid = true;
     pushable = true;
+    pullable = false;
 
     generateColor(argument){
         return 0x0000ff;
@@ -160,11 +189,31 @@ export class PushableBlock extends Block{
     }
 }
 
+export class PullableBlock extends Block{
+    type = BlockType.PULLABLE;
+    walkable = true;
+    solid = true;
+    pushable = false;
+    pullable = true;
+
+    generateColor(argument){
+        return 0xff8800;
+    }
+
+    createMeshObject(colorParam){
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.9} );
+        const cube = new THREE.Mesh(geometry, material);
+        return cube;
+    }
+}
+
 export class TargetSpace extends Block{
     type = BlockType.TARGET;
     walkable = false;
     solid = false;
     pushable = false;
+    pullable = false;
     //+X, -X, +Y, -Y, +Z, -Z
     #enterable = [true, true, true, true, true, true];
     #filled = false;
@@ -175,7 +224,7 @@ export class TargetSpace extends Block{
 
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.8} );
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.9} );
         const cube = new THREE.Mesh(geometry, material);
         return cube;
     }
@@ -187,12 +236,12 @@ export class TargetSpace extends Block{
     setFilled(status){
         this.#filled = status;
         if(status == true){
-            this.getObject().material.color.setHex(0xff00ff);
-            this.getObject().material.opacity = 1;
+            this.getObject().material.color.setHex(0xff88ff);
+            this.getObject().material.opacity = 0.5;
         }
         else{
             this.getObject().material.color.setHex(this.generateColor(null));
-            this.getObject().material.opacity = 0.8;
+            this.getObject().material.opacity = 0.9;
         }
     }
 
