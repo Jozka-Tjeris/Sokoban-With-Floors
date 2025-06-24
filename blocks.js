@@ -48,6 +48,7 @@ class Block{
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam} );
         const cube = new THREE.Mesh(geometry, material);
+        cube.renderOrder = 0;
         return cube;
     }
 
@@ -118,6 +119,7 @@ export class Floor extends Block{
         const geometry = new THREE.BoxGeometry(1, 0.5, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam} );
         const cube = new THREE.Mesh(geometry, material);
+        cube.renderOrder = 0;
         return cube;
     }
 
@@ -158,6 +160,7 @@ export class Player extends Block{
         const geometry = new THREE.SphereGeometry(0.5, 10, 10);
         const material = new THREE.MeshPhongMaterial( {color: colorParam} );
         const sphere = new THREE.Mesh(geometry, material);
+        sphere.renderOrder = 1;
         return sphere;
     }
 
@@ -185,6 +188,7 @@ export class PushableBlock extends Block{
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.8} );
         const cube = new THREE.Mesh(geometry, material);
+        cube.renderOrder = 0;
         return cube;
     }
 }
@@ -204,6 +208,7 @@ export class PullableBlock extends Block{
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.9} );
         const cube = new THREE.Mesh(geometry, material);
+        cube.renderOrder = 0;
         return cube;
     }
 }
@@ -226,6 +231,7 @@ export class TargetSpace extends Block{
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.9} );
         const cube = new THREE.Mesh(geometry, material);
+        cube.renderOrder = 1;
         return cube;
     }
 
