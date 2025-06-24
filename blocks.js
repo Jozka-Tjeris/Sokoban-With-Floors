@@ -110,8 +110,8 @@ export class Floor extends Block{
     pullable = false;
 
     generateColor(argument){
-        let color = 0x00cc00;
-        if(argument % 2 == 0) color = 0xcc0000;
+        let color = 0xbcbcbc;
+        if(argument % 2 == 0) color = 0x444444;
         return color;
     }
 
@@ -239,11 +239,17 @@ export class TargetSpace extends Block{
         return this.#enterable[direction];
     }
 
-    setFilled(status){
+    setFilled(status, type){
         this.#filled = status;
         if(status == true){
-            this.getObject().material.color.setHex(0xff88ff);
-            this.getObject().material.opacity = 0.5;
+            if(type === BlockType.PUSHABLE){
+                this.getObject().material.color.setHex(0xff88ff);
+                this.getObject().material.opacity = 0.5;
+            }
+            if(type === BlockType.PULLABLE){
+                this.getObject().material.color.setHex(0xff44dd);
+                this.getObject().material.opacity = 0.4;
+            }
         }
         else{
             this.getObject().material.color.setHex(this.generateColor(null));
