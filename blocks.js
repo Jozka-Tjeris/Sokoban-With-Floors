@@ -6,7 +6,17 @@ export const BlockType = {
     PLAYER: 'player',
     PUSHABLE: 'pushable',
     WALL: 'wall',
-    FLOOR: 'floor'
+    FLOOR: 'floor',
+    TARGET: 'target'
+};
+
+export const Direction = {
+    POS_X: 0,
+    NEG_X: 1,
+    POS_Y: 2,
+    NEG_Y: 3,
+    POS_Z: 4,
+    NEG_Z: 5
 };
 
 class Block{
@@ -144,8 +154,49 @@ export class PushableBlock extends Block{
 
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.7} );
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.8} );
         const cube = new THREE.Mesh(geometry, material);
         return cube;
+    }
+}
+
+export class TargetSpace extends Block{
+    type = BlockType.TARGET;
+    walkable = false;
+    solid = false;
+    pushable = false;
+    //+X, -X, +Y, -Y, +Z, -Z
+    #enterable = [true, true, true, true, true, true];
+    #filled = false;
+
+    generateColor(argument){
+        return 0x88ffff;
+    }
+
+    createMeshObject(colorParam){
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.8} );
+        const cube = new THREE.Mesh(geometry, material);
+        return cube;
+    }
+
+    canEnterFromDirection(direction){
+        return this.#enterable[direction];
+    }
+
+    setFilled(status){
+        this.#filled = status;
+        if(status == true){
+            this.getObject().material.color.setHex(0xff00ff);
+            this.getObject().material.opacity = 1;
+        }
+        else{
+            this.getObject().material.color.setHex(this.generateColor(null));
+            this.getObject().material.opacity = 0.8;
+        }
+    }
+
+    checkIfFilled(){
+        return this.#filled;
     }
 }
