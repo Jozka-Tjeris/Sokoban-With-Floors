@@ -62,10 +62,12 @@ export class GridOfBlocks{
             case Blocks.BlockType.PUSHABLE:
                 cttrClass = Blocks.PushableBlock;
                 break;
+            case Blocks.BlockType.PULLABLE:
+                cttrClass = Blocks.PullableBlock;
+                break;
             case Blocks.BlockType.TARGET:
                 const targetBlock = new Blocks.TargetSpace(...dimensionParams);
                 const keyPosition = targetBlock.getPosition().toString().replaceAll(',', ':');
-                console.log(keyPosition);
                 this.#targetSpaces.set(keyPosition, targetBlock);
                 this.#gridGroup.add(targetBlock.getObject());
                 return;
@@ -185,6 +187,20 @@ export class GridOfBlocks{
         return true;
     }
 
+    isBlockPullable(height, col, row){
+        const isNull = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)] == null;
+        if(isNull == true){
+            console.log("Block behind is null");
+            return false;
+        }
+        const isPushable = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)].isPullable();
+        if(isPushable == false){
+            console.log("Block behind is not pullable");
+            return false;
+        }
+        return true;
+    }
+
     verifyTargetSpaces(){
         let state = true;
         //checks if every target space is filled
@@ -192,8 +208,17 @@ export class GridOfBlocks{
             const position = value.getPosition();
             const currentBlock = this.#gridArray[position[0]][position[1]][GridOfBlocks.getRowInGrid(position[2])];
             const containsPushable = currentBlock instanceof Blocks.PushableBlock;
-            state &&= containsPushable;
-            value.setFilled(containsPushable);
+            const containsPullable = currentBlock instanceof Blocks.PullableBlock;
+            state &&= containsPushable || containsPullable;
+            if(containsPushable){
+                value.setFilled(true, Blocks.BlockType.PUSHABLE);
+            }
+            else if(containsPullable){
+                value.setFilled(true, Blocks.BlockType.PULLABLE);
+            }
+            else{
+                value.setFilled(false, null);
+            }
         });
         return state;
     }
