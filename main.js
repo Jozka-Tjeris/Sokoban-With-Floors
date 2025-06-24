@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { GridOfBlocks } from './grid';
-import { BlockType } from './blocks';
+import * as Blocks from './blocks';
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -21,14 +21,16 @@ function initApplication(){
     //used to scale camera
     const aspect = window.innerWidth / window.innerHeight;
     //half of vertical view size
-    const d = 5;
     const camera = new THREE.OrthographicCamera(
-        - d * aspect, d * aspect, d, - d, 1, 1000
+        - ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect, 
+        ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect, 
+        ORTHOGRAPHIC_CAMERA_HALF_HEIGHT, 
+        - ORTHOGRAPHIC_CAMERA_HALF_HEIGHT, 
+        1, 1000
     );
     camera.position.set(0, 0, 100);
     camera.lookAt(scene.position);
     scene.add(camera);
-
 
     const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
     renderer.setSize(gameContainer.clientWidth, gameContainer.clientHeight, false);
@@ -46,21 +48,20 @@ function createLight(colorParam){
     return new THREE.DirectionalLight(color, intensity);
 }
 
-function moveItemInGrid(grid, item, direction){
-    let positionDiffs = [NaN, NaN, NaN];
-    if(direction == "L"){
-        positionDiffs = [0, -1, 0];
-    }
-    if(direction == "R"){
-        positionDiffs = [0, 1, 0];
-    }
-    if(direction == "U"){
-        positionDiffs = [0, 0, -1];
-    }
-    if(direction == "D"){
-        positionDiffs = [0, 0, 1];
-    }
-    const newPosition = item.getPosition().map((value, index) => value + positionDiffs[index]);
+function movePlayerInGrid(grid, player, direction){
+    //preliminary check to restrict only players to be able to use this function
+    if((player instanceof Blocks.Player) == false) return;
+
+    const directionVectors = {
+        [Blocks.PlayerAction.LEFT]: [0, -1, 0],
+        [Blocks.PlayerAction.RIGHT]: [0, 1, 0],
+        [Blocks.PlayerAction.UP]: [0, 0, -1],
+        [Blocks.PlayerAction.DOWN]: [0, 0, 1],
+    };
+
+    //grabs new position difference based on the direction specified
+    const positionDiffs = directionVectors[direction] ?? [NaN, NaN, NaN];
+    const newPosition = player.getPosition().map((value, index) => value + positionDiffs[index]);
 
     if(newPosition.some(element => isNaN(element)) || 
         positionDiffs.some(element => isNaN(element)) || 
@@ -68,43 +69,90 @@ function moveItemInGrid(grid, item, direction){
         return;
     }
 
-    //Idea: When checking to change floors, two options: make a special case for checking in bounds
+    //Future idea: When checking to change floors, two options: make a special case for checking in bounds
     //or make the grid size n+1 * m, n+1 denoting the position where the changing floor block resides
 
     //check if player's next tile is a walkable tile
     if(grid.isBlockBelowWalkable(...newPosition) == false){
         return;
     }
-    //check if block in front is pushable
-    if(grid.isBlockPushable(...newPosition)){
-        //check if pushable block can be moved (assumed to go in the same direction)
-        const newPushableBlockPosition = newPosition.map((value, index) => value + positionDiffs[index]);
-        //check if pushable block will stay in bounds
-        if(grid.checkCoordinateInBounds(...newPushableBlockPosition) == false){
-            console.log("Pushable block can't go out of bounds");
-            return;
-        }
-        //check if the new position is passable
-        if(grid.isBlockPassable(...newPushableBlockPosition) == false){
-            console.log("Player can't push current pushable block");
-            return;
-        }
-        //(ignore if the ground below is solid for now, check after pushing)
+    //check if player attempts to use multiple actions at once
+    if(player.getActionState(Blocks.PlayerAction.PULL) == true 
+        && player.getActionState(Blocks.PlayerAction.INTERACT) == true){
+        console.log("Player is not allowed to perform two actions at the same time");
+        return;
+    }
+    //check if player is not pulling or interacting (default move = pushing)
+    else if(player.getActionState(Blocks.PlayerAction.PULL) == false 
+        && player.getActionState(Blocks.PlayerAction.INTERACT) == false){
+        //check if a pushable block is in front of the player
+        if(grid.isBlockPushable(...newPosition)){
+            //gets the predicted pushable block's new position (assumed to go in the same direction)
+            const newPushableBlockPosition = newPosition.map((value, index) => value + positionDiffs[index]);
+            //check if pushable block will stay in bounds
+            if(grid.checkCoordinateInBounds(...newPushableBlockPosition) == false){
+                console.log("Pushable block can't go out of bounds");
+                return;
+            }
+            //check if the new position is passable
+            if(grid.isBlockPassable(...newPushableBlockPosition) == false){
+                console.log("Player can't push current pushable block");
+                return;
+            }
+            //(ignore if the ground below is solid for now, check after pushing)
 
-        //apply change if prerequisites are met
-        grid.swapBlocks(...newPosition, ...newPushableBlockPosition);
-        grid.swapBlocks(...item.getPosition(), ...newPosition);
-        console.log("Current target spaces all filled from pushable: " + grid.verifyTargetSpaces());
-    }
-    else{
-        //non-pushable block, check if block is passable instead
-        if(grid.isBlockPassable(...newPosition)){
-            //optional check: check if new block is a goal state, in which case do sth else
-            grid.swapBlocks(...item.getPosition(), ...newPosition);
+            //apply change if prerequisites are met
+            grid.swapBlocks(...newPosition, ...newPushableBlockPosition);
+            grid.swapBlocks(...player.getPosition(), ...newPosition);
+            console.log("Current target spaces all filled from pushable block: " + grid.verifyTargetSpaces());
         }
-        console.log("Current target spaces all filled: " + grid.verifyTargetSpaces());
+        else{
+            //non-pushable block, check if block is passable instead
+            if(grid.isBlockPassable(...newPosition) == false){
+                console.log("Player attempting to move to impassable location");
+                return;
+            }
+            grid.swapBlocks(...player.getPosition(), ...newPosition);
+            console.log("Current target spaces all filled: " + grid.verifyTargetSpaces());
+        }
     }
+    //checks if the player is pulling and not interacting
+    else if(player.getActionState(Blocks.PlayerAction.PULL) == true
+        && player.getActionState(Blocks.PlayerAction.INTERACT) == false){
+        //gets the predicted pullable block's current position (assumed to go in the opposite direction)
+        const newPullableBlockPosition = player.getPosition().map((value, index) => value + -1*positionDiffs[index]);
+        //check if position to pull from is in bounds
+        if(grid.checkCoordinateInBounds(...newPullableBlockPosition) == false){
+            console.log("Pullable block can't be out of bounds");
+            return;
+        }
+        //check if block behind player is pullable
+        if(grid.isBlockPullable(...newPullableBlockPosition) == false){
+            console.log("Block behind player is not pullable");
+            return;
+        }
+        //check if new position of player is passable
+        if(grid.isBlockPassable(...newPosition) == false){
+            console.log("Player attempting to move to impassable location (currently pulling)");
+            return;
+        }
+        const oldPlayerPosition = player.getPosition();
+        //apply change if prerequisites are met
+        grid.swapBlocks(...player.getPosition(), ...newPosition);
+        grid.swapBlocks(...newPullableBlockPosition, ...oldPlayerPosition);
+        console.log("Current target spaces all filled from pullable block: " + grid.verifyTargetSpaces());
+    }
+
+    /*
+    Possible future cases:
+    - Pushing/pulling from elevated levels (if floors can be different heights).
+    - Multiple input state conflicts (e.g. if Shift + Interact is a future mechanic).
+    - Undo history support (you may want to store previous positions of both player and block).
+    - Simultaneous move requests (from holding a key).
+    */
 }
+
+const ORTHOGRAPHIC_CAMERA_HALF_HEIGHT = 5;
 
 const [gameContainer, canvas, scene, camera, renderer] = initApplication();
 scene.background = new THREE.Color("rgb(150, 150, 150)");
@@ -118,54 +166,98 @@ let grid = new GridOfBlocks(...dimensions);
 
 for(let i = 0; i < grid.getCols(); i++){
     for(let j = 0; j < grid.getRows(); j++){
-        grid.addBlockToGrid(BlockType.FLOOR, 1, i+1, j+1);
+        grid.addBlockToGrid(Blocks.BlockType.FLOOR, 1, i+1, j+1);
     }
 }
 grid.addIsometricRotation();
-grid.addOffset(-3, -2, 0);
+grid.addOffset(-3.5, -2, 0);
 
 grid.removeBlock(1, 2, 2);
 grid.removeBlock(1, 5, 5);
 
-grid.addBlockToGrid(BlockType.WALL, 2, 2, 4);
-grid.addBlockToGrid(BlockType.WALL, 2, 2, 5);
-grid.addBlockToGrid(BlockType.WALL, 2, 4, 5);
+grid.addBlockToGrid(Blocks.BlockType.WALL, 2, 2, 4);
+grid.addBlockToGrid(Blocks.BlockType.WALL, 2, 2, 5);
+grid.addBlockToGrid(Blocks.BlockType.WALL, 2, 4, 5);
 
-const playerObject = grid.addBlockToGrid(BlockType.PLAYER, 2, 1, 1);
+const playerObject = grid.addBlockToGrid(Blocks.BlockType.PLAYER, 2, 1, 1);
 
-grid.addBlockToGrid(BlockType.PUSHABLE, 2, 2, 3);
-grid.addBlockToGrid(BlockType.PUSHABLE, 2, 3, 6);
+grid.addBlockToGrid(Blocks.BlockType.PUSHABLE, 2, 2, 3);
+grid.addBlockToGrid(Blocks.BlockType.PUSHABLE, 2, 3, 6);
 
-grid.addBlockToGrid(BlockType.TARGET, 2, 3, 5);
-grid.addBlockToGrid(BlockType.TARGET, 2, 5, 7);
+grid.addBlockToGrid(Blocks.BlockType.PULLABLE, 2, 4, 2);
+grid.addBlockToGrid(Blocks.BlockType.PULLABLE, 2, 5, 1);
+
+grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 3, 5);
+grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 4, 3);
+grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 5, 7);
+grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 6, 3);
 
 grid.attachToItem(scene);
 
-function animate(){
+function updateCameraIfResized(){
     if (resizeRendererToDisplaySize(renderer)) {
         const aspect = window.innerWidth / window.innerHeight;
-        const d = 5;
-        camera.left   = -d * aspect;
-        camera.right  =  d * aspect;
-        camera.top    =  d;
-        camera.bottom = -d;
+        camera.left   = -ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect;
+        camera.right  =  ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect;
+        camera.top    =  ORTHOGRAPHIC_CAMERA_HALF_HEIGHT;
+        camera.bottom = -ORTHOGRAPHIC_CAMERA_HALF_HEIGHT;
         camera.updateProjectionMatrix();
     }
+}
+
+const keyStates = {
+    "w": false, "ArrowUp": false, 
+    "a": false, "ArrowLeft": false, 
+    "s": false, "ArrowDown": false, 
+    "d": false, "ArrowRight": false,
+    "Shift": false, 
+    "e": false
+};
+
+const movementBindings = [
+    { keys: ["w", "ArrowUp"],    action: Blocks.PlayerAction.UP },
+    { keys: ["a", "ArrowLeft"],  action: Blocks.PlayerAction.LEFT },
+    { keys: ["s", "ArrowDown"],  action: Blocks.PlayerAction.DOWN },
+    { keys: ["d", "ArrowRight"], action: Blocks.PlayerAction.RIGHT }
+];
+
+function updatePlayerActions(){
+    //check player interaction for pulling
+    playerObject.toggleActionState(keyStates["Shift"], Blocks.PlayerAction.PULL);
+
+    for(const { keys, action } of movementBindings){
+        const isKeyHeld = keys.some(keyValue => keyStates[keyValue]);
+        //check if key is held down and action is not perfomed yet
+        if(isKeyHeld && !playerObject.getActionState(action)){
+            playerObject.toggleActionState(true, action);
+            movePlayerInGrid(grid, playerObject, action);
+        }
+        //check if key is no longer held down, unlocks movement for future keypresses
+        if(!isKeyHeld){
+            playerObject.toggleActionState(false, action);
+        }
+    }
+}
+
+function animate(){
+    updateCameraIfResized();
+    updatePlayerActions();
     renderer.render(scene, camera);
 }
 renderer.setAnimationLoop(animate);
 
 window.addEventListener('keydown', (event) => {
-    if(event.key == "w" || event.key == "ArrowUp"){
-        moveItemInGrid(grid, playerObject, "U");
+    let key = event.key;
+    if(key.length === 1) key = key.toLowerCase();
+    if(keyStates.hasOwnProperty(key)){
+        keyStates[key] = true;
     }
-    if(event.key == "a" || event.key == "ArrowLeft"){
-        moveItemInGrid(grid, playerObject, "L");
-    }
-    if(event.key == "s" || event.key == "ArrowDown"){
-        moveItemInGrid(grid, playerObject, "D");
-    }
-    if(event.key == "d" || event.key == "ArrowRight"){
-        moveItemInGrid(grid, playerObject, "R");
+})
+
+window.addEventListener('keyup', (event) => {
+    let key = event.key;
+    if(key.length === 1) key = key.toLowerCase();
+    if(keyStates.hasOwnProperty(key)){
+        keyStates[key] = false;
     }
 })
