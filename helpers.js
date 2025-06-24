@@ -19,6 +19,6 @@ export function QRotateDegreesObject3DAxis(item, axis, angle){
 }
 
 export function applyIsometricRotation(item){
-    QRotateDegreesObject3DAxis(item, new THREE.Vector3(0, 1, 0), -45);
-    QRotateDegreesObject3DAxis(item, new THREE.Vector3(1, 0, 0), 45);
+    QRotateDegreesObject3DAxis(item, new THREE.Vector3(0, 1, 0), -25);
+    QRotateDegreesObject3DAxis(item, new THREE.Vector3(1, 0, 0), 50);
 }
