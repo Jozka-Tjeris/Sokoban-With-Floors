@@ -1,8 +1,5 @@
 import * as THREE from 'three';
 import * as Helpers from './helpers';
-import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
-import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
-import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js';
 
 export const BlockType = {
     BLOCK: 'block',
@@ -23,7 +20,17 @@ export const PlayerAction = {
     INTERACT: 5
 }
 
-class Block{
+const BlockRenderOrder = {
+    NONE: 0,
+    FLOOR: 0,
+    WALL: 1,
+    TARGET: 2,
+    TRANSPARENT_BLOCK: 3,
+    BORDER: 4,
+    PLAYER: 5
+}
+
+export class Block{
     type = BlockType.BLOCK;
     walkable = false;
     solid = true;
@@ -38,7 +45,7 @@ class Block{
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam} );
         const cube = new THREE.Mesh(geometry, material);
-        cube.renderOrder = 0;
+        cube.renderOrder = BlockRenderOrder.NONE;
         return cube;
     }
 
@@ -101,7 +108,6 @@ export class Floor extends Block{
         const geometry = new THREE.BoxGeometry(1, 0.5, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam} );
         const cube = new THREE.Mesh(geometry, material);
-        cube.renderOrder = 0;
         return cube;
     }
 
@@ -112,6 +118,7 @@ export class Floor extends Block{
         this._object = this.createMeshObject(color);
         this.moveObject(height, col, row);
         this.addDistanceToObject(0.25, 0, 0);
+        this.getObject().renderOrder = BlockRenderOrder.FLOOR;
     }
 }
 
@@ -128,6 +135,7 @@ export class Wall extends Block{
         if((height + col + row) % 2 == 0) color = 0xff0000;
         this._object = this.createMeshObject(color);
         this.moveObject(height, col, row);
+        this.getObject().renderOrder = BlockRenderOrder.WALL;
     }
 }
 
@@ -144,7 +152,6 @@ export class Player extends Block{
         const geometry = new THREE.SphereGeometry(0.5, 10, 10);
         const material = new THREE.MeshPhongMaterial( {color: colorParam} );
         const sphere = new THREE.Mesh(geometry, material);
-        sphere.renderOrder = 1;
         return sphere;
     }
 
@@ -152,6 +159,7 @@ export class Player extends Block{
         super(height, col, row);
         this._object = this.createMeshObject(0xffff00);
         this.moveObject(height, col, row);
+        this.getObject().renderOrder = BlockRenderOrder.PLAYER;
     }
 
     toggleActionState(state, action){
@@ -174,7 +182,6 @@ export class PushableBlock extends Block{
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.8} );
         const cube = new THREE.Mesh(geometry, material);
-        cube.renderOrder = 0;
         return cube;
     }
 
@@ -182,6 +189,7 @@ export class PushableBlock extends Block{
         super(height, col, row);
         this._object = this.createMeshObject(0x0000ff);
         this.moveObject(height, col, row);
+        this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
 }
 
@@ -196,7 +204,6 @@ export class PullableBlock extends Block{
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.9} );
         const cube = new THREE.Mesh(geometry, material);
-        cube.renderOrder = 0;
         return cube;
     }
 
@@ -204,6 +211,7 @@ export class PullableBlock extends Block{
         super(height, col, row);
         this._object = this.createMeshObject(0xff8800);
         this.moveObject(height, col, row);
+        this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
 }
 
@@ -213,32 +221,41 @@ export class TargetSpace extends Block{
     solid = false;
     pushable = false;
     pullable = false;
-    //+X, -X, +Y, -Y, +Z, -Z
-    #enterable = [false, false, false, false, false, false];
-    _lineMaterial;
+    //Right, Left, Top, Bottom, Front, Back
+    #enterable = [true, true, true, true, true, true];
+    #borders = new Array(6);
 
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const params = {color: colorParam, transparent: true, opacity: 0.9, depthWrite: true};
-        const material = new THREE.MeshPhongMaterial( params );
+        const material = new THREE.MeshPhongMaterial({color: colorParam, transparent: true, opacity: 0.9});
         const cube = new THREE.Mesh(geometry, material);
-        const edges = new THREE.EdgesGeometry( geometry ); 
-        const edgePositions = [];
 
-        const posAttr = edges.attributes.position;
-        for (let i = 0; i < posAttr.count; i++) {
-            console.log(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i))
-            edgePositions.push(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i));
+        const offsetConstant = 0.6;
+        const faceOffsets = [
+            [1, 0, 0],  // +X
+            [-1, 0, 0], // -X
+            [0, 1, 0],  // +Y
+            [0, -1, 0], // -Y
+            [0, 0, 1],  // +Z
+            [0, 0, -1]  // -Z
+        ];
+
+        for(let i = 0; i < 6; i++){
+            const currFace = new THREE.PlaneGeometry(1, 1);
+            const borderMaterial = new THREE.MeshPhongMaterial({color: 0x371300, emissive: 0x371300, depthTest: true});
+            const currBorderMesh = new THREE.Mesh(currFace, borderMaterial);
+            Helpers.addPositionToItem(currBorderMesh, ...(faceOffsets[i].map(value => value * offsetConstant)));
+            //when moving to the left or right, rotate the border by 90 degrees on the y-axis
+            if(faceOffsets[i][0] != 0){
+                Helpers.QRotateDegreesObject3DAxis(currBorderMesh, new THREE.Vector3(0, 1, 0), 90);
+            }
+            //when moving to the top or bottom, rotate the border by -90 degrees on the x-axis
+            if(faceOffsets[i][1] != 0){
+                Helpers.QRotateDegreesObject3DAxis(currBorderMesh, new THREE.Vector3(1, 0, 0), -90);
+            }
+            currBorderMesh.renderOrder = BlockRenderOrder.BORDER;
+            this.#borders[i] = currBorderMesh;
         }
-        const lineGeo = new LineSegmentsGeometry();
-        lineGeo.setPositions(edgePositions);
-
-        this._lineMaterial = new LineMaterial( { color: 0xffffff, worldUnits: false, linewidth: 10, dashed: false} );
-        this._lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
-
-        const line = new LineSegments2(lineGeo, this._lineMaterial);
-        cube.add(line);
-        cube.renderOrder = 1;
         return cube;
     }
 
@@ -246,14 +263,38 @@ export class TargetSpace extends Block{
         super(height, col, row);
         this._object = this.createMeshObject(0x88ffff);
         this.moveObject(height, col, row);
+        this.getObject().renderOrder = BlockRenderOrder.TARGET;
     }
 
-    setEnterableDirection(directions){
-
+    setEnterableDirection(right, left, up, down, front, back){
+        const directions = [right, left, up, down, front, back];
+        directions.forEach((value, index) => {
+            const oldValue = this.#enterable[index];
+            this.#enterable[index] = value;
+            //set direction to be non-enterable
+            if(value == false && oldValue == true){
+                this.getObject().add(this.#borders[index]);
+            }
+            //set direction to be enterable
+            else if(value == true && oldValue == false){
+                this.getObject().remove(this.#borders[index]);
+            }
+        });
     }
 
     canEnterFromDirection(direction){
-        return this.#enterable[direction];
+        switch(direction){
+            case PlayerAction.UP:
+                return this.#enterable[5];
+            case PlayerAction.DOWN:
+                return this.#enterable[4];
+            case PlayerAction.LEFT:
+                return this.#enterable[0];
+            case PlayerAction.RIGHT:
+                return this.#enterable[1];
+        }
+        //for top and bottom directions, handle later with later player actions
+        return false;
     }
 
     setFilled(status, type){
@@ -271,13 +312,5 @@ export class TargetSpace extends Block{
             this.getObject().material.color.setHex(0x88ffff);
             this.getObject().material.opacity = 0.9;
         }
-    }
-
-    resizeLineMaterial(sizeX, sizeY){
-        this._lineMaterial.resolution.set(sizeX, sizeY);
-    }
-
-    getLineMaterial(){
-        return this._lineMaterial;
     }
 }
