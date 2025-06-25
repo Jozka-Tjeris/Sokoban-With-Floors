@@ -34,6 +34,7 @@ function initApplication(){
 
     const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
     renderer.setSize(gameContainer.clientWidth, gameContainer.clientHeight, false);
+    renderer.sortObjects = true;
 
     // window.addEventListener('resize', () => {
     //     console.log('container size:', gameContainer.clientWidth, gameContainer.clientHeight);
@@ -95,7 +96,7 @@ function movePlayerInGrid(grid, player, direction){
                 return;
             }
             //check if the new position is passable
-            if(grid.isBlockPassable(...newPushableBlockPosition) == false){
+            if(grid.isBlockPassable(...newPushableBlockPosition, direction) == false){
                 console.log("Player can't push current pushable block");
                 return;
             }
@@ -108,7 +109,7 @@ function movePlayerInGrid(grid, player, direction){
         }
         else{
             //non-pushable block, check if block is passable instead
-            if(grid.isBlockPassable(...newPosition) == false){
+            if(grid.isBlockPassable(...newPosition, direction) == false){
                 console.log("Player attempting to move to impassable location");
                 return;
             }
@@ -132,7 +133,7 @@ function movePlayerInGrid(grid, player, direction){
             return;
         }
         //check if new position of player is passable
-        if(grid.isBlockPassable(...newPosition) == false){
+        if(grid.isBlockPassable(...newPosition, direction) == false){
             console.log("Player attempting to move to impassable location (currently pulling)");
             return;
         }
