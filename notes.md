@@ -59,3 +59,9 @@ Notes:
 - Updated color scheme to improve contrast between block types
 - Added support for target spaces to handle pullable blocks
 - Refactored main animation loop
+
+25 June:
+- Reassigned mesh object creation to subclasses for finer control
+- Added directional target spaces
+- Refactored rendering order for blocks
+- Updated player movement to handle directional target spaces
