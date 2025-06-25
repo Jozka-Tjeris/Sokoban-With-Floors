@@ -70,7 +70,7 @@ export class GridOfBlocks{
                 const keyPosition = targetBlock.getPosition().toString().replaceAll(',', ':');
                 this.#targetSpaces.set(keyPosition, targetBlock);
                 this.#gridGroup.add(targetBlock.getObject());
-                return;
+                return targetBlock;
         }
         const block = new cttrClass(...dimensionParams);
         this.#gridArray[height - 1][col - 1][row - 1] = block;
@@ -146,12 +146,12 @@ export class GridOfBlocks{
     }
 
     isBlockBelowWalkable(height, col, row){
-        const isNull = this.#gridArray[height - 1][col][GridOfBlocks.getRowInGrid(row)] == null;
-        if(isNull == true){
-            console.log("Block below is null");
+        const blockToCheck = this.#gridArray[height - 1][col][GridOfBlocks.getRowInGrid(row)];
+        const isBlock = blockToCheck instanceof Blocks.Block;
+        if(isBlock == false){
             return false;
         }
-        const isWalkable = this.#gridArray[height - 1][col][GridOfBlocks.getRowInGrid(row)].isWalkable();
+        const isWalkable = blockToCheck.isWalkable();
         if(isWalkable == false){
             console.log("Block below not walkable");
             return false;
@@ -159,27 +159,47 @@ export class GridOfBlocks{
         return true;
     }
 
-    isBlockPassable(height, col, row){
-        const isNull = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)] == null;
-        if(isNull == true){
-            console.log("Block in front is null");
+    isBlockPassable(height, col, row, direction){
+        const blockToCheck = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)] ?? null;
+        const targetToCheck = this.#targetSpaces.get(height + ":" + col + ":" + row) ?? null;
+        const isBlock = blockToCheck instanceof Blocks.Block;
+        const isTargetBlock = targetToCheck instanceof Blocks.Block;
+
+        if(isBlock == false && isTargetBlock == false){
             return true;
         }
-        const isSolid = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)].isSolid();
-        if(isSolid == true){
-            console.log("There is a block blocking the way");
-            return false;
+        if(isBlock == true){
+            const isSolid = blockToCheck.isSolid();
+            if(isSolid == true){
+                console.log("There is a block blocking the way");
+                return false;
+            }
+            if(isTargetBlock == false){
+                //not a target space that requires direction checking
+                return true;
+            }
         }
-        return true;
+        if(isTargetBlock == true){
+            //check possible entrances
+            const isEnterable = targetToCheck.canEnterFromDirection(direction);
+            if(isEnterable == false){
+                console.log("Target space not allowed to be entered from direction: " + direction);
+                return false;
+            }
+            console.log("Can enter target space from direction: " + direction);
+            return true;
+        }
+        console.log("Error: Undefined case for passability");
+        return false;
     }
 
     isBlockPushable(height, col, row){
-        const isNull = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)] == null;
-        if(isNull == true){
-            console.log("Block in front is null");
+        const blockToCheck = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)];
+        const isBlock = blockToCheck instanceof Blocks.Block;
+        if(isBlock == false){
             return false;
         }
-        const isPushable = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)].isPushable();
+        const isPushable = blockToCheck.isPushable();
         if(isPushable == false){
             console.log("Block in front is not pushable");
             return false;
@@ -188,12 +208,12 @@ export class GridOfBlocks{
     }
 
     isBlockPullable(height, col, row){
-        const isNull = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)] == null;
-        if(isNull == true){
-            console.log("Block behind is null");
+        const blockToCheck = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)];
+        const isBlock = blockToCheck instanceof Blocks.Block;
+        if(isBlock == false){
             return false;
         }
-        const isPushable = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)].isPullable();
+        const isPushable = blockToCheck.isPullable();
         if(isPushable == false){
             console.log("Block behind is not pullable");
             return false;
