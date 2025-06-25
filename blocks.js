@@ -24,8 +24,8 @@ const BlockRenderOrder = {
     NONE: 0,
     FLOOR: 0,
     WALL: 1,
-    TARGET: 2,
-    TRANSPARENT_BLOCK: 3,
+    TRANSPARENT_BLOCK: 2,
+    TARGET: 3,
     BORDER: 4,
     PLAYER: 5
 }
