@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import * as Helpers from './helpers';
+import { LineSegments2 } from 'three/addons/lines/LineSegments2.js';
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js';
+import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js';
 
 export const BlockType = {
     BLOCK: 'block',
@@ -9,15 +12,6 @@ export const BlockType = {
     WALL: 'wall',
     FLOOR: 'floor',
     TARGET: 'target'
-};
-
-export const Direction = {
-    POS_X: 0,
-    NEG_X: 1,
-    POS_Y: 2,
-    NEG_Y: 3,
-    POS_Z: 4,
-    NEG_Z: 5
 };
 
 export const PlayerAction = {
@@ -35,14 +29,10 @@ class Block{
     solid = true;
     pushable = false;
     pullable = false;
-    #object;
+    _object;
     #height;
     #col;
     #row;
-
-    generateColor(argument){
-        return 0x202020;
-    }
 
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -56,14 +46,14 @@ class Block{
         this.#height += addHeight;
         this.#col += addCol;
         this.#row += addRow;
-        Helpers.addPositionToItem(this.#object, addCol, addHeight, addRow);
+        Helpers.addPositionToItem(this._object, addCol, addHeight, addRow);
     }
 
     moveObject(newHeight, newCol, newRow){
         this.#height = newHeight;
         this.#col = newCol;
         this.#row = newRow;
-        Helpers.setPositionToItem(this.#object, newCol, newHeight, newRow);
+        Helpers.setPositionToItem(this._object, newCol, newHeight, newRow);
     }
 
     constructor(height, col, row){
@@ -73,8 +63,6 @@ class Block{
         this.#height = height;
         this.#col = col;
         this.#row = row;
-        this.#object = this.createMeshObject(this.generateColor(height + col + row));
-        this.moveObject(height, col, row);
     }
 
     getPosition(){
@@ -82,7 +70,7 @@ class Block{
     }
 
     getObject(){
-        return this.#object;
+        return this._object;
     }
 
     isWalkable(){
@@ -109,12 +97,6 @@ export class Floor extends Block{
     pushable = false;
     pullable = false;
 
-    generateColor(argument){
-        let color = 0xbcbcbc;
-        if(argument % 2 == 0) color = 0x444444;
-        return color;
-    }
-
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 0.5, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam} );
@@ -125,6 +107,10 @@ export class Floor extends Block{
 
     constructor(height, col, row){
         super(height, col, row);
+        let color = 0xbcbcbc;
+        if((height + col + row) % 2 == 0) color = 0x444444;
+        this._object = this.createMeshObject(color);
+        this.moveObject(height, col, row);
         this.addDistanceToObject(0.25, 0, 0);
     }
 }
@@ -136,10 +122,12 @@ export class Wall extends Block{
     pushable = false;
     pullable = false;
 
-    generateColor(argument){
+    constructor(height, col, row){
+        super(height, col, row);
         let color = 0x00ff00;
-        if(argument % 2 == 0) color = 0xff0000;
-        return color;
+        if((height + col + row) % 2 == 0) color = 0xff0000;
+        this._object = this.createMeshObject(color);
+        this.moveObject(height, col, row);
     }
 }
 
@@ -152,16 +140,18 @@ export class Player extends Block{
     //up, down, left, right, pull, interact
     #currentStates = [false, false, false, false, false, false];
 
-    generateColor(argument){
-        return 0xffff00;
-    }
-
     createMeshObject(colorParam){
         const geometry = new THREE.SphereGeometry(0.5, 10, 10);
         const material = new THREE.MeshPhongMaterial( {color: colorParam} );
         const sphere = new THREE.Mesh(geometry, material);
         sphere.renderOrder = 1;
         return sphere;
+    }
+
+    constructor(height, col, row){
+        super(height, col, row);
+        this._object = this.createMeshObject(0xffff00);
+        this.moveObject(height, col, row);
     }
 
     toggleActionState(state, action){
@@ -180,16 +170,18 @@ export class PushableBlock extends Block{
     pushable = true;
     pullable = false;
 
-    generateColor(argument){
-        return 0x0000ff;
-    }
-
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.8} );
         const cube = new THREE.Mesh(geometry, material);
         cube.renderOrder = 0;
         return cube;
+    }
+
+    constructor(height, col, row){
+        super(height, col, row);
+        this._object = this.createMeshObject(0x0000ff);
+        this.moveObject(height, col, row);
     }
 }
 
@@ -200,16 +192,18 @@ export class PullableBlock extends Block{
     pushable = false;
     pullable = true;
 
-    generateColor(argument){
-        return 0xff8800;
-    }
-
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.9} );
         const cube = new THREE.Mesh(geometry, material);
         cube.renderOrder = 0;
         return cube;
+    }
+
+    constructor(height, col, row){
+        super(height, col, row);
+        this._object = this.createMeshObject(0xff8800);
+        this.moveObject(height, col, row);
     }
 }
 
@@ -220,19 +214,42 @@ export class TargetSpace extends Block{
     pushable = false;
     pullable = false;
     //+X, -X, +Y, -Y, +Z, -Z
-    #enterable = [true, true, true, true, true, true];
-    #filled = false;
-
-    generateColor(argument){
-        return 0x88ffff;
-    }
+    #enterable = [false, false, false, false, false, false];
+    _lineMaterial;
 
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.9} );
+        const params = {color: colorParam, transparent: true, opacity: 0.9, depthWrite: true};
+        const material = new THREE.MeshPhongMaterial( params );
         const cube = new THREE.Mesh(geometry, material);
+        const edges = new THREE.EdgesGeometry( geometry ); 
+        const edgePositions = [];
+
+        const posAttr = edges.attributes.position;
+        for (let i = 0; i < posAttr.count; i++) {
+            console.log(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i))
+            edgePositions.push(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i));
+        }
+        const lineGeo = new LineSegmentsGeometry();
+        lineGeo.setPositions(edgePositions);
+
+        this._lineMaterial = new LineMaterial( { color: 0xffffff, worldUnits: false, linewidth: 10, dashed: false} );
+        this._lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
+
+        const line = new LineSegments2(lineGeo, this._lineMaterial);
+        cube.add(line);
         cube.renderOrder = 1;
         return cube;
+    }
+
+    constructor(height, col, row){
+        super(height, col, row);
+        this._object = this.createMeshObject(0x88ffff);
+        this.moveObject(height, col, row);
+    }
+
+    setEnterableDirection(directions){
+
     }
 
     canEnterFromDirection(direction){
@@ -240,7 +257,6 @@ export class TargetSpace extends Block{
     }
 
     setFilled(status, type){
-        this.#filled = status;
         if(status == true){
             if(type === BlockType.PUSHABLE){
                 this.getObject().material.color.setHex(0xff88ff);
@@ -252,12 +268,16 @@ export class TargetSpace extends Block{
             }
         }
         else{
-            this.getObject().material.color.setHex(this.generateColor(null));
+            this.getObject().material.color.setHex(0x88ffff);
             this.getObject().material.opacity = 0.9;
         }
     }
 
-    checkIfFilled(){
-        return this.#filled;
+    resizeLineMaterial(sizeX, sizeY){
+        this._lineMaterial.resolution.set(sizeX, sizeY);
+    }
+
+    getLineMaterial(){
+        return this._lineMaterial;
     }
 }
