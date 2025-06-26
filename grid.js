@@ -83,6 +83,10 @@ export class GridOfBlocks{
     }
 
     removeBlock(height, col, row){
+        if(this.checkCoordinateInBounds(height - 1, col - 1, GridOfBlocks.getRowInGrid(row)) == false){
+            console.log("Out of bounds removal");
+            return;
+        }
         this.#gridGroup.remove(this.#gridArray[height - 1][col - 1][row - 1].getObject());
         this.#gridArray[height - 1][col - 1][row - 1] = null;
     }
@@ -124,8 +128,13 @@ export class GridOfBlocks{
         this.#gridGroup.add(item);
     }
 
+    setCenter(){
+        this.#gridGroup.position.set(-this.#cols/2-0.5, -this.#height/2-0.5, -this.#rows/2-0.5);
+    }
+
     addIsometricRotation(){
-        Helpers.applyIsometricRotation(this.#gridGroup);
+        Helpers.QRotateDegreesObject3DAxis(this.#gridGroup, new THREE.Vector3(0, 1, 0), -25);
+        Helpers.QRotateDegreesObject3DAxis(this.#gridGroup, new THREE.Vector3(1, 0, 0), 50);
     }
 
     checkCoordinateInBounds(height, col, row){
@@ -169,7 +178,10 @@ export class GridOfBlocks{
             return true;
         }
         if(isBlock == true){
-            const isSolid = blockToCheck.isSolid();
+            //the player check makes sure that it doesn't treat the player as an impassable block
+            //the player will be moving away from their current position after a movement update
+            //so it's acceptable to ignore the player position
+            const isSolid = blockToCheck.isSolid() && (blockToCheck instanceof Blocks.Player == false);
             if(isSolid == true){
                 console.log("There is a block blocking the way");
                 return false;
