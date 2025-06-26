@@ -149,16 +149,21 @@ export class Player extends Block{
     #currentStates = [false, false, false, false, false, false];
 
     createMeshObject(colorParam){
-        const geometry = new THREE.SphereGeometry(0.5, 10, 10);
+        const geometry = new THREE.SphereGeometry(0.25, 10, 10);
         const material = new THREE.MeshPhongMaterial( {color: colorParam} );
         const sphere = new THREE.Mesh(geometry, material);
-        return sphere;
+        Helpers.addPositionToItem(sphere, 0, 0.55, 0);
+        const baseGeometry = new THREE.CylinderGeometry(0.2, 0.25, 0.45, 10, 1, false);
+        const cylinder = new THREE.Mesh(baseGeometry, material);
+        cylinder.add(sphere);
+        return cylinder;
     }
 
     constructor(height, col, row){
         super(height, col, row);
         this._object = this.createMeshObject(0xffff00);
         this.moveObject(height, col, row);
+        Helpers.addPositionToItem(this._object, 0, -0.3, 0);
         this.getObject().renderOrder = BlockRenderOrder.PLAYER;
     }
 
@@ -180,7 +185,7 @@ export class PushableBlock extends Block{
 
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.8} );
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.7} );
         const cube = new THREE.Mesh(geometry, material);
         return cube;
     }
@@ -202,14 +207,14 @@ export class PullableBlock extends Block{
 
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.9} );
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.8} );
         const cube = new THREE.Mesh(geometry, material);
         return cube;
     }
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(0xff8800);
+        this._object = this.createMeshObject(0xff9911);
         this.moveObject(height, col, row);
         this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
@@ -227,7 +232,7 @@ export class TargetSpace extends Block{
 
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial({color: colorParam, transparent: true, opacity: 0.9});
+        const material = new THREE.MeshPhongMaterial({color: colorParam, transparent: true, opacity: 0.8});
         const cube = new THREE.Mesh(geometry, material);
 
         const offsetConstant = 0.6;
@@ -242,7 +247,7 @@ export class TargetSpace extends Block{
 
         for(let i = 0; i < 6; i++){
             const currFace = new THREE.PlaneGeometry(1, 1);
-            const borderMaterial = new THREE.MeshPhongMaterial({color: 0x371300, emissive: 0x371300, depthTest: true});
+            const borderMaterial = new THREE.MeshPhongMaterial({color: 0x371300, emissive: 0x371300});
             const currBorderMesh = new THREE.Mesh(currFace, borderMaterial);
             Helpers.addPositionToItem(currBorderMesh, ...(faceOffsets[i].map(value => value * offsetConstant)));
             //when moving to the left or right, rotate the border by 90 degrees on the y-axis
@@ -261,7 +266,7 @@ export class TargetSpace extends Block{
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(0x88ffff);
+        this._object = this.createMeshObject(0xa8ffff);
         this.moveObject(height, col, row);
         this.getObject().renderOrder = BlockRenderOrder.TARGET;
     }
@@ -284,14 +289,14 @@ export class TargetSpace extends Block{
 
     canEnterFromDirection(direction){
         switch(direction){
-            case PlayerAction.UP:
-                return this.#enterable[5];
-            case PlayerAction.DOWN:
-                return this.#enterable[4];
             case PlayerAction.LEFT:
                 return this.#enterable[0];
             case PlayerAction.RIGHT:
                 return this.#enterable[1];
+            case PlayerAction.UP:
+                return this.#enterable[4];
+            case PlayerAction.DOWN:
+                return this.#enterable[5];
         }
         //for top and bottom directions, handle later with later player actions
         return false;
@@ -310,7 +315,7 @@ export class TargetSpace extends Block{
         }
         else{
             this.getObject().material.color.setHex(0x88ffff);
-            this.getObject().material.opacity = 0.9;
+            this.getObject().material.opacity = 0.8;
         }
     }
 }
