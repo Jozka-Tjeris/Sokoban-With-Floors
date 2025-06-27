@@ -56,13 +56,17 @@ function movePlayerInGrid(grid, player, direction){
     const directionVectors = {
         [Blocks.PlayerAction.LEFT]: [0, -1, 0],
         [Blocks.PlayerAction.RIGHT]: [0, 1, 0],
-        [Blocks.PlayerAction.UP]: [0, 0, -1],
-        [Blocks.PlayerAction.DOWN]: [0, 0, 1],
+        [Blocks.PlayerAction.UP]: [0, 0, 1],
+        [Blocks.PlayerAction.DOWN]: [0, 0, -1],
     };
 
     //grabs new position difference based on the direction specified
     const positionDiffs = directionVectors[direction] ?? [NaN, NaN, NaN];
     const newPosition = player.getPosition().map((value, index) => value + positionDiffs[index]);
+    //gets the predicted pushable block's new position (assumed to go in the same direction)
+    const newPushableBlockPosition = player.getPosition().map((value, index) => value + 2*positionDiffs[index]);
+    //gets the predicted pullable block's current position (assumed to go in the opposite direction)
+    const newPullableBlockPosition = player.getPosition().map((value, index) => value - positionDiffs[index]);
 
     if(newPosition.some(element => isNaN(element)) || 
         positionDiffs.some(element => isNaN(element)) || 
@@ -88,8 +92,6 @@ function movePlayerInGrid(grid, player, direction){
         && player.getActionState(Blocks.PlayerAction.INTERACT) == false){
         //check if a pushable block is in front of the player
         if(grid.isBlockPushable(...newPosition)){
-            //gets the predicted pushable block's new position (assumed to go in the same direction)
-            const newPushableBlockPosition = newPosition.map((value, index) => value + positionDiffs[index]);
             //check if pushable block will stay in bounds
             if(grid.checkCoordinateInBounds(...newPushableBlockPosition) == false){
                 console.log("Pushable block can't go out of bounds");
@@ -120,8 +122,6 @@ function movePlayerInGrid(grid, player, direction){
     //checks if the player is pulling and not interacting
     else if(player.getActionState(Blocks.PlayerAction.PULL) == true
         && player.getActionState(Blocks.PlayerAction.INTERACT) == false){
-        //gets the predicted pullable block's current position (assumed to go in the opposite direction)
-        const newPullableBlockPosition = player.getPosition().map((value, index) => value + -1*positionDiffs[index]);
         //check if position to pull from is in bounds
         if(grid.checkCoordinateInBounds(...newPullableBlockPosition) == false){
             console.log("Pullable block can't be out of bounds");
