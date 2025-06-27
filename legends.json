@@ -1,0 +1,8 @@
+{
+    "A": "Pushable block",
+    "B": "Pullable block",
+    "P": "Player",
+    "T": "Target",
+    "W": "Wall",
+    ".": "Floor"
+}
