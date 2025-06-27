@@ -95,6 +95,23 @@ export class Block{
     isPullable(){
         return this.pullable;
     }
+
+    freeBlockMemory(){
+        if(this._object){
+            this._object.traverse((child) => {
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach((mat) => mat.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            });
+            this._object.clear();
+            this._object = null;
+        }
+    }
 }
 
 export class Floor extends Block{
@@ -317,5 +334,25 @@ export class TargetSpace extends Block{
             this.getObject().material.color.setHex(0x88ffff);
             this.getObject().material.opacity = 0.8;
         }
+    }
+
+    freeBlockMemory(){
+        super.freeBlockMemory();
+
+        for (const border of this.#borders) {
+            if (!border) continue;
+            border.traverse((child) => {
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach((mat) => mat.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            });
+            border.clear();
+        }
+        this.#borders = [];
     }
 }
