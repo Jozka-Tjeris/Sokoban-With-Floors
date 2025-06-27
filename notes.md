@@ -73,3 +73,4 @@ Notes:
 27 June:
 - Integrated backend server into application
 - Added clean-up procedure for objects in grid
+- Simplified z-value handling in grid
