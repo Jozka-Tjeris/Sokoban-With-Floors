@@ -15,7 +15,7 @@ export class GridOfBlocks{
     #rows;
 
     constructor(height, col, row){
-        this.#gridGroup = new THREE.Object3D();
+        this.#gridGroup = new THREE.Group();
         this.#targetSpaces = new Map();
         this.#height = height;
         this.#cols = col;
@@ -27,6 +27,27 @@ export class GridOfBlocks{
                 this.#gridArray[k][i] = new Array(row).fill(null);
             }
         }
+    }
+
+    prepareForNewLevel(height, col, row){
+        this.clearAll();
+        this.resetGrid(height, col, row);
+    }
+
+    resetGrid(height, col, row){
+        this.#height = height;
+        this.#cols = col;
+        this.#rows = row;
+        this.#gridArray = new Array(height);
+        for(let k = 0; k < this.#height; k++){
+            this.#gridArray[k] = new Array(col);
+            for(let i = 0; i < this.#cols; i++){
+                this.#gridArray[k][i] = new Array(row).fill(null);
+            }
+        }
+
+        this.#targetSpaces = new Map();
+        this.#gridGroup = new THREE.Group();
     }
 
     static getRowInGrid(row){
@@ -87,7 +108,13 @@ export class GridOfBlocks{
             console.log("Out of bounds removal");
             return;
         }
-        this.#gridGroup.remove(this.#gridArray[height - 1][col - 1][row - 1].getObject());
+        if(this.#gridArray[height - 1][col - 1][row - 1] == null){
+            console.log("Block is already removed");
+            return;
+        }
+        this.#gridArray[height - 1][col - 1][row - 1].freeBlockMemory();
+        const object = this.#gridArray[height - 1][col - 1][row - 1].getObject?.();
+        if(object) this.#gridGroup.remove(object);
         this.#gridArray[height - 1][col - 1][row - 1] = null;
     }
 
@@ -265,5 +292,33 @@ export class GridOfBlocks{
 
     getHeight(){
         return this.#height;
+    }
+
+    clearAll(){
+        // First, clear all grid-registered blocks
+        for (let h = 0; h < this.#height; h++) {
+            for (let x = 0; x < this.#cols; x++) {
+                for (let z = 0; z < this.#rows; z++) {
+                    const block = this.#gridArray[h][x][z];
+                    if (block) {
+                        block.freeBlockMemory();
+                        const obj = block.getObject?.();
+                        if (obj) this.#gridGroup.remove(obj);
+                    }
+                    this.#gridArray[h][x][z] = null;
+                }
+            }
+        }
+
+        this.#targetSpaces.forEach((block) => {
+            block.freeBlockMemory();
+            const obj = block.getObject?.();
+            if (obj) this.#targetSpaces.remove(obj);
+        });
+        this.#targetSpaces.clear();
+
+        this.#gridGroup.clear();
+        this.#gridGroup = null;
+        this.#gridArray = [];
     }
 }
