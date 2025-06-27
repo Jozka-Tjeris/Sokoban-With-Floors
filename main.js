@@ -132,6 +132,11 @@ function movePlayerInGrid(grid, player, direction){
             console.log("Block behind player is not pullable");
             return;
         }
+        //check if block being pulled ends up in a passable position (specific to directional targets)
+        if(grid.isBlockPassable(...player.getPosition(), direction) == false){
+            console.log("Player attempting to pull block into invalid direction");
+            return;
+        }
         //check if new position of player is passable
         if(grid.isBlockPassable(...newPosition, direction) == false){
             console.log("Player attempting to move to impassable location (currently pulling)");
@@ -170,8 +175,9 @@ for(let i = 0; i < grid.getCols(); i++){
         grid.addBlockToGrid(Blocks.BlockType.FLOOR, 1, i+1, j+1);
     }
 }
+
+grid.setCenter();
 grid.addIsometricRotation();
-grid.addOffset(-3.5, -2, 0);
 
 grid.removeBlock(1, 2, 2);
 grid.removeBlock(1, 5, 5);
@@ -188,11 +194,15 @@ grid.addBlockToGrid(Blocks.BlockType.PUSHABLE, 2, 3, 6);
 grid.addBlockToGrid(Blocks.BlockType.PULLABLE, 2, 4, 2);
 grid.addBlockToGrid(Blocks.BlockType.PULLABLE, 2, 5, 1);
 
-grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 3, 5);
-grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 4, 3);
+const target1 = grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 3, 5);
+target1.setEnterableDirection(true, true, true, true, true, false);
+const target2 = grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 4, 3);
+target2.setEnterableDirection(true, true, true, true, false, true);
+
 grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 5, 7);
 grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 6, 3);
-
+const directionalTarget = grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 1, 7);
+directionalTarget.setEnterableDirection(false, true, true, true, true, true);
 grid.attachToItem(scene);
 
 function updateCameraIfResized(){
@@ -247,6 +257,10 @@ function animate(){
 }
 renderer.setAnimationLoop(animate);
 
+function generateLevelFromJSON(levelData){
+    // grid.prepareForNewLevel(2, 6, 8);
+}
+
 window.addEventListener('keydown', (event) => {
     let key = event.key;
     if(key.length === 1) key = key.toLowerCase();
@@ -262,3 +276,23 @@ window.addEventListener('keyup', (event) => {
         keyStates[key] = false;
     }
 })
+
+async function loadLevel(levelName) {
+    let levelData = null;
+    try{
+        const response = await fetch(`/api/levels/${levelName}`);
+        if(!response.ok) throw new Error('Level not found');
+        levelData = await response.json();
+    } catch (err) {
+        console.error(err.message);
+    }
+    if(levelData){
+        console.log("Loaded Level:", levelData);
+        //Level loading starts here
+        generateLevelFromJSON(levelData);
+    }
+}
+
+document.getElementById("loadLevel-btn").addEventListener("click", () => {
+    loadLevel('level1');
+});
