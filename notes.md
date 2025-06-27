@@ -65,3 +65,11 @@ Notes:
 - Added directional target spaces
 - Refactored rendering order for blocks
 - Updated player movement to handle directional target spaces
+
+26 June:
+- Refactored grid creation process (centering & rotation)
+- Refined logic for handling pullable blocks
+
+27 June:
+- Integrated backend server into application
+- Added clean-up procedure for objects in grid
