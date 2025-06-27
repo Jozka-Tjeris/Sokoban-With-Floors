@@ -53,14 +53,7 @@ export class Block{
         this.#height += addHeight;
         this.#col += addCol;
         this.#row += addRow;
-        Helpers.addPositionToItem(this._object, addCol, addHeight, addRow);
-    }
-
-    moveObject(newHeight, newCol, newRow){
-        this.#height = newHeight;
-        this.#col = newCol;
-        this.#row = newRow;
-        Helpers.setPositionToItem(this._object, newCol, newHeight, newRow);
+        Helpers.addPositionToItem(this._object, addCol, addHeight, -1*addRow);
     }
 
     constructor(height, col, row){
@@ -133,7 +126,7 @@ export class Floor extends Block{
         let color = 0xbcbcbc;
         if((height + col + row) % 2 == 0) color = 0x444444;
         this._object = this.createMeshObject(color);
-        this.moveObject(height, col, row);
+        Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.addDistanceToObject(0.25, 0, 0);
         this.getObject().renderOrder = BlockRenderOrder.FLOOR;
     }
@@ -151,7 +144,7 @@ export class Wall extends Block{
         let color = 0x00ff00;
         if((height + col + row) % 2 == 0) color = 0xff0000;
         this._object = this.createMeshObject(color);
-        this.moveObject(height, col, row);
+         Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.WALL;
     }
 }
@@ -179,7 +172,7 @@ export class Player extends Block{
     constructor(height, col, row){
         super(height, col, row);
         this._object = this.createMeshObject(0xffff00);
-        this.moveObject(height, col, row);
+         Helpers.setPositionToItem(this._object, col, height, -1*row);
         Helpers.addPositionToItem(this._object, 0, -0.3, 0);
         this.getObject().renderOrder = BlockRenderOrder.PLAYER;
     }
@@ -210,7 +203,7 @@ export class PushableBlock extends Block{
     constructor(height, col, row){
         super(height, col, row);
         this._object = this.createMeshObject(0x0000ff);
-        this.moveObject(height, col, row);
+         Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
 }
@@ -232,7 +225,7 @@ export class PullableBlock extends Block{
     constructor(height, col, row){
         super(height, col, row);
         this._object = this.createMeshObject(0xff9911);
-        this.moveObject(height, col, row);
+         Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
 }
@@ -284,7 +277,7 @@ export class TargetSpace extends Block{
     constructor(height, col, row){
         super(height, col, row);
         this._object = this.createMeshObject(0xa8ffff);
-        this.moveObject(height, col, row);
+         Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.TARGET;
     }
 

@@ -50,12 +50,9 @@ export class GridOfBlocks{
         this.#gridGroup = new THREE.Group();
     }
 
-    static getRowInGrid(row){
-        return row*-1;
-    }
-
     addBlockToGrid(blockType, height, col, row){
-        const dimensionParams = [height - 1, col - 1, GridOfBlocks.getRowInGrid(row - 1)];
+        //Assumes grid coordinates are already being used
+        const dimensionParams = [height - 1, col - 1, row - 1];
         if(this.checkCoordinateInBounds(...dimensionParams) == false){
             console.log("Block generation failed");
             return;
@@ -88,7 +85,7 @@ export class GridOfBlocks{
                 break;
             case Blocks.BlockType.TARGET:
                 const targetBlock = new Blocks.TargetSpace(...dimensionParams);
-                const keyPosition = targetBlock.getPosition().toString().replaceAll(',', ':');
+                const keyPosition = dimensionParams.toString().replaceAll(',', ':');
                 this.#targetSpaces.set(keyPosition, targetBlock);
                 this.#gridGroup.add(targetBlock.getObject());
                 return targetBlock;
@@ -104,7 +101,8 @@ export class GridOfBlocks{
     }
 
     removeBlock(height, col, row){
-        if(this.checkCoordinateInBounds(height - 1, col - 1, GridOfBlocks.getRowInGrid(row)) == false){
+        //Assumes already in grid coordinates
+        if(this.checkCoordinateInBounds(height - 1, col - 1, row - 1) == false){
             console.log("Out of bounds removal");
             return;
         }
@@ -112,14 +110,16 @@ export class GridOfBlocks{
             console.log("Block is already removed");
             return;
         }
-        this.#gridArray[height - 1][col - 1][row - 1].freeBlockMemory();
         const object = this.#gridArray[height - 1][col - 1][row - 1].getObject?.();
-        if(object) this.#gridGroup.remove(object);
+        if(object){
+            this.#gridGroup.remove(object);
+            this.#gridArray[height - 1][col - 1][row - 1].freeBlockMemory();
+        }
         this.#gridArray[height - 1][col - 1][row - 1] = null;
     }
 
     swapBlocks(height1, col1, row1, height2, col2, row2){
-        //check raw coordinates
+        //check grid coordinates
         if(this.checkCoordinateInBounds(height1, col1, row1) == false){
             console.log("First set of coordinates are invalid");
             return;
@@ -128,17 +128,14 @@ export class GridOfBlocks{
             console.log("Second set of coordinates are invalid");
             return;
         }
-        //get index in gridArray
-        const rowInGrid1 = GridOfBlocks.getRowInGrid(row1);
-        const rowInGrid2 = GridOfBlocks.getRowInGrid(row2);
 
         //swaps blocks around
-        let block1 = this.#gridArray[height1][col1][rowInGrid1];
-        let block2 = this.#gridArray[height2][col2][rowInGrid2];
-        this.#gridArray[height1][col1][rowInGrid1] = block2;
-        this.#gridArray[height2][col2][rowInGrid2] = block1;
+        let block1 = this.#gridArray[height1][col1][row1];
+        let block2 = this.#gridArray[height2][col2][row2];
+        this.#gridArray[height1][col1][row1] = block2;
+        this.#gridArray[height2][col2][row2] = block1;
 
-        //use true coordinate system
+        //use coordinate system to move blocks around
         if(block1 != null){
             block1.addDistanceToObject(height2 - height1, col2 - col1, row2 - row1);
         }
@@ -165,6 +162,7 @@ export class GridOfBlocks{
     }
 
     checkCoordinateInBounds(height, col, row){
+        //Assumes that coordinates follow grid coordinates
         if(height < 0 || height >= this.#height){
             console.log("Out of bounds; target height: " + (height + 1) + ", max height: " + this.#height);
             return false;
@@ -173,16 +171,15 @@ export class GridOfBlocks{
             console.log("Out of bounds; column: " + (col + 1) + ", max cols: " + this.#cols);
             return false;
         }
-        const currRow = GridOfBlocks.getRowInGrid(row);
-        if(currRow < 0 || currRow >= this.#rows){
-            console.log("Out of bounds; row: " + (currRow + 1) + ", max rows: " + this.#rows);
+        if(row < 0 || row >= this.#rows){
+            console.log("Out of bounds; row: " + (row + 1) + ", max rows: " + this.#rows);
             return false;
         }
         return true;
     }
 
     isBlockBelowWalkable(height, col, row){
-        const blockToCheck = this.#gridArray[height - 1][col][GridOfBlocks.getRowInGrid(row)];
+        const blockToCheck = this.#gridArray[height - 1][col][row];
         const isBlock = blockToCheck instanceof Blocks.Block;
         if(isBlock == false){
             return false;
@@ -196,7 +193,7 @@ export class GridOfBlocks{
     }
 
     isBlockPassable(height, col, row, direction){
-        const blockToCheck = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)] ?? null;
+        const blockToCheck = this.#gridArray[height][col][row] ?? null;
         const targetToCheck = this.#targetSpaces.get(height + ":" + col + ":" + row) ?? null;
         const isBlock = blockToCheck instanceof Blocks.Block;
         const isTargetBlock = targetToCheck instanceof Blocks.Block;
@@ -233,7 +230,7 @@ export class GridOfBlocks{
     }
 
     isBlockPushable(height, col, row){
-        const blockToCheck = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)];
+        const blockToCheck = this.#gridArray[height][col][row];
         const isBlock = blockToCheck instanceof Blocks.Block;
         if(isBlock == false){
             return false;
@@ -247,7 +244,7 @@ export class GridOfBlocks{
     }
 
     isBlockPullable(height, col, row){
-        const blockToCheck = this.#gridArray[height][col][GridOfBlocks.getRowInGrid(row)];
+        const blockToCheck = this.#gridArray[height][col][row];
         const isBlock = blockToCheck instanceof Blocks.Block;
         if(isBlock == false){
             return false;
@@ -265,7 +262,7 @@ export class GridOfBlocks{
         //checks if every target space is filled
         this.#targetSpaces.forEach((value, key) => {
             const position = value.getPosition();
-            const currentBlock = this.#gridArray[position[0]][position[1]][GridOfBlocks.getRowInGrid(position[2])];
+            const currentBlock = this.#gridArray[position[0]][position[1]][position[2]];
             const containsPushable = currentBlock instanceof Blocks.PushableBlock;
             const containsPullable = currentBlock instanceof Blocks.PullableBlock;
             state &&= containsPushable || containsPullable;
@@ -313,7 +310,6 @@ export class GridOfBlocks{
         this.#targetSpaces.forEach((block) => {
             block.freeBlockMemory();
             const obj = block.getObject?.();
-            if (obj) this.#targetSpaces.remove(obj);
         });
         this.#targetSpaces.clear();
 
