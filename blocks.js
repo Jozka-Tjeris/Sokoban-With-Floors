@@ -349,4 +349,12 @@ export class TargetSpace extends Block{
         }
         this.#borders = [];
     }
+
+    getDirectionsAsJSONString(){
+        const directionString = new Array(6);
+        this.#enterable.forEach((value, index) => {
+            directionString[index] = value ? "1" : "0";
+        });
+        return directionString;
+    }
 }
