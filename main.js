@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { GridOfBlocks } from './grid';
 import * as Blocks from './blocks';
+import stringify from 'json-stringify-pretty-compact';
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -250,7 +251,7 @@ function generateLevelFromJSON(levelData){
         for(let j = rows - 1; j >= 0; j--){
             for(let k = 0; k < columns; k++){
                 const gridRow = rows - j;
-                const blockType = legends[currLayerLayout[j][k]];
+                const blockType = legends.codeToType[currLayerLayout[j][k]];
                 if(!blockType){
                     console.warn(`Unrecognized symbol '${blockType}' at [${i}, ${k}, ${j}]. Skipping.`);
                     continue;
@@ -278,11 +279,62 @@ function generateLevelFromJSON(levelData){
     grid.attachToItem(scene);
 }
 
+function saveLevelFile(data, filename = "exported_level.json") {
+    const blob = new Blob([stringify(data, { maxLength: 60 })], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(link.href);
+}
+
+async function sendLevelData(levelData){
+    try {
+        const response = await fetch('/api/save-level', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(levelData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('Level saved:', result);
+    } catch (err) {
+        console.error('Error saving level data:', err);
+    }
+}
+
 window.addEventListener('keydown', (event) => {
     let key = event.key;
     if(key.length === 1) key = key.toLowerCase();
     if(keyStates.hasOwnProperty(key)){
         keyStates[key] = true;
+    }
+
+    const isMac = navigator.userAgent.toUpperCase().includes("MAC");
+    const isCtrlOrCmd = isMac ? event.metaKey : event.ctrlKey;
+    if(isCtrlOrCmd){
+        switch (key) {
+            case "e":
+                event.preventDefault();
+                const exportedLevelData = grid.convertToJSONString(legends);
+                if(exportedLevelData){
+                    // Sent to backend server, not needed for now
+                    // sendLevelData(exportedLevelData);
+                    saveLevelFile(exportedLevelData);
+                }
+                break;
+            case "i":
+                event.preventDefault();
+                // importLevelFromJSON();
+                console.log("DOMVDOVM")
+                break;
+        }
     }
 });
 
@@ -292,6 +344,11 @@ window.addEventListener('keyup', (event) => {
     if(keyStates.hasOwnProperty(key)){
         keyStates[key] = false;
     }
+});
+
+window.addEventListener('exit', () => {
+    grid.prepareForNewLevel(0, 0, 0);
+    grid = null;
 });
 
 let legends = null;
