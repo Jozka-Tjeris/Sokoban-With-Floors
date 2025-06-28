@@ -10,6 +10,7 @@ export class GridOfBlocks{
     #gridGroup;
     #gridArray;
     #targetSpaces;
+    #playerObject;
     #height;
     #cols;
     #rows;
@@ -20,6 +21,7 @@ export class GridOfBlocks{
         this.#height = height;
         this.#cols = col;
         this.#rows = row;
+        this.#playerObject = null;
         this.#gridArray = new Array(height);
         for(let k = 0; k < this.#height; k++){
             this.#gridArray[k] = new Array(col);
@@ -45,9 +47,6 @@ export class GridOfBlocks{
                 this.#gridArray[k][i] = new Array(row).fill(null);
             }
         }
-
-        this.#targetSpaces = new Map();
-        this.#gridGroup = new THREE.Group();
     }
 
     addBlockToGrid(blockType, height, col, row){
@@ -76,6 +75,10 @@ export class GridOfBlocks{
                 break;
             case Blocks.BlockType.PLAYER:
                 cttrClass = Blocks.Player;
+                if(this.#playerObject instanceof Blocks.Player){
+                    console.log("Player already exists in the grid");
+                    return;
+                }
                 break;
             case Blocks.BlockType.PUSHABLE:
                 cttrClass = Blocks.PushableBlock;
@@ -89,10 +92,16 @@ export class GridOfBlocks{
                 this.#targetSpaces.set(keyPosition, targetBlock);
                 this.#gridGroup.add(targetBlock.getObject());
                 return targetBlock;
+            default:
+                console.log("Block type: " + blockType + " unsupported");
+                return;
         }
         const block = new cttrClass(...dimensionParams);
         this.#gridArray[height - 1][col - 1][row - 1] = block;
         this.#gridGroup.add(block.getObject());
+        if(cttrClass == Blocks.Player && this.#playerObject instanceof Blocks.Player == false){
+            this.#playerObject = block;
+        }
         return block;
     }
 
@@ -148,8 +157,8 @@ export class GridOfBlocks{
         item.add(this.#gridGroup);
     }
 
-    addItemToGrid(item){
-        this.#gridGroup.add(item);
+    detachFromItem(item){
+        item.remove(this.#gridGroup);
     }
 
     setCenter(){
@@ -178,8 +187,19 @@ export class GridOfBlocks{
         return true;
     }
 
+    getTarget(height, col, row){
+        return this.#targetSpaces.get((height - 1) + ":" + (col - 1) + ":" + (row - 1));
+    }
+
+    getBlock(height, col, row){
+        if(this.checkCoordinateInBounds(height, col, row) == false){
+            return undefined;
+        }
+        return this.#gridArray[height][col][row];
+    }
+
     isBlockBelowWalkable(height, col, row){
-        const blockToCheck = this.#gridArray[height - 1][col][row];
+        const blockToCheck = this.getBlock(height - 1, col, row);
         const isBlock = blockToCheck instanceof Blocks.Block;
         if(isBlock == false){
             return false;
@@ -193,7 +213,7 @@ export class GridOfBlocks{
     }
 
     isBlockPassable(height, col, row, direction){
-        const blockToCheck = this.#gridArray[height][col][row] ?? null;
+        const blockToCheck = this.getBlock(height, col, row);
         const targetToCheck = this.#targetSpaces.get(height + ":" + col + ":" + row) ?? null;
         const isBlock = blockToCheck instanceof Blocks.Block;
         const isTargetBlock = targetToCheck instanceof Blocks.Block;
@@ -230,7 +250,7 @@ export class GridOfBlocks{
     }
 
     isBlockPushable(height, col, row){
-        const blockToCheck = this.#gridArray[height][col][row];
+        const blockToCheck = this.getBlock(height, col, row);
         const isBlock = blockToCheck instanceof Blocks.Block;
         if(isBlock == false){
             return false;
@@ -244,7 +264,7 @@ export class GridOfBlocks{
     }
 
     isBlockPullable(height, col, row){
-        const blockToCheck = this.#gridArray[height][col][row];
+        const blockToCheck = this.getBlock(height, col, row);
         const isBlock = blockToCheck instanceof Blocks.Block;
         if(isBlock == false){
             return false;
@@ -262,7 +282,7 @@ export class GridOfBlocks{
         //checks if every target space is filled
         this.#targetSpaces.forEach((value, key) => {
             const position = value.getPosition();
-            const currentBlock = this.#gridArray[position[0]][position[1]][position[2]];
+            const currentBlock = this.getBlock(...position);
             const containsPushable = currentBlock instanceof Blocks.PushableBlock;
             const containsPullable = currentBlock instanceof Blocks.PullableBlock;
             state &&= containsPushable || containsPullable;
@@ -291,6 +311,10 @@ export class GridOfBlocks{
         return this.#height;
     }
 
+    getPlayer(){
+        return this.#playerObject;
+    }
+
     clearAll(){
         // First, clear all grid-registered blocks
         for (let h = 0; h < this.#height; h++) {
@@ -314,7 +338,7 @@ export class GridOfBlocks{
         this.#targetSpaces.clear();
 
         this.#gridGroup.clear();
-        this.#gridGroup = null;
         this.#gridArray = [];
+        this.#playerObject = null;
     }
 }
