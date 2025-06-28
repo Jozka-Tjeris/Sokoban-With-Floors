@@ -343,4 +343,48 @@ export class GridOfBlocks{
         this.#gridArray = [];
         this.#playerObject = null;
     }
+
+    convertToJSONString(legendData){
+        let objString = {};
+        objString.gridSize = {"height": this.#height, "columns": this.#cols, "rows": this.#rows};
+        objString.layers = new Array(this.#height);
+        //go through each height
+        for(let i = 0; i < this.#height; i++){
+            //create new object to store current layer
+            objString.layers[i] = {};
+            const layerLayout = new Array(this.#rows);
+            let currRow = 0;
+            //traverse from back to front
+            for(let k = this.#rows - 1; k >= 0; k--){
+                const rowLayout = new Array(this.#cols);
+                for(let j = 0; j < this.#cols; j++){
+                    //check if block or target exists at this position
+                    const block = this.getBlock(i, j, k);
+                    const target = this.getTarget(i+1, j+1, k+1);
+                    let blockCode = " ";
+                    if(block){
+                        blockCode = legendData.typeToCode[block.type] ?? " ";
+                    }
+                    if(target){
+                        blockCode = legendData.typeToCode[target.type] ?? " ";
+                        //add target directions onto additional property "targets"
+                        if(!objString.layers[i].hasOwnProperty("targets")){
+                            objString.layers[i].targets = [];
+                        }
+                        objString.layers[i].targets.push({
+                            "positions": [j+1, k+1],
+                            "directions": target.getDirectionsAsJSONString().join("")
+                        })
+                    }
+                    rowLayout[j] = blockCode;
+                }
+                //store current row layout
+                layerLayout[currRow] = rowLayout.join("");
+                currRow++;
+            }
+            //store current height layout
+            objString.layers[i].layout = layerLayout;
+        }
+        return objString;
+    }
 }
