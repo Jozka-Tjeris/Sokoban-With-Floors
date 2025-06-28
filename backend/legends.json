@@ -1,9 +1,20 @@
 {
-    "A": "pushable",
-    "B": "pullable",
-    "P": "player",
-    "T": "target",
-    "W": "wall",
-    ".": "floor",
-    " ": "none"
+    "codeToType": {
+        "A": "pushable",
+        "B": "pullable",
+        "P": "player",
+        "T": "target",
+        "W": "wall",
+        ".": "floor",
+        " ": "none"
+    },
+    "typeToCode": {
+        "pushable": "A",
+        "pullable": "B",
+        "player": "P",
+        "target": "T",
+        "wall": "W",
+        "floor": ".",
+        "none": " "
+    }
 }
