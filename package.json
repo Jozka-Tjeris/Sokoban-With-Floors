@@ -41,6 +41,7 @@
     "inherits": "^2.0.4",
     "ipaddr.js": "^1.9.1",
     "is-promise": "^4.0.0",
+    "json-stringify-pretty-compact": "^4.0.0",
     "math-intrinsics": "^1.1.0",
     "media-typer": "^1.1.0",
     "merge-descriptors": "^2.0.0",
@@ -84,7 +85,9 @@
     "wrappy": "^1.0.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
   },
   "repository": {
     "type": "git",
@@ -99,6 +102,7 @@
   "homepage": "https://github.com/Jozka-Tjeris/Sokoban-With-Floors#readme",
   "description": "",
   "devDependencies": {
+    "nodemon": "^3.1.10",
     "vite": "^7.0.0"
   }
 }
