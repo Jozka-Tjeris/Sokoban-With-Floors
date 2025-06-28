@@ -1,35 +1,25 @@
 {
-    "gridSize": {"height": 2, "columns": 6, "rows": 8},
+    "gridSize": {"height": 2, "columns": 4, "rows": 5},
     "layers": [
         {
             "layout": [
-                "......",
-                "......",
-                "......",
-                ".... .",
-                "......",
-                "......",
-                ". ....",
-                "......"
+                "....",
+                "....",
+                "....",
+                "....",
+                "...."
             ]
         },
         {
             "layout": [
-                "      ",
-                "T   T ",
-                "  A   ",
-                " WTW  ",
-                " W    ",
-                " A T T",
-                "   B  ",
-                "P   B "
+                "    ",
+                "  T ",
+                " A  ",
+                "    ",
+                "P   "
             ],
             "targets": [
-                {"position": [4, 3], "directions": "111101"},
-                {"position": [6, 3], "directions": "111111"},
-                {"position": [3, 5], "directions": "111110"},
-                {"position": [1, 7], "directions": "011111"},
-                {"position": [5, 7], "directions": "111111"}
+                {"position": [3, 4], "directions": "101111"}
             ]
         }
     ]
