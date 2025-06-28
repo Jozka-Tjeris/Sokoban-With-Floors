@@ -74,3 +74,8 @@ Notes:
 - Integrated backend server into application
 - Added clean-up procedure for objects in grid
 - Simplified z-value handling in grid
+
+28 June:
+- Updated frontend to reflect level loading feature is in WIP status
+- Refactored grid class to handle objects in a more standardized manner
+- Integrated level loading into the main file
