@@ -79,3 +79,4 @@ Notes:
 - Updated frontend to reflect level loading feature is in WIP status
 - Refactored grid class to handle objects in a more standardized manner
 - Integrated level loading into the main file
+- Integrated level export data to user downloads
