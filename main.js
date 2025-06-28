@@ -169,41 +169,8 @@ scene.add(light);
 //Format: Height, Columns, Rows
 const dimensions = [2, 6, 8];
 let grid = new GridOfBlocks(...dimensions);
-
-for(let i = 0; i < grid.getCols(); i++){
-    for(let j = 0; j < grid.getRows(); j++){
-        grid.addBlockToGrid(Blocks.BlockType.FLOOR, 1, i+1, j+1);
-    }
-}
-
-grid.setCenter();
-grid.addIsometricRotation();
-
-grid.removeBlock(1, 2, 2);
-grid.removeBlock(1, 5, 5);
-
-grid.addBlockToGrid(Blocks.BlockType.WALL, 2, 2, 4);
-grid.addBlockToGrid(Blocks.BlockType.WALL, 2, 2, 5);
-grid.addBlockToGrid(Blocks.BlockType.WALL, 2, 4, 5);
-
-const playerObject = grid.addBlockToGrid(Blocks.BlockType.PLAYER, 2, 1, 1);
-
-grid.addBlockToGrid(Blocks.BlockType.PUSHABLE, 2, 2, 3);
-grid.addBlockToGrid(Blocks.BlockType.PUSHABLE, 2, 3, 6);
-
-grid.addBlockToGrid(Blocks.BlockType.PULLABLE, 2, 4, 2);
-grid.addBlockToGrid(Blocks.BlockType.PULLABLE, 2, 5, 1);
-
-const target1 = grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 3, 5);
-target1.setEnterableDirection(true, true, true, true, true, false);
-const target2 = grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 4, 3);
-target2.setEnterableDirection(true, true, true, true, false, true);
-
-grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 5, 7);
-grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 6, 3);
-const directionalTarget = grid.addBlockToGrid(Blocks.BlockType.TARGET, 2, 1, 7);
-directionalTarget.setEnterableDirection(false, true, true, true, true, true);
 grid.attachToItem(scene);
+grid.addIsometricRotation();
 
 function updateCameraIfResized(){
     if (resizeRendererToDisplaySize(renderer)) {
@@ -233,19 +200,22 @@ const movementBindings = [
 ];
 
 function updatePlayerActions(){
+    if(grid.getPlayer() instanceof Blocks.Player == false){
+        return;
+    }
     //check player interaction for pulling
-    playerObject.toggleActionState(keyStates["Shift"], Blocks.PlayerAction.PULL);
+    grid.getPlayer().toggleActionState(keyStates["Shift"], Blocks.PlayerAction.PULL);
 
     for(const { keys, action } of movementBindings){
         const isKeyHeld = keys.some(keyValue => keyStates[keyValue]);
         //check if key is held down and action is not perfomed yet
-        if(isKeyHeld && !playerObject.getActionState(action)){
-            playerObject.toggleActionState(true, action);
-            movePlayerInGrid(grid, playerObject, action);
+        if(isKeyHeld && !grid.getPlayer().getActionState(action)){
+            grid.getPlayer().toggleActionState(true, action);
+            movePlayerInGrid(grid, grid.getPlayer(), action);
         }
         //check if key is no longer held down, unlocks movement for future keypresses
         if(!isKeyHeld){
-            playerObject.toggleActionState(false, action);
+            grid.getPlayer().toggleActionState(false, action);
         }
     }
 }
@@ -258,7 +228,54 @@ function animate(){
 renderer.setAnimationLoop(animate);
 
 function generateLevelFromJSON(levelData){
-    // grid.prepareForNewLevel(2, 6, 8);
+    if(!levelData || !Array.isArray(levelData.layers) || !levelData.gridSize){
+        console.error("Invalid level data format");
+        return;
+    }
+    if(!legends){
+        console.error("Legend data not loaded; aborting");
+        return;
+    }
+    const {height, columns, rows} = levelData.gridSize;
+    grid.detachFromItem(scene);
+    //initialize dimensions
+    grid.prepareForNewLevel(height, columns, rows);  
+    grid.setCenter();
+    
+    //place in blocks
+    for(let i = 0; i < height; i++){
+        const currLayer = levelData.layers[i];
+        const currLayerLayout = currLayer.layout;
+        //initialize new blocks; rows are iterated in reverse; row 0 is the bottom of the list
+        for(let j = rows - 1; j >= 0; j--){
+            for(let k = 0; k < columns; k++){
+                const gridRow = rows - j;
+                const blockType = legends[currLayerLayout[j][k]];
+                if(!blockType){
+                    console.warn(`Unrecognized symbol '${symbol}' at [${i}, ${k}, ${j}]. Skipping.`);
+                    continue;
+                }
+                grid.addBlockToGrid(blockType, i+1, k+1, gridRow);
+            }
+        }
+        //go through target blocks, set enterable directions
+        const currTargets = currLayer.targets;
+        if(currTargets && Array.isArray(currTargets)){
+            for(let m = 0; m < currTargets.length; m++){
+                const [col, row] = currTargets[m].position;
+                const enterable = currTargets[m].directions.split("").map(element => element == "1");
+                const targetBlock = grid.getTarget(i+1, col, row);
+                if(targetBlock){
+                    targetBlock.setEnterableDirection(...enterable);
+                }
+                else{
+                    console.warn(`No target block found at layer ${i + 1}, col ${col}, row ${row}`);
+                }
+            }
+        }
+    }
+
+    grid.attachToItem(scene);
 }
 
 window.addEventListener('keydown', (event) => {
@@ -267,7 +284,7 @@ window.addEventListener('keydown', (event) => {
     if(keyStates.hasOwnProperty(key)){
         keyStates[key] = true;
     }
-})
+});
 
 window.addEventListener('keyup', (event) => {
     let key = event.key;
@@ -275,9 +292,26 @@ window.addEventListener('keyup', (event) => {
     if(keyStates.hasOwnProperty(key)){
         keyStates[key] = false;
     }
-})
+});
+
+let legends = null;
+async function loadLegends() {
+    if(legends) return legends;
+    let legendData = null;
+    try{
+        const response = await fetch(`/api/legends.json`);
+        if(!response.ok) throw new Error('Legend not found');
+        legendData = await response.json();
+    } catch (err) {
+        console.error(err.message);
+    }
+    if(legendData){
+        legends = legendData;
+    }
+}
 
 async function loadLevel(levelName) {
+    await loadLegends();
     let levelData = null;
     try{
         const response = await fetch(`/api/levels/${levelName}`);
@@ -287,7 +321,6 @@ async function loadLevel(levelName) {
         console.error(err.message);
     }
     if(levelData){
-        console.log("Loaded Level:", levelData);
         //Level loading starts here
         generateLevelFromJSON(levelData);
     }
@@ -296,3 +329,5 @@ async function loadLevel(levelName) {
 document.getElementById("loadLevel-btn").addEventListener("click", () => {
     loadLevel('level1');
 });
+
+loadLevel('level1');
