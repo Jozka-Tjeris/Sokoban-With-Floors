@@ -1,0 +1,9 @@
+{
+    "A": "pushable",
+    "B": "pullable",
+    "P": "player",
+    "T": "target",
+    "W": "wall",
+    ".": "floor",
+    " ": "none"
+}
