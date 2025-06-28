@@ -252,7 +252,7 @@ function generateLevelFromJSON(levelData){
                 const gridRow = rows - j;
                 const blockType = legends[currLayerLayout[j][k]];
                 if(!blockType){
-                    console.warn(`Unrecognized symbol '${symbol}' at [${i}, ${k}, ${j}]. Skipping.`);
+                    console.warn(`Unrecognized symbol '${blockType}' at [${i}, ${k}, ${j}]. Skipping.`);
                     continue;
                 }
                 grid.addBlockToGrid(blockType, i+1, k+1, gridRow);
@@ -326,8 +326,13 @@ async function loadLevel(levelName) {
     }
 }
 
-document.getElementById("loadLevel-btn").addEventListener("click", () => {
-    loadLevel('level1');
-});
+const buttons = document.querySelectorAll(".loadLevel-btn");
+
+buttons.forEach(button => {
+    button.addEventListener("click", (value) => {
+        const levelNum = value.currentTarget.dataset.value;
+        loadLevel('level' + levelNum);
+    });
+})
 
 loadLevel('level1');
