@@ -92,6 +92,8 @@ export class GridOfBlocks{
                 this.#targetSpaces.set(keyPosition, targetBlock);
                 this.#gridGroup.add(targetBlock.getObject());
                 return targetBlock;
+            case Blocks.BlockType.NONE:
+                return;
             default:
                 console.log("Block type: " + blockType + " unsupported");
                 return;
@@ -162,7 +164,7 @@ export class GridOfBlocks{
     }
 
     setCenter(){
-        this.#gridGroup.position.set(-this.#cols/2-0.5, -this.#height/2-0.5, -this.#rows/2-0.5);
+        this.#gridGroup.position.set(-this.#cols/2.0-0.5, -this.#height/2.0-0.5, -this.#rows/2.0-0.5);
     }
 
     addIsometricRotation(){

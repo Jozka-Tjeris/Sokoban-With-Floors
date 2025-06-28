@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as Helpers from './helpers';
 
 export const BlockType = {
+    NONE: 'none',
     BLOCK: 'block',
     PLAYER: 'player',
     PUSHABLE: 'pushable',
