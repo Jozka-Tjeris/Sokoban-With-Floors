@@ -80,3 +80,7 @@ Notes:
 - Refactored grid class to handle objects in a more standardized manner
 - Integrated level loading into the main file
 - Integrated level export data to user downloads
+
+29 June:
+- Integrated level import onto the application
+- Added json file format checking
