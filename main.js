@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GridOfBlocks } from './grid';
 import * as Blocks from './blocks';
 import stringify from 'json-stringify-pretty-compact';
+import initCheckerFunction from './jsonChecker';
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -309,6 +310,37 @@ async function sendLevelData(levelData){
     }
 }
 
+function triggerFileImport() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json';
+  input.style.display = 'none';
+
+  input.onchange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try{
+        const text = await file.text();
+        const json = JSON.parse(text);
+        if (!checkJSONFile(jsonData)) {
+            console.error(checkJSONFile.errors);
+            alert("Level file has errors. See console.");
+            return;
+        }
+        generateLevelFromJSON(json);
+    } 
+    catch (err){
+        alert('Invalid JSON file or parse error.');
+        console.error(err);
+    }
+  };
+
+  document.body.appendChild(input);
+  input.click();
+  document.body.removeChild(input);
+}
+
 window.addEventListener('keydown', (event) => {
     let key = event.key;
     if(key.length === 1) key = key.toLowerCase();
@@ -331,8 +363,7 @@ window.addEventListener('keydown', (event) => {
                 break;
             case "i":
                 event.preventDefault();
-                // importLevelFromJSON();
-                console.log("DOMVDOVM")
+                triggerFileImport();
                 break;
         }
     }
@@ -393,3 +424,32 @@ buttons.forEach(button => {
 })
 
 loadLevel('level1');
+
+const exportButton = document.getElementById("level-file-export");
+exportButton.addEventListener("click", () => {
+    const exportedLevelData = grid.convertToJSONString(legends);
+    if(exportedLevelData){
+        saveLevelFile(exportedLevelData);
+    }
+})
+
+const checkJSONFile = initCheckerFunction();
+
+const importButton = document.getElementById("level-file-input");
+importButton.addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+        const text = await file.text();
+        const jsonData = JSON.parse(text);
+        if (!checkJSONFile(jsonData)) {
+            console.error(checkJSONFile.errors);
+            alert("Level file has errors. See console.");
+            return;
+        }
+        generateLevelFromJSON(jsonData);
+    } catch (err) {
+        console.error("Failed to load level:", err);
+        alert("Invalid level file!");
+    }
+})
