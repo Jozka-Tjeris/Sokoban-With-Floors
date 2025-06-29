@@ -372,7 +372,7 @@ export class GridOfBlocks{
                             objString.layers[i].targets = [];
                         }
                         objString.layers[i].targets.push({
-                            "positions": [j+1, k+1],
+                            "position": [j+1, k+1],
                             "directions": target.getDirectionsAsJSONString().join("")
                         })
                     }
