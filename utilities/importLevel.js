@@ -1,4 +1,4 @@
-import initCheckerFunction from '../jsonChecker';
+import initCheckerFunction from './jsonChecker';
 
 //declared when imported
 const checkJSONFile = initCheckerFunction();
