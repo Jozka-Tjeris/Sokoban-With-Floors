@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { GridOfBlocks } from './grid';
-import * as Blocks from './blocks';
+import { GridOfBlocks } from './game_components/grid.js';
+import * as Blocks from './game_components/blocks.js';
 import { saveLevelFile, sendLevelData } from './utilities/exportLevel.js';
 import { triggerFileImport } from './utilities/importLevel.js';
 
