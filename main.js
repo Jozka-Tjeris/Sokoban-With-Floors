@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { GridOfBlocks } from './grid';
 import * as Blocks from './blocks';
-import stringify from 'json-stringify-pretty-compact';
-import initCheckerFunction from './jsonChecker';
+import { saveLevelFile, sendLevelData } from './utilities/exportLevel.js';
+import { triggerFileImport } from './utilities/importLevel.js';
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -201,7 +201,7 @@ const movementBindings = [
     { keys: ["d", "ArrowRight"], action: Blocks.PlayerAction.RIGHT }
 ];
 
-function updatePlayerActions(){
+function updatePlayerActions(grid){
     if(grid.getPlayer() instanceof Blocks.Player == false){
         return;
     }
@@ -224,12 +224,12 @@ function updatePlayerActions(){
 
 function animate(){
     updateCameraIfResized();
-    updatePlayerActions();
+    updatePlayerActions(grid);
     renderer.render(scene, camera);
 }
 renderer.setAnimationLoop(animate);
 
-function generateLevelFromJSON(levelData){
+function generateLevelFromJSON(grid, levelData){
     if(!levelData || !Array.isArray(levelData.layers) || !levelData.gridSize){
         console.error("Invalid level data format");
         return;
@@ -280,67 +280,6 @@ function generateLevelFromJSON(levelData){
     grid.attachToItem(scene);
 }
 
-function saveLevelFile(data, filename = "exported_level.json") {
-    const blob = new Blob([stringify(data, { maxLength: 60 })], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(link.href);
-}
-
-async function sendLevelData(levelData){
-    try {
-        const response = await fetch('/api/save-level', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(levelData)
-        });
-
-        if (!response.ok) {
-            throw new Error(`Server responded with ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Level saved:', result);
-    } catch (err) {
-        console.error('Error saving level data:', err);
-    }
-}
-
-function triggerFileImport() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'application/json';
-  input.style.display = 'none';
-
-  input.onchange = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    try{
-        const text = await file.text();
-        const json = JSON.parse(text);
-        if (!checkJSONFile(jsonData)) {
-            console.error(checkJSONFile.errors);
-            alert("Level file has errors. See console.");
-            return;
-        }
-        generateLevelFromJSON(json);
-    } 
-    catch (err){
-        alert('Invalid JSON file or parse error.');
-        console.error(err);
-    }
-  };
-
-  document.body.appendChild(input);
-  input.click();
-  document.body.removeChild(input);
-}
-
 window.addEventListener('keydown', (event) => {
     let key = event.key;
     if(key.length === 1) key = key.toLowerCase();
@@ -354,16 +293,20 @@ window.addEventListener('keydown', (event) => {
         switch (key) {
             case "e":
                 event.preventDefault();
-                const exportedLevelData = grid.convertToJSONString(legends);
-                if(exportedLevelData){
-                    // Sent to backend server, not needed for now
-                    // sendLevelData(exportedLevelData);
-                    saveLevelFile(exportedLevelData);
-                }
+                // Sent to backend server, not needed for now
+                // sendLevelData(grid.convertToJSONString(legends));
+                saveLevelFile(grid.convertToJSONString(legends));
                 break;
             case "i":
                 event.preventDefault();
-                triggerFileImport();
+                triggerFileImport().
+                then((jsonData) => {
+                    console.log("Imported JSON: ", jsonData);
+                    generateLevelFromJSON(grid, jsonData);
+                })
+                .catch((err) => {
+                    console.error("Import failed:", err);
+                });
                 break;
         }
     }
@@ -410,7 +353,7 @@ async function loadLevel(levelName) {
     }
     if(levelData){
         //Level loading starts here
-        generateLevelFromJSON(levelData);
+        generateLevelFromJSON(grid, levelData);
     }
 }
 
@@ -427,29 +370,17 @@ loadLevel('level1');
 
 const exportButton = document.getElementById("level-file-export");
 exportButton.addEventListener("click", () => {
-    const exportedLevelData = grid.convertToJSONString(legends);
-    if(exportedLevelData){
-        saveLevelFile(exportedLevelData);
-    }
-})
+    saveLevelFile(grid.convertToJSONString(legends))
+});
 
-const checkJSONFile = initCheckerFunction();
-
-const importButton = document.getElementById("level-file-input");
-importButton.addEventListener("change", async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    try {
-        const text = await file.text();
-        const jsonData = JSON.parse(text);
-        if (!checkJSONFile(jsonData)) {
-            console.error(checkJSONFile.errors);
-            alert("Level file has errors. See console.");
-            return;
-        }
-        generateLevelFromJSON(jsonData);
-    } catch (err) {
-        console.error("Failed to load level:", err);
-        alert("Invalid level file!");
-    }
-})
+const importButton = document.getElementById("level-file-import");
+importButton.addEventListener("click", () => {
+    triggerFileImport().
+    then((jsonData) => {
+        console.log("Imported JSON: ", jsonData);
+        generateLevelFromJSON(grid, jsonData);
+    })
+    .catch((err) => {
+        console.error("Import failed:", err);
+    });
+});
