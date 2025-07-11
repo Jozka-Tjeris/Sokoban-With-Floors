@@ -31,6 +31,17 @@ const BlockRenderOrder = {
     PLAYER: 5
 }
 
+const BlockColor = {
+    [BlockType.NONE]: 0x0,
+    [BlockType.BLOCK]: 0x222222,
+    [BlockType.PLAYER]: 0xffff00,
+    [BlockType.PUSHABLE]: 0x0000ff,
+    [BlockType.PULLABLE]: 0xff9911,
+    [BlockType.WALL]: [0xff0000, 0x00ff00],
+    [BlockType.FLOOR]: [0x444444, 0xbcbcbc],
+    [BlockType.TARGET]: [0xa8ffff, 0x371300]
+};
+
 export class Block{
     type = BlockType.BLOCK;
     walkable = false;
@@ -124,9 +135,8 @@ export class Floor extends Block{
 
     constructor(height, col, row){
         super(height, col, row);
-        let color = 0xbcbcbc;
-        if((height + col + row) % 2 == 0) color = 0x444444;
-        this._object = this.createMeshObject(color);
+        const option = (height + col + row) % 2;
+        this._object = this.createMeshObject(BlockColor[this.type][option]);
         Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.addDistanceToObject(0.25, 0, 0);
         this.getObject().renderOrder = BlockRenderOrder.FLOOR;
@@ -142,9 +152,8 @@ export class Wall extends Block{
 
     constructor(height, col, row){
         super(height, col, row);
-        let color = 0x00ff00;
-        if((height + col + row) % 2 == 0) color = 0xff0000;
-        this._object = this.createMeshObject(color);
+        const option = (height + col + row) % 2;
+        this._object = this.createMeshObject(BlockColor[this.type][option]);
          Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.WALL;
     }
@@ -172,7 +181,7 @@ export class Player extends Block{
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(0xffff00);
+        this._object = this.createMeshObject(BlockColor[this.type]);
          Helpers.setPositionToItem(this._object, col, height, -1*row);
         Helpers.addPositionToItem(this._object, 0, -0.3, 0);
         this.getObject().renderOrder = BlockRenderOrder.PLAYER;
@@ -203,7 +212,7 @@ export class PushableBlock extends Block{
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(0x0000ff);
+        this._object = this.createMeshObject(BlockColor[this.type]);
          Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
@@ -225,7 +234,7 @@ export class PullableBlock extends Block{
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(0xff9911);
+        this._object = this.createMeshObject(BlockColor[this.type]);
          Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
@@ -258,7 +267,7 @@ export class TargetSpace extends Block{
 
         for(let i = 0; i < 6; i++){
             const currFace = new THREE.PlaneGeometry(1, 1);
-            const borderMaterial = new THREE.MeshPhongMaterial({color: 0x371300, emissive: 0x371300});
+            const borderMaterial = new THREE.MeshPhongMaterial({color: BlockColor[BlockType.TARGET][1], emissive: BlockColor[BlockType.TARGET][1]});
             const currBorderMesh = new THREE.Mesh(currFace, borderMaterial);
             Helpers.addPositionToItem(currBorderMesh, ...(faceOffsets[i].map(value => value * offsetConstant)));
             //when moving to the left or right, rotate the border by 90 degrees on the y-axis
@@ -277,7 +286,7 @@ export class TargetSpace extends Block{
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(0xa8ffff);
+        this._object = this.createMeshObject(BlockColor[this.type][0]);
          Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.TARGET;
     }
