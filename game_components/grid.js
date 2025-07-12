@@ -9,18 +9,20 @@ export class GridOfBlocks{
     //Format: yxz
     #gridGroup;
     #gridArray;
-    #targetSpaces;
+    #enterableSpaces;
     #playerObject;
     #height;
     #cols;
     #rows;
+    #gridID;
 
     constructor(height, col, row){
         this.#gridGroup = new THREE.Group();
-        this.#targetSpaces = new Map();
+        this.#enterableSpaces = new Map();
         this.#height = height;
         this.#cols = col;
         this.#rows = row;
+        this.#gridID = "None";
         this.#playerObject = null;
         this.#gridArray = new Array(height);
         for(let k = 0; k < this.#height; k++){
@@ -29,6 +31,14 @@ export class GridOfBlocks{
                 this.#gridArray[k][i] = new Array(row).fill(null);
             }
         }
+    }
+
+    setGridID(newID){
+        this.#gridID = newID.toString();
+    }
+
+    getGridID(){
+        return this.#gridID;
     }
 
     prepareForNewLevel(height, col, row){
@@ -60,7 +70,7 @@ export class GridOfBlocks{
             console.log("A block already exists at the position: ", height, col, row);
             return;
         }
-        if(this.#targetSpaces.get(dimensionParams.toString().replaceAll(',', ':')) != null){
+        if(this.#enterableSpaces.get(dimensionParams.toString().replaceAll(',', ':')) != null){
             console.log("A target space already exists at the position: ", height, col, row);
             return;
         }
@@ -89,9 +99,15 @@ export class GridOfBlocks{
             case Blocks.BlockType.TARGET:
                 const targetBlock = new Blocks.TargetSpace(...dimensionParams);
                 const keyPosition = dimensionParams.toString().replaceAll(',', ':');
-                this.#targetSpaces.set(keyPosition, targetBlock);
+                this.#enterableSpaces.set(keyPosition, targetBlock);
                 this.#gridGroup.add(targetBlock.getObject());
                 return targetBlock;
+            case Blocks.BlockType.TELEPORTER:
+                const elevChangeBlock = new Blocks.Teleporter(...dimensionParams);
+                const elevChangePosition = dimensionParams.toString().replaceAll(',', ':');
+                this.#enterableSpaces.set(elevChangePosition, elevChangeBlock);
+                this.#gridGroup.add(elevChangeBlock.getObject());
+                return elevChangeBlock;
             case Blocks.BlockType.NONE:
                 return;
             default:
@@ -190,7 +206,7 @@ export class GridOfBlocks{
     }
 
     getTarget(height, col, row){
-        return this.#targetSpaces.get((height - 1) + ":" + (col - 1) + ":" + (row - 1));
+        return this.#enterableSpaces.get((height - 1) + ":" + (col - 1) + ":" + (row - 1));
     }
 
     getBlock(height, col, row){
@@ -216,7 +232,7 @@ export class GridOfBlocks{
 
     isBlockPassable(height, col, row, direction){
         const blockToCheck = this.getBlock(height, col, row);
-        const targetToCheck = this.#targetSpaces.get(height + ":" + col + ":" + row) ?? null;
+        const targetToCheck = this.#enterableSpaces.get(height + ":" + col + ":" + row) ?? null;
         const isBlock = blockToCheck instanceof Blocks.Block;
         const isTargetBlock = targetToCheck instanceof Blocks.Block;
 
@@ -282,20 +298,42 @@ export class GridOfBlocks{
     verifyTargetSpaces(){
         let state = true;
         //checks if every target space is filled
-        this.#targetSpaces.forEach((value, key) => {
-            const position = value.getPosition();
-            const currentBlock = this.getBlock(...position);
-            const containsPushable = currentBlock instanceof Blocks.PushableBlock;
-            const containsPullable = currentBlock instanceof Blocks.PullableBlock;
-            state &&= containsPushable || containsPullable;
-            if(containsPushable){
-                value.setFilled(true, Blocks.BlockType.PUSHABLE);
+        this.#enterableSpaces.forEach((value, key) => {
+            if(value instanceof Blocks.TargetSpace){
+                const position = value.getPosition();
+                const currentBlock = this.getBlock(...position);
+                const containsPushable = currentBlock instanceof Blocks.PushableBlock;
+                const containsPullable = currentBlock instanceof Blocks.PullableBlock;
+                state &&= containsPushable || containsPullable;
+                if(containsPushable){
+                    value.setFilled(true, Blocks.BlockType.PUSHABLE);
+                }
+                else if(containsPullable){
+                    value.setFilled(true, Blocks.BlockType.PULLABLE);
+                }
+                else{
+                    value.setFilled(false, null);
+                }
             }
-            else if(containsPullable){
-                value.setFilled(true, Blocks.BlockType.PULLABLE);
-            }
-            else{
-                value.setFilled(false, null);
+            if(value instanceof Blocks.Teleporter){
+                const currPosition = value.getPosition();
+                const playerPosition = this.#playerObject.getPosition();
+                let samePosition = true;
+                if(currPosition.length === playerPosition.length){
+                    for (let i = 0; i < currPosition.length; ++i){
+                        if (currPosition[i] !== playerPosition[i]){
+                            samePosition = false;
+                            break;
+                        }
+                    }
+                }
+                else{
+                    samePosition = false;
+                }
+
+                if(samePosition){
+                    console.log("HI")
+                }
             }
         });
         return state;
@@ -333,11 +371,11 @@ export class GridOfBlocks{
             }
         }
 
-        this.#targetSpaces.forEach((block) => {
+        this.#enterableSpaces.forEach((block) => {
             block.freeBlockMemory();
             const obj = block.getObject?.();
         });
-        this.#targetSpaces.clear();
+        this.#enterableSpaces.clear();
 
         this.#gridGroup.clear();
         this.#gridArray = [];
