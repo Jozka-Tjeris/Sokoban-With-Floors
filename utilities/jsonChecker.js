@@ -2,45 +2,55 @@ import Ajv from 'ajv';
 
 const schema = {
   type: "object",
-  required: ["gridSize", "layers"],
+  required: ["grids"],
   properties: {
-    gridSize: {
-      type: "object",
-      required: ["height", "columns", "rows"],
-      properties: {
-        height: { type: "number" },
-        columns: { type: "number" },
-        rows: { type: "number" }
-      }
-    },
-    layers: {
+    grids: {
       type: "array",
       items: {
         type: "object",
-        required: ["layout"],
+        required: ["gridID", "gridSize", "layers"],
         properties: {
-          layout: {
-            type: "array",
-            items: { type: "string" }
+          gridID: { type: "string" },
+          gridSize: {
+            type: "object",
+            required: ["height", "columns", "rows"],
+            properties: {
+              height: { type: "number" },
+              columns: { type: "number" },
+              rows: { type: "number" }
+            }
           },
-          targets: {
+          layers: {
             type: "array",
             items: {
               type: "object",
-              required: ["position", "directions"],
+              required: ["layout"],
               properties: {
-                position: {
+                layout: {
                   type: "array",
-                  items: { type: "number" },
-                  minItems: 2,
-                  maxItems: 2
+                  items: { type: "string" }
                 },
-                directions: { type: "string" }
+                targets: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    required: ["position", "directions"],
+                    properties: {
+                      position: {
+                        type: "array",
+                        items: { type: "number" },
+                        minItems: 2,
+                        maxItems: 2
+                      },
+                      directions: { type: "string" }
+                    }
+                  }
+                }
               }
             }
           }
         }
-      }
+      } 
     }
   }
 };
