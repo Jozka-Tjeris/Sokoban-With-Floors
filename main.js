@@ -1,8 +1,9 @@
 import * as THREE from 'three';
-import { GridOfBlocks } from './game_components/grid.js';
 import * as Blocks from './game_components/blocks.js';
 import { saveLevelFile, sendLevelData } from './utilities/exportLevel.js';
 import { triggerFileImport } from './utilities/importLevel.js';
+import { ListOfGrids } from './game_components/listOfGrids.js';
+import initCheckerFunction from './utilities/jsonChecker.js';
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -52,6 +53,9 @@ function createLight(colorParam){
 }
 
 function movePlayerInGrid(grid, player, direction){
+    //stop if grid is null
+    if(!grid) return;
+
     //preliminary check to restrict only players to be able to use this function
     if((player instanceof Blocks.Player) == false) return;
 
@@ -167,12 +171,7 @@ scene.background = new THREE.Color("rgb(150, 150, 150)");
 const light = createLight(0xffffff);
 light.position.set(0, 2, 4);
 scene.add(light);
-
-//Format: Height, Columns, Rows
-const dimensions = [2, 6, 8];
-let grid = new GridOfBlocks(...dimensions);
-grid.attachToItem(scene);
-grid.addIsometricRotation();
+let listOfGrids = new ListOfGrids(scene);
 
 function updateCameraIfResized(){
     if (resizeRendererToDisplaySize(renderer)) {
@@ -195,14 +194,33 @@ const keyStates = {
 };
 
 const movementBindings = [
-    { keys: ["w", "ArrowUp"],    action: Blocks.PlayerAction.UP },
-    { keys: ["a", "ArrowLeft"],  action: Blocks.PlayerAction.LEFT },
-    { keys: ["s", "ArrowDown"],  action: Blocks.PlayerAction.DOWN },
-    { keys: ["d", "ArrowRight"], action: Blocks.PlayerAction.RIGHT }
+    { keys: ["w"], action: Blocks.PlayerAction.UP },
+    { keys: ["a"], action: Blocks.PlayerAction.LEFT },
+    { keys: ["s"], action: Blocks.PlayerAction.DOWN },
+    { keys: ["d"], action: Blocks.PlayerAction.RIGHT }
 ];
 
+const cameraBindings = [
+    { keys: ["ArrowUp"], action: [0, 1, 0] },
+    { keys: ["ArrowLeft"], action: [-1, 0, 0] },
+    { keys: ["ArrowRight"], action: [1, 0, 0] },
+    { keys: ["ArrowDown"], action: [0, -1, 0] }
+];
+
+function updateCameraPosition(camera){
+    for(const { keys, action } of cameraBindings){
+        const isKeyHeld = keys.some(keyValue => keyStates[keyValue]);
+        //check if key is held down and action is not perfomed yet
+        if(isKeyHeld){
+            camera.position.x += action[0];
+            camera.position.y += action[1];
+            camera.position.z += action[2];
+        }
+    }
+}
+
 function updatePlayerActions(grid){
-    if(grid.getPlayer() instanceof Blocks.Player == false){
+    if(!grid || grid.getPlayer() instanceof Blocks.Player == false){
         return;
     }
     //check player interaction for pulling
@@ -224,61 +242,11 @@ function updatePlayerActions(grid){
 
 function animate(){
     updateCameraIfResized();
-    updatePlayerActions(grid);
+    updatePlayerActions(listOfGrids.getCurrentGrid());
+    updateCameraPosition(camera);
     renderer.render(scene, camera);
 }
 renderer.setAnimationLoop(animate);
-
-function generateLevelFromJSON(grid, levelData){
-    if(!levelData || !Array.isArray(levelData.layers) || !levelData.gridSize){
-        console.error("Invalid level data format");
-        return;
-    }
-    if(!legends){
-        console.error("Legend data not loaded; aborting");
-        return;
-    }
-    const {height, columns, rows} = levelData.gridSize;
-    grid.detachFromItem(scene);
-    //initialize dimensions
-    grid.prepareForNewLevel(height, columns, rows);  
-    grid.setCenter();
-    
-    //place in blocks
-    for(let i = 0; i < height; i++){
-        const currLayer = levelData.layers[i];
-        const currLayerLayout = currLayer.layout;
-        //initialize new blocks; rows are iterated in reverse; row 0 is the bottom of the list
-        for(let j = rows - 1; j >= 0; j--){
-            for(let k = 0; k < columns; k++){
-                const gridRow = rows - j;
-                const blockType = legends.codeToType[currLayerLayout[j][k]];
-                if(!blockType){
-                    console.warn(`Unrecognized symbol '${blockType}' at [${i}, ${k}, ${j}]. Skipping.`);
-                    continue;
-                }
-                grid.addBlockToGrid(blockType, i+1, k+1, gridRow);
-            }
-        }
-        //go through target blocks, set enterable directions
-        const currTargets = currLayer.targets;
-        if(currTargets && Array.isArray(currTargets)){
-            for(let m = 0; m < currTargets.length; m++){
-                const [col, row] = currTargets[m].position;
-                const enterable = currTargets[m].directions.split("").map(element => element == "1");
-                const targetBlock = grid.getTarget(i+1, col, row);
-                if(targetBlock){
-                    targetBlock.setEnterableDirection(...enterable);
-                }
-                else{
-                    console.warn(`No target block found at layer ${i + 1}, col ${col}, row ${row}`);
-                }
-            }
-        }
-    }
-
-    grid.attachToItem(scene);
-}
 
 window.addEventListener('keydown', (event) => {
     let key = event.key;
@@ -295,14 +263,14 @@ window.addEventListener('keydown', (event) => {
                 event.preventDefault();
                 // Sent to backend server, not needed for now
                 // sendLevelData(grid.convertToJSONString(legends));
-                saveLevelFile(grid.convertToJSONString(legends));
+                saveLevelFile(listOfGrids.getJSONfromLevel(legends));
                 break;
             case "i":
                 event.preventDefault();
                 triggerFileImport().
                 then((jsonData) => {
                     console.log("Imported JSON: ", jsonData);
-                    generateLevelFromJSON(grid, jsonData);
+                    listOfGrids.initLevelFromJSON(jsonData, legends);
                 })
                 .catch((err) => {
                     console.error("Import failed:", err);
@@ -321,8 +289,8 @@ window.addEventListener('keyup', (event) => {
 });
 
 window.addEventListener('exit', () => {
-    grid.prepareForNewLevel(0, 0, 0);
-    grid = null;
+    listOfGrids.destroyLevels();
+    listOfGrids = null;
 });
 
 let legends = null;
@@ -341,6 +309,7 @@ async function loadLegends() {
     }
 }
 
+const checkJSONFile = initCheckerFunction();
 async function loadLevel(levelName) {
     await loadLegends();
     let levelData = null;
@@ -352,8 +321,13 @@ async function loadLevel(levelName) {
         console.error(err.message);
     }
     if(levelData){
+        if (!checkJSONFile(levelData)) {
+            console.error(checkJSONFile.errors);
+            alert("Level file has errors. See console.");
+            throw new Error("Invalid file format");
+        }
         //Level loading starts here
-        generateLevelFromJSON(grid, levelData);
+        listOfGrids.initLevelFromJSON(levelData, legends);
     }
 }
 
@@ -362,6 +336,7 @@ const buttons = document.querySelectorAll(".loadLevel-btn");
 buttons.forEach(button => {
     button.addEventListener("click", (value) => {
         const levelNum = value.currentTarget.dataset.value;
+        listOfGrids.destroyLevels();
         loadLevel('level' + levelNum);
     });
 })
@@ -370,7 +345,7 @@ loadLevel('level1');
 
 const exportButton = document.getElementById("level-file-export");
 exportButton.addEventListener("click", () => {
-    saveLevelFile(grid.convertToJSONString(legends))
+    saveLevelFile(listOfGrids.getJSONfromLevel(legends))
 });
 
 const importButton = document.getElementById("level-file-import");
@@ -378,7 +353,8 @@ importButton.addEventListener("click", () => {
     triggerFileImport().
     then((jsonData) => {
         console.log("Imported JSON: ", jsonData);
-        generateLevelFromJSON(grid, jsonData);
+        listOfGrids.destroyLevels();
+        listOfGrids.generateLevelFromJSON(jsonData);
     })
     .catch((err) => {
         console.error("Import failed:", err);
