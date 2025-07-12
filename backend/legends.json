@@ -4,6 +4,7 @@
         "B": "pullable",
         "P": "player",
         "T": "target",
+        "S": "teleporter",
         "W": "wall",
         ".": "floor",
         " ": "none"
@@ -13,6 +14,7 @@
         "pullable": "B",
         "player": "P",
         "target": "T",
+        "teleporter": "S",
         "wall": "W",
         "floor": ".",
         "none": " "
