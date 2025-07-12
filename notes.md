@@ -84,3 +84,8 @@ Notes:
 29 June:
 - Integrated level import onto the application
 - Added json file format checking
+
+12 July:
+- Added teleporter class
+- Added list of grids class
+- Integrated teleporters and list of grids into the main file
