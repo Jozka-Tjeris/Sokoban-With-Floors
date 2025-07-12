@@ -9,7 +9,8 @@ export const BlockType = {
     PULLABLE: 'pullable',
     WALL: 'wall',
     FLOOR: 'floor',
-    TARGET: 'target'
+    TARGET: 'target',
+    TELEPORTER: 'teleporter'
 };
 
 export const PlayerAction = {
@@ -39,8 +40,9 @@ const BlockColor = {
     [BlockType.PULLABLE]: 0xff9911,
     [BlockType.WALL]: [0xff0000, 0x00ff00],
     [BlockType.FLOOR]: [0x444444, 0xbcbcbc],
-    [BlockType.TARGET]: [0xa8ffff, 0x371300]
-};
+    [BlockType.TARGET]: [0xa8ffff, 0x371300],
+    [BlockType.TELEPORTER]: 0xfcba03
+}
 
 export class Block{
     type = BlockType.BLOCK;
@@ -365,5 +367,52 @@ export class TargetSpace extends Block{
             directionString[index] = value ? "1" : "0";
         });
         return directionString;
+    }
+}
+
+export class Teleporter extends TargetSpace{
+    type = BlockType.TELEPORTER;
+    walkable = false;
+    solid = false;
+    pushable = false;
+    pullable = false;
+    #targetFloor = -1;
+    #targetPosition = [0, 0, 0];
+
+    constructor(height, col, row){
+        super(height, col, row);
+        this._object = this.createMeshObject(BlockColor[this.type]);
+        Helpers.setPositionToItem(this._object, col, height, -1*row);
+        this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
+    }
+
+    setFilled(status, type){
+        // if(status == true){
+        //     if(type === BlockType.PUSHABLE){
+        //         this.getObject().material.color.setHex(0xff88ff);
+        //         this.getObject().material.opacity = 0.5;
+        //     }
+        //     if(type === BlockType.PULLABLE){
+        //         this.getObject().material.color.setHex(0xff44dd);
+        //         this.getObject().material.opacity = 0.4;
+        //     }
+        // }
+        // else{
+        //     this.getObject().material.color.setHex(0x88ffff);
+        //     this.getObject().material.opacity = 0.8;
+        // }
+    }
+
+    setTargetSpace(floor, height, col, row){
+        this.#targetFloor = floor;
+        this.#targetPosition = [height, col, row];
+    }
+
+    getTargetFloor(){
+        return this.#targetFloor;
+    }
+
+    getTargetPosition(){
+        return this.#targetPosition;
     }
 }
