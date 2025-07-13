@@ -1,12 +1,16 @@
-import { GridOfBlocks } from "./grid";
+import { PlayerAction, BlockType } from "./blocks.js";
+import { GridOfBlocks } from "./grid.js";
 
 export class ListOfGrids {
     #grids = new Map();
     #numberOfGrids = 0;
-    #currentGridID = "";
+    #currentGridID;
     #sceneObj;
+    #teleporterBlocks;
+    #containsPlayer;
 
     constructor(scene){
+        this.#containsPlayer = false;
         this.#sceneObj = scene;
     }
 
@@ -25,32 +29,142 @@ export class ListOfGrids {
         if(!configFile) return;
         this.#numberOfGrids = configFile.grids.length;
         console.log(configFile.grids)
+        this.#teleporterBlocks = [];
         this.#currentGridID = null;
+        this.#containsPlayer = false;
+        let generateGrid = true;
         configFile.grids.forEach(element => {
-            if(!this.#currentGridID) this.#currentGridID = element.gridID;
-            const newGrid = new GridOfBlocks(0, 0, 0);
-            this.generateLevelFromJSON(newGrid, element, this.#sceneObj, legends);
-            this.#grids.set(element.gridID, newGrid);
+            if(generateGrid){
+                if(!this.#currentGridID){
+                    this.#currentGridID = element.gridID;
+                }
+                const newGrid = new GridOfBlocks(0, 0, 0);
+                const generatedCorrectly = this.generateLevelFromJSON(newGrid, element, this.#sceneObj, legends);
+                if(generatedCorrectly !== true){
+                    this.destroyLevels();
+                    generateGrid = false;
+                }
+                else{
+                    this.#grids.set(element.gridID, newGrid);
+                }
+            }
         });
-        this.getCurrentGrid().attachToItem(this.#sceneObj);
+        if(generateGrid){
+            this.validateAllTeleporters();
+            this.getCurrentGrid().attachToItem(this.#sceneObj);
+        }
     }
 
     destroyLevels(){
-        this.getCurrentGrid().detachFromItem(this.#sceneObj);
+        if(this.getCurrentGrid()){
+            this.getCurrentGrid().detachFromItem(this.#sceneObj);
+        }
         this.#grids.forEach(value => {
-            value.prepareForNewLevel(0, 0, 0);
+            value.clearAll();
         });
         this.#grids.clear();
+    }
+
+    validateAllTeleporters(){
+        console.log(this.#teleporterBlocks)
+        this.#teleporterBlocks.forEach(value => {
+            const gridID = value.getTargetGridID();
+            const gridPosition = value.getTargetGridPosition();
+            //translate gridPosition to internal coordinate system
+            let internalPosition = new Array(gridPosition.length);
+            for(let i = 0; i < gridPosition.length; i++){
+                internalPosition[i] = gridPosition[i] - 1;
+            }
+            //check if gridID exists within the level
+            let isValid = true;
+            if(!this.#grids.has(gridID)){
+                console.warn(`Grid ID ${gridID} is not valid`);
+                isValid = false;
+            }
+            else{
+                //then check if the position in that grid is valid:
+                //walkable underneath
+                if(!this.#grids.get(gridID).isBlockBelowWalkable(...internalPosition)){
+                    console.warn(`Target position ${gridPosition} is not walkable`);
+                    isValid = false;
+                }
+                //not occupied by non-movable object
+                if(!this.#grids.get(gridID).isBlockPassable(...internalPosition)){
+                    const blockInstance = this.#grids.get(gridID).getBlock(...gridPosition);
+                    const isMovable = blockInstance instanceof BlockType.PUSHABLE || blockInstance instanceof BlockType.PULLABLE;
+                    //special case where object is movable, allow in that case, reject otherwise
+                    if(!isMovable){
+                        console.warn(`Target position ${gridPosition} contains an immovable block`);
+                        isValid = false;
+                    }
+                }
+            }
+
+            if(!isValid){
+                console.warn(`Teleport block pointing to grid ID ${gridID} to position ${gridPosition} is invalid, Disabling block.`);
+                value.setDisabled();
+            }
+            else{
+                console.log(`Teleport block pointing to grid ID ${gridID} to position ${gridPosition} is valid.`);
+            }
+        })
+    }
+
+    transportBlockToGrid(oldGrid, newGrid, oldPosition, newPosition){
+        const oldBlock = oldGrid.getBlock(...oldPosition);
+        if(oldBlock == null) return false;
+        const ajustedNewPos = newPosition.map(value => value - 1);
+        console.log(newGrid.getBlock(...ajustedNewPos))
+        if(newGrid.getBlock(...ajustedNewPos)){
+            console.warn(`Block already occupies destination of teleporter for grid ${newGrid.getGridID()} at position ${newPosition}`);
+            return false;
+        }
+        let playerActions = new Map();
+        const isPlayer = oldBlock.type === BlockType.PLAYER;
+        if(isPlayer){
+            for (const value in PlayerAction) {
+                playerActions.set(value, oldBlock.getActionState(PlayerAction[value]));
+            }
+        }
+        const adjustedOldPos = oldPosition.map(value => value + 1);
+        oldGrid.removeBlock(...adjustedOldPos);
+        console.log(oldGrid.getGridID(), newGrid.getGridID(), this.getCurrentGrid().getGridID(), newPosition)
+        newGrid.addBlockToGrid(oldBlock.type, ...newPosition);
+        if(isPlayer){
+            for (const value in PlayerAction) {
+                newGrid.getPlayer().toggleActionState(playerActions.get(value), PlayerAction[value]);
+            }
+        }
+        return true;
+    }
+
+    checkAllTeleporters(){
+        this.#teleporterBlocks.forEach(value => {
+            console.log(value.getFilled())
+            if(value.getFilled()){
+                let oldBlock = this.getCurrentGrid().getBlock(...value.getPosition());
+                const successful = this.transportBlockToGrid(this.getCurrentGrid(), this.#grids.get(value.getTargetGridID()), value.getPosition(), value.getTargetGridPosition());
+                value.setFilled(false);
+                if(successful){
+                    if(oldBlock.type === BlockType.PLAYER){
+                        console.log(`Changing to grid ${value.getTargetGridID()}`)
+                        this.changeToGrid(value.getTargetGridID(), this.#sceneObj);
+                    }
+                }
+            }
+        });
     }
 
     generateLevelFromJSON(grid, levelData, scene, legends){
         if(!levelData || !Array.isArray(levelData.layers) || !levelData.gridSize || !levelData.gridID){
             console.error("Invalid level data format");
-            return;
+            alert("Invalid level data format");
+            return false;
         }
         if(!legends){
             console.error("Legend data not loaded; aborting");
-            return;
+            alert("Legend data not loaded; aborting");
+            return false;
         }
         const {height, columns, rows} = levelData.gridSize;
         grid.detachFromItem(scene);
@@ -72,7 +186,20 @@ export class ListOfGrids {
                         console.warn(`Unrecognized symbol '${blockType}' at [${i}, ${k}, ${j}]. Skipping.`);
                         continue;
                     }
+                    if(blockType === BlockType.PLAYER){
+                        if(!this.#containsPlayer){
+                            this.#containsPlayer = true;
+                        }
+                        else{
+                            console.error(`Player already exists in a previous location, aborting.`);
+                            alert(`Player already exists in a previous location, aborting.`);
+                            return false;
+                        }
+                    }
                     grid.addBlockToGrid(blockType, i+1, k+1, gridRow);
+                    if(blockType === BlockType.TELEPORTER){
+                        this.#teleporterBlocks.push(grid.getEnterable(i+1, k+1, gridRow));
+                    }
                 }
             }
             //go through target blocks, set enterable directions
@@ -81,7 +208,7 @@ export class ListOfGrids {
                 for(let m = 0; m < currTargets.length; m++){
                     const [col, row] = currTargets[m].position;
                     const enterable = currTargets[m].directions.split("").map(element => element == "1");
-                    const targetBlock = grid.getTarget(i+1, col, row);
+                    const targetBlock = grid.getEnterable(i+1, col, row);
                     if(targetBlock){
                         targetBlock.setEnterableDirection(...enterable);
                     }
@@ -90,8 +217,25 @@ export class ListOfGrids {
                     }
                 }
             }
+            //go through teleporter blocks, set destinations
+            const currTeleporters = currLayer.teleporters;
+            if(currTeleporters && Array.isArray(currTeleporters)){
+                for(let n = 0; n < currTeleporters.length; n++){
+                    const [col, row] = currTeleporters[n].position;
+                    const targetID = currTeleporters[n].targetGridID;
+                    const targetPosition = currTeleporters[n].targetGridPosition;
+                    const teleportBlock = grid.getEnterable(i+1, col, row);
+                    if(teleportBlock){
+                        teleportBlock.setTargetSpace(targetID, ...targetPosition);
+                    }
+                    else{
+                        console.warn(`No teleport block found at layer ${i + 1}, col ${col}, row ${row}`);
+                    }
+                }
+            }
         }
         console.log("Current level ID: ", grid.getGridID());
+        return true;
     }
 
     getGrid(gridID){
@@ -107,9 +251,8 @@ export class ListOfGrids {
     }
 
     changeToGrid(newGridID, scene){
-        console.log(this.#grids)
-        if(!Number.isInteger(newGridNum) || newGridNum < 1 || newGridNum > this.#numberOfGrids){
-            console.log("Invalid floor selected");
+        if(!this.#grids.has(newGridID)){
+            console.error(`New gridID ${newGridID} doesn't exist`);
             return false;
         }
         this.getCurrentGrid().detachFromItem(scene);
