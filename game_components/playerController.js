@@ -1,4 +1,4 @@
-import { PlayerAction, Player} from "./blocks.js";
+import { PlayerAction, Player, BlockType} from "./blocks.js";
 
 export class PlayerController{
     #level;
@@ -72,15 +72,25 @@ export class PlayerController{
                     console.log("Pushable block can't go out of bounds");
                     return;
                 }
+                //check if the new position is walkable
+                if(grid.isBlockBelowWalkable(...newPushableBlockPosition) == false){
+                    console.log("Pushable block can't enter non-walkable space");
+                    return;
+                }
                 //check if the new position is passable
                 if(grid.isBlockPassable(...newPushableBlockPosition, direction) == false){
                     console.log("Player can't push current pushable block");
                     return;
                 }
-                //check if the new position is walkable
-                if(grid.isBlockBelowWalkable(...newPushableBlockPosition) == false){
-                    console.log("Pushable block can't enter non-walkable space");
-                    return;
+                //specific to teleporters: check if its destination spot is unoccupied
+                const block = grid.getEnterable(...newPushableBlockPosition);
+                if(block && block.type === BlockType.TELEPORTER){
+                    const targetGrid = this.#level.getGrid(block.getTargetGridID());
+                    //adjust position to account for indexing
+                    if(targetGrid && !targetGrid.isBlockPassable(...block.getTargetGridPosition().map(value => value - 1))){
+                        console.log("Currently can't teleport pushable block, teleporter destination is occupied");
+                        return;
+                    }
                 }
                 //apply change if prerequisites are met
                 grid.swapBlocks(...newPosition, ...newPushableBlockPosition);
@@ -92,6 +102,16 @@ export class PlayerController{
                 if(grid.isBlockPassable(...newPosition, direction) == false){
                     console.log("Player attempting to move to impassable location");
                     return;
+                }
+                //specific to teleporters: check if its destination spot is unoccupied
+                const block = grid.getEnterable(...newPosition);
+                if(block && block.type === BlockType.TELEPORTER){
+                    const targetGrid = this.#level.getGrid(block.getTargetGridID());
+                    //adjust position to account for indexing
+                    if(targetGrid && !targetGrid.isBlockPassable(...block.getTargetGridPosition().map(value => value - 1))){
+                        console.log("Currently can't teleport player, teleporter destination is occupied");
+                        return;
+                    }
                 }
                 grid.swapBlocks(...player.getPosition(), ...newPosition);
                 console.log("Current target spaces all filled: " + grid.verifyTargetSpaces());
@@ -119,6 +139,16 @@ export class PlayerController{
             if(grid.isBlockPassable(...newPosition, direction) == false){
                 console.log("Player attempting to move to impassable location (currently pulling)");
                 return;
+            }
+            //specific to teleporters: check if its destination spot is unoccupied
+            const block = grid.getEnterable(...newPosition);
+            if(block && block.type === BlockType.TELEPORTER){
+                const targetGrid = this.#level.getGrid(block.getTargetGridID());
+                //adjust position to account for indexing
+                if(targetGrid && !targetGrid.isBlockPassable(...block.getTargetGridPosition().map(value => value - 1))){
+                    console.log("Currently can't teleport player (currently pulling), teleporter destination is occupied");
+                    return;
+                }
             }
             const oldPlayerPosition = player.getPosition();
             //apply change if prerequisites are met
