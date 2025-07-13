@@ -31,7 +31,6 @@ export class ListOfGrids {
     initLevelFromJSON(configFile, legends){
         if(!configFile) return;
         this.#numberOfGrids = configFile.grids.length;
-        console.log(configFile.grids)
         this.#teleporterBlocks = [];
         this.#currentGridID = null;
         this.#containsPlayer = false;
@@ -69,7 +68,6 @@ export class ListOfGrids {
     }
 
     validateAllTeleporters(){
-        console.log(this.#teleporterBlocks)
         this.#teleporterBlocks.forEach(value => {
             const gridID = value.getTargetGridID();
             const gridPosition = value.getTargetGridPosition();
@@ -93,8 +91,8 @@ export class ListOfGrids {
                 }
                 //not occupied by non-movable object
                 if(!this.#grids.get(gridID).isBlockPassable(...internalPosition)){
-                    const blockInstance = this.#grids.get(gridID).getBlock(...gridPosition);
-                    const isMovable = blockInstance instanceof BlockType.PUSHABLE || blockInstance instanceof BlockType.PULLABLE;
+                    const blockInstance = this.#grids.get(gridID).getBlock(...internalPosition);
+                    const isMovable = blockInstance && (blockInstance.type === BlockType.PUSHABLE || blockInstance.type === BlockType.PULLABLE);
                     //special case where object is movable, allow in that case, reject otherwise
                     if(!isMovable){
                         console.warn(`Target position ${gridPosition} contains an immovable block`);
@@ -108,7 +106,7 @@ export class ListOfGrids {
                 value.setDisabled();
             }
             else{
-                console.log(`Teleport block pointing to grid ID ${gridID} to position ${gridPosition} is valid.`);
+                // console.log(`Teleport block pointing to grid ID ${gridID} to position ${gridPosition} is valid.`);
             }
         })
     }
@@ -201,7 +199,7 @@ export class ListOfGrids {
                     }
                     grid.addBlockToGrid(blockType, i+1, k+1, gridRow);
                     if(blockType === BlockType.TELEPORTER){
-                        this.#teleporterBlocks.push(grid.getEnterable(i+1, k+1, gridRow));
+                        this.#teleporterBlocks.push(grid.getEnterable(i, k, gridRow-1));
                     }
                 }
             }
@@ -211,7 +209,7 @@ export class ListOfGrids {
                 for(let m = 0; m < currTargets.length; m++){
                     const [col, row] = currTargets[m].position;
                     const enterable = currTargets[m].directions.split("").map(element => element == "1");
-                    const targetBlock = grid.getEnterable(i+1, col, row);
+                    const targetBlock = grid.getEnterable(i, col-1, row-1);
                     if(targetBlock){
                         targetBlock.setEnterableDirection(...enterable);
                     }
@@ -227,7 +225,7 @@ export class ListOfGrids {
                     const [col, row] = currTeleporters[n].position;
                     const targetID = currTeleporters[n].targetGridID;
                     const targetPosition = currTeleporters[n].targetGridPosition;
-                    const teleportBlock = grid.getEnterable(i+1, col, row);
+                    const teleportBlock = grid.getEnterable(i, col-1, row-1);
                     if(teleportBlock){
                         teleportBlock.setTargetSpace(targetID, ...targetPosition);
                     }
@@ -268,7 +266,6 @@ export class ListOfGrids {
         const grid = this.getCurrentGrid();
 
         if(!grid){
-            console.log("Current grid doesn't exist, aborting");
             return;
         }
 
