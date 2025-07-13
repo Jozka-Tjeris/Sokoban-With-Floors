@@ -138,11 +138,16 @@ export class GridOfBlocks{
             return;
         }
         const object = this.#gridArray[height - 1][col - 1][row - 1].getObject?.();
+        const isPlayer = this.#gridArray[height - 1][col - 1][row - 1] instanceof Blocks.Player;
         if(object){
             this.#gridGroup.remove(object);
             this.#gridArray[height - 1][col - 1][row - 1].freeBlockMemory();
         }
         this.#gridArray[height - 1][col - 1][row - 1] = null;
+        if(isPlayer){
+            console.log("EEE")
+            this.#playerObject = null;
+        }
     }
 
     swapBlocks(height1, col1, row1, height2, col2, row2){
@@ -205,7 +210,7 @@ export class GridOfBlocks{
         return true;
     }
 
-    getTarget(height, col, row){
+    getEnterable(height, col, row){
         return this.#enterableSpaces.get((height - 1) + ":" + (col - 1) + ":" + (row - 1));
     }
 
@@ -295,6 +300,26 @@ export class GridOfBlocks{
         return true;
     }
 
+    addBlockToGridViaTeleport(blocktype, height, col, row){
+        if(!this.checkCoordinateInBounds(height, col, row)){
+            console.log("Position not valid (out of bounds)");
+            return;
+        }
+        if(!this.isBlockBelowWalkable(height, col, row)){
+            console.log("Position not valid (not walkable)");
+            return;
+        }
+        if(!this.isBlockPassable(height, col, row)){
+            console.log("Position already occupied");
+            return;
+        }
+        if(this.#playerObject instanceof Blocks.Player && blocktype == Blocks.BlockType.PLAYER){
+            console.log("Player already exists");
+            return;
+        }
+        this.addBlockToGrid(blocktype, height, col, row);
+    }
+
     verifyTargetSpaces(){
         let state = true;
         //checks if every target space is filled
@@ -317,22 +342,13 @@ export class GridOfBlocks{
             }
             if(value instanceof Blocks.Teleporter){
                 const currPosition = value.getPosition();
-                const playerPosition = this.#playerObject.getPosition();
-                let samePosition = true;
-                if(currPosition.length === playerPosition.length){
-                    for (let i = 0; i < currPosition.length; ++i){
-                        if (currPosition[i] !== playerPosition[i]){
-                            samePosition = false;
-                            break;
-                        }
-                    }
+                if(this.getBlock(...currPosition)){
+                    value.setFilled(true);
+                    console.log(value, this.#gridID)
+                    console.log("HI")
                 }
                 else{
-                    samePosition = false;
-                }
-
-                if(samePosition){
-                    console.log("HI")
+                    value.setFilled(false);
                 }
             }
         });
@@ -398,7 +414,7 @@ export class GridOfBlocks{
                 for(let j = 0; j < this.#cols; j++){
                     //check if block or target exists at this position
                     const block = this.getBlock(i, j, k);
-                    const target = this.getTarget(i+1, j+1, k+1);
+                    const target = this.getEnterable(i+1, j+1, k+1);
                     let blockCode = " ";
                     if(block){
                         blockCode = legendData.typeToCode[block.type] ?? " ";
