@@ -211,7 +211,7 @@ export class GridOfBlocks{
     }
 
     getEnterable(height, col, row){
-        return this.#enterableSpaces.get((height - 1) + ":" + (col - 1) + ":" + (row - 1));
+        return this.#enterableSpaces.get((height) + ":" + (col) + ":" + (row));
     }
 
     getBlock(height, col, row){
@@ -250,7 +250,7 @@ export class GridOfBlocks{
             //so it's acceptable to ignore the player position
             const isSolid = blockToCheck.isSolid() && (blockToCheck instanceof Blocks.Player == false);
             if(isSolid == true){
-                console.log("There is a block blocking the way");
+                console.log(`There is a block blocking the way at ${[height, col, row]}`);
                 return false;
             }
             if(isTargetBlock == false){
@@ -414,7 +414,7 @@ export class GridOfBlocks{
                 for(let j = 0; j < this.#cols; j++){
                     //check if block or target exists at this position
                     const block = this.getBlock(i, j, k);
-                    const target = this.getEnterable(i+1, j+1, k+1);
+                    const target = this.getEnterable(i, j, k);
                     let blockCode = " ";
                     if(block){
                         blockCode = legendData.typeToCode[block.type] ?? " ";
