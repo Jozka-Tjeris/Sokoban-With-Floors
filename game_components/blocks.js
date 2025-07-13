@@ -4,6 +4,7 @@ import * as Helpers from '../utilities/helpers';
 export const BlockType = {
     NONE: 'none',
     BLOCK: 'block',
+    ENTERABLE: 'enterable',
     PLAYER: 'player',
     PUSHABLE: 'pushable',
     PULLABLE: 'pullable',
@@ -19,7 +20,8 @@ export const PlayerAction = {
     LEFT: 2,
     RIGHT: 3,
     PULL: 4,
-    INTERACT: 5
+    INTERACT: 5,
+    TELEPORT: 6
 }
 
 const BlockRenderOrder = {
@@ -40,7 +42,8 @@ const BlockColor = {
     [BlockType.PULLABLE]: 0xff9911,
     [BlockType.WALL]: [0xff0000, 0x00ff00],
     [BlockType.FLOOR]: [0x444444, 0xbcbcbc],
-    [BlockType.TARGET]: [0xa8ffff, 0x371300],
+    [BlockType.ENTERABLE]: [0x0, 0x371300],
+    [BlockType.TARGET]: 0xa8ffff,
     [BlockType.TELEPORTER]: 0xfcba03
 }
 
@@ -73,6 +76,9 @@ export class Block{
     constructor(height, col, row){
         if(new.target === Block){
             throw new Error("Block is an abstract class");
+        }
+        if(new.target === Enterable){
+            throw new Error("Enterable is an abstract class");
         }
         this.#height = height;
         this.#col = col;
@@ -167,8 +173,8 @@ export class Player extends Block{
     solid = true;
     pushable = false;
     pullable = false;
-    //up, down, left, right, pull, interact
-    #currentStates = [false, false, false, false, false, false];
+    //up, down, left, right, pull, interact, teleport
+    #currentStates = [false, false, false, false, false, false, false];
 
     createMeshObject(colorParam){
         const geometry = new THREE.SphereGeometry(0.25, 10, 10);
@@ -242,8 +248,8 @@ export class PullableBlock extends Block{
     }
 }
 
-export class TargetSpace extends Block{
-    type = BlockType.TARGET;
+class Enterable extends Block{
+    type = BlockType.ENTERABLE;
     walkable = false;
     solid = false;
     pushable = false;
@@ -251,6 +257,8 @@ export class TargetSpace extends Block{
     //Right, Left, Top, Bottom, Front, Back
     #enterable = [true, true, true, true, true, true];
     #borders = new Array(6);
+    #isOccupied = false;
+    #canTeleportIntoSpace = true;
 
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -269,7 +277,7 @@ export class TargetSpace extends Block{
 
         for(let i = 0; i < 6; i++){
             const currFace = new THREE.PlaneGeometry(1, 1);
-            const borderMaterial = new THREE.MeshPhongMaterial({color: BlockColor[BlockType.TARGET][1], emissive: BlockColor[BlockType.TARGET][1]});
+            const borderMaterial = new THREE.MeshPhongMaterial({color: BlockColor[BlockType.ENTERABLE][1], emissive: BlockColor[BlockType.ENTERABLE][1]});
             const currBorderMesh = new THREE.Mesh(currFace, borderMaterial);
             Helpers.addPositionToItem(currBorderMesh, ...(faceOffsets[i].map(value => value * offsetConstant)));
             //when moving to the left or right, rotate the border by 90 degrees on the y-axis
@@ -284,13 +292,6 @@ export class TargetSpace extends Block{
             this.#borders[i] = currBorderMesh;
         }
         return cube;
-    }
-
-    constructor(height, col, row){
-        super(height, col, row);
-        this._object = this.createMeshObject(BlockColor[this.type][0]);
-         Helpers.setPositionToItem(this._object, col, height, -1*row);
-        this.getObject().renderOrder = BlockRenderOrder.TARGET;
     }
 
     setEnterableDirection(right, left, up, down, front, back){
@@ -309,6 +310,16 @@ export class TargetSpace extends Block{
         });
     }
 
+    //TODO: visual cue for this behaviour
+    toggleTeleportable(status){
+        if(status == true){
+            this.#canTeleportIntoSpace = true;
+        }
+        else{
+            this.#canTeleportIntoSpace = true;
+        }
+    }
+
     canEnterFromDirection(direction){
         switch(direction){
             case PlayerAction.LEFT:
@@ -319,26 +330,19 @@ export class TargetSpace extends Block{
                 return this.#enterable[4];
             case PlayerAction.DOWN:
                 return this.#enterable[5];
+            case PlayerAction.TELEPORT:
+                return this.#canTeleportIntoSpace;
         }
         //for top and bottom directions, handle later with later player actions
         return false;
     }
 
-    setFilled(status, type){
-        if(status == true){
-            if(type === BlockType.PUSHABLE){
-                this.getObject().material.color.setHex(0xff88ff);
-                this.getObject().material.opacity = 0.5;
-            }
-            if(type === BlockType.PULLABLE){
-                this.getObject().material.color.setHex(0xff44dd);
-                this.getObject().material.opacity = 0.4;
-            }
-        }
-        else{
-            this.getObject().material.color.setHex(0x88ffff);
-            this.getObject().material.opacity = 0.8;
-        }
+    setFilled(status){
+        this.#isOccupied = status;
+    }
+
+    getFilled(){
+        return this.#isOccupied;
     }
 
     freeBlockMemory(){
@@ -370,14 +374,48 @@ export class TargetSpace extends Block{
     }
 }
 
-export class Teleporter extends TargetSpace{
+export class TargetSpace extends Enterable{
+    type = BlockType.TARGET;
+    walkable = false;
+    solid = false;
+    pushable = false;
+    pullable = false;
+
+    constructor(height, col, row){
+        super(height, col, row);
+        this._object = this.createMeshObject(BlockColor[this.type]);
+         Helpers.setPositionToItem(this._object, col, height, -1*row);
+        this.getObject().renderOrder = BlockRenderOrder.TARGET;
+    }
+
+    setFilled(status, type){
+        super.setFilled(status);
+        if(status == true){
+            if(type === BlockType.PUSHABLE){
+                this.getObject().material.color.setHex(0xff88ff);
+                this.getObject().material.opacity = 0.5;
+            }
+            if(type === BlockType.PULLABLE){
+                this.getObject().material.color.setHex(0xff44dd);
+                this.getObject().material.opacity = 0.4;
+            }
+        }
+        else{
+            this.getObject().material.color.setHex(BlockColor[this.type]);
+            this.getObject().material.opacity = 0.8;
+        }
+    }
+}
+
+export class Teleporter extends Enterable{
     type = BlockType.TELEPORTER;
     walkable = false;
     solid = false;
     pushable = false;
     pullable = false;
-    #targetFloor = -1;
+    #targetGridID = null;
     #targetPosition = [0, 0, 0];
+    #isUsable = true;
 
     constructor(height, col, row){
         super(height, col, row);
@@ -386,33 +424,37 @@ export class Teleporter extends TargetSpace{
         this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
 
-    setFilled(status, type){
-        // if(status == true){
-        //     if(type === BlockType.PUSHABLE){
-        //         this.getObject().material.color.setHex(0xff88ff);
-        //         this.getObject().material.opacity = 0.5;
-        //     }
-        //     if(type === BlockType.PULLABLE){
-        //         this.getObject().material.color.setHex(0xff44dd);
-        //         this.getObject().material.opacity = 0.4;
-        //     }
-        // }
-        // else{
-        //     this.getObject().material.color.setHex(0x88ffff);
-        //     this.getObject().material.opacity = 0.8;
-        // }
+    setFilled(status){
+        super.setFilled(status);
+        if(status == true){
+            this.getObject().material.color.setHex(0x333333);
+            this.getObject().material.opacity = 0.8;
+            console.log("E")
+        }
+        else{
+            this.getObject().material.color.setHex(BlockColor[this.type]);
+            this.getObject().material.opacity = 0.8;
+        }
     }
 
-    setTargetSpace(floor, height, col, row){
-        this.#targetFloor = floor;
+    setTargetSpace(gridID, height, col, row){
+        this.#targetGridID = gridID;
         this.#targetPosition = [height, col, row];
     }
 
-    getTargetFloor(){
-        return this.#targetFloor;
+    getTargetGridID(){
+        return this.#targetGridID;
     }
 
-    getTargetPosition(){
+    getTargetGridPosition(){
         return this.#targetPosition;
+    }
+
+    setDisabled(){
+        this.#isUsable = false;
+    }
+
+    getUsable(){
+        return this.#isUsable;
     }
 }
