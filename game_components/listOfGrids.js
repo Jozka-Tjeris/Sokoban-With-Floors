@@ -1,17 +1,20 @@
-import { PlayerAction, BlockType } from "./blocks.js";
+import { PlayerAction, BlockType, Player} from "./blocks.js";
 import { GridOfBlocks } from "./grid.js";
+import { PlayerController } from "./playerController.js";
 
 export class ListOfGrids {
     #grids = new Map();
     #numberOfGrids = 0;
     #currentGridID;
     #sceneObj;
+    #playerController;
     #teleporterBlocks;
     #containsPlayer;
 
     constructor(scene){
         this.#containsPlayer = false;
         this.#sceneObj = scene;
+        this.#playerController = new PlayerController(this);
     }
 
     getJSONfromLevel(legends){
@@ -259,5 +262,44 @@ export class ListOfGrids {
         this.#currentGridID = newGridID;
         this.getCurrentGrid().attachToItem(scene);
         return true;
+    }
+
+    updatePlayerActions(keyStates){
+        const grid = this.getCurrentGrid();
+
+        if(!grid){
+            console.log("Current grid doesn't exist, aborting");
+            return;
+        }
+
+        if(grid.getPlayer() instanceof Player == false){
+            console.error("Current grid doesn't have a valid player, aborting");
+            return;
+        }
+
+        const keyNames = [...this.#playerController.getMovementKeys(), "Shift", "e"]
+
+        for(let i = 0; i < keyNames.length; i++){
+            if(keyStates.hasOwnProperty(keyNames[i]) != true){
+                console.error(`Key binding ${keyNames[i]} missing from key states, aborting`);
+                return;
+            }
+        }
+
+        //check player interaction for pulling
+        grid.getPlayer().toggleActionState(keyStates["Shift"], PlayerAction.PULL);
+
+        for(const { keys, action } of this.#playerController.getMovementBindings()){
+            const isKeyHeld = keys.some(keyValue => keyStates[keyValue]);
+            //check if key is held down and action is not perfomed yet
+            if(isKeyHeld && grid.getPlayer() && !grid.getPlayer().getActionState(action)){
+                grid.getPlayer().toggleActionState(true, action);
+                this.#playerController.movePlayerInGrid(grid, grid.getPlayer(), action);
+            }
+            //check if key is no longer held down, unlocks movement for future keypresses
+            if(!isKeyHeld && grid.getPlayer()){
+                grid.getPlayer().toggleActionState(false, action);
+            }
+        }
     }
 }
