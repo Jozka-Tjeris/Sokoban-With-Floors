@@ -89,3 +89,8 @@ Notes:
 - Added teleporter class
 - Added list of grids class
 - Integrated teleporters and list of grids into the main file
+- Added base functionality for teleporters (without occupied checking at destination)
+
+13 July:
+- Abstracted player controller function into a new class
+- Check if player entering teleporter already has its destination occupied in controller
