@@ -1,0 +1,61 @@
+{
+    "grids": [
+        {
+            "gridID": "Level3-A",
+            "gridSize": {"height": 2, "columns": 4, "rows": 5},
+            "layers": [
+                {
+                    "layout": [
+                        "....",
+                        "....",
+                        "....",
+                        "....",
+                        "...."
+                    ]
+                },
+                {
+                    "layout": [
+                        "   S",
+                        "  T ",
+                        " A  ",
+                        "    ",
+                        "P   "
+                    ],
+                    "targets": [
+                        {"position": [3, 4], "directions": "111111"}
+                    ],
+                    "teleporters": [
+                        {"position": [4, 5], "targetGridID": "Level3-B", "targetGridPosition": [2, 2, 2]}
+                    ]
+                }
+            ]
+        },
+        {
+            "gridID": "Level3-B",
+            "gridSize": {"height": 2, "columns": 4, "rows": 5},
+            "layers": [
+                {
+                    "layout": [
+                        "....",
+                        "....",
+                        "....",
+                        "....",
+                        "...."
+                    ]
+                },
+                {
+                    "layout": [
+                        "  W ",
+                        "    ",
+                        " S  ",
+                        "    ",
+                        "    "
+                    ],
+                    "teleporters": [
+                        {"position": [2, 3], "targetGridID": "Level3-A", "targetGridPosition": [2, 1, 1]}
+                    ]
+                }
+            ]
+        }
+    ]
+}
