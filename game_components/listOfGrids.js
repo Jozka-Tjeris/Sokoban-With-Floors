@@ -1,4 +1,4 @@
-import { PlayerAction, BlockType, Player} from "./blocks.js";
+import { PlayerAction, BlockType, Player, Block} from "./blocks.js";
 import { GridOfBlocks } from "./grid.js";
 import { PlayerController } from "./playerController.js";
 
@@ -149,6 +149,13 @@ export class ListOfGrids {
                         this.changeToGrid(value.getTargetGridID(), this.#sceneObj);
                     }
                 }
+            }
+            //check target destination if occupied
+            const targetDest = this.#grids.get(value.getTargetGridID());
+            if(targetDest.getBlock(...value.getTargetGridPosition().map(value => value - 1)) instanceof Block){
+                value.setDestinationOccupied(true);
+            }else{
+                value.setDestinationOccupied(false);
             }
         });
     }
