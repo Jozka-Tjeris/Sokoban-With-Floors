@@ -81,6 +81,9 @@ Notes:
 13 July:
 - Abstracted player controller function into a new class
 - Check if player entering teleporter already has its destination occupied in controller
+- Added level that demonstrates teleporter interactions
 
 14 July:
 - Checked both origin and destination for teleporters for visual updates
+- Added level that demonstrates ID-specific interactions
+- Added condition to check IDs for level completion
