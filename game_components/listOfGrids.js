@@ -207,15 +207,17 @@ export class ListOfGrids {
                     }
                 }
             }
-            //go through target blocks, set enterable directions
+            //go through target blocks, set enterable directions and IDs
             const currTargets = currLayer.targets;
             if(currTargets && Array.isArray(currTargets)){
                 for(let m = 0; m < currTargets.length; m++){
                     const [col, row] = currTargets[m].position;
                     const enterable = currTargets[m].directions.split("").map(element => element == "1");
+                    const id = currTargets[m].id ?? null;
                     const targetBlock = grid.getEnterable(i, col-1, row-1);
                     if(targetBlock){
                         targetBlock.setEnterableDirection(...enterable);
+                        targetBlock.setObjectID(id);
                     }
                     else{
                         console.warn(`No target block found at layer ${i + 1}, col ${col}, row ${row}`);
@@ -235,6 +237,21 @@ export class ListOfGrids {
                     }
                     else{
                         console.warn(`No teleport block found at layer ${i + 1}, col ${col}, row ${row}`);
+                    }
+                }
+            }
+            //go through movable blocks, set IDs
+            const currBlocks = currLayer.blocks;
+            if(currBlocks && Array.isArray(currBlocks)){
+                for(let p = 0; p < currBlocks.length; p++){
+                    const [col, row] = currBlocks[p].position;
+                    const id = currBlocks[p].id ?? null;
+                    const block = grid.getBlock(i, col-1, row-1);
+                    if(block){
+                        block.setObjectID(id);
+                    }
+                    else{
+                        console.warn(`No block found at layer ${i + 1}, col ${col}, row ${row}`);
                     }
                 }
             }
