@@ -39,11 +39,15 @@ const BlockColor = {
     [BlockType.PLAYER]: 0xffff00,
     [BlockType.PUSHABLE]: 0x0000ff,
     [BlockType.PULLABLE]: 0xff9911,
+    //alternating colors depending on parity
     [BlockType.WALL]: [0xff0000, 0x00ff00],
     [BlockType.FLOOR]: [0x444444, 0xbcbcbc],
+    //placeholder followed by border color
     [BlockType.ENTERABLE]: [0x0, 0x371300],
-    [BlockType.TARGET]: 0xa8ffff,
-    [BlockType.TELEPORTER]: 0xfcba03
+    //default color, push correct, pull correct, push incorrect, pull incorrect
+    [BlockType.TARGET]: [0xa8ffff, 0xff88ff, 0xff44dd, 0xc2185b, 0xd70000],
+    //active color, occupied color
+    [BlockType.TELEPORTER]: [0xfcba03, 0xa8914a]
 }
 
 export class Block{
@@ -56,6 +60,7 @@ export class Block{
     #height;
     #col;
     #row;
+    #objectID;
 
     createMeshObject(colorParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -82,6 +87,7 @@ export class Block{
         this.#height = height;
         this.#col = col;
         this.#row = row;
+        this.#objectID = null;
     }
 
     getPosition(){
@@ -106,6 +112,14 @@ export class Block{
 
     isPullable(){
         return this.pullable;
+    }
+
+    setObjectID(id){
+        this.#objectID = id.toString();
+    }
+
+    getObjectID(){
+        return this.#objectID;
     }
 
     freeBlockMemory(){
@@ -382,25 +396,60 @@ export class TargetSpace extends Enterable{
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(BlockColor[this.type]);
+        this._object = this.createMeshObject(BlockColor[this.type][0]);
          Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.TARGET;
     }
 
-    setFilled(status, type){
+    checkID(id){
+        //No ID block entering ID target
+        if(this.getObjectID() != null && id == null){
+            return false;
+        }
+        //ID block entering no ID target
+        if(this.getObjectID() == null && id != null){
+            return false;
+        }
+        //ID block entering ID target
+        if(this.getObjectID() != null && id != null){
+            //Check if IDs match
+            if(this.getObjectID() === id){
+                return true;
+            }
+            return false;
+        }
+        //No ID block entering no ID target
+        if(this.getObjectID() == null && id == null){
+            return true;
+        }
+    }
+
+    setFilled(status, type, id){
         super.setFilled(status);
         if(status == true){
-            if(type === BlockType.PUSHABLE){
-                this.getObject().material.color.setHex(0xff88ff);
-                this.getObject().material.opacity = 0.5;
+            if(this.checkID(id)){
+                if(type === BlockType.PUSHABLE){
+                    this.getObject().material.color.setHex(BlockColor[this.type][1]);
+                    this.getObject().material.opacity = 0.5;
+                }
+                if(type === BlockType.PULLABLE){
+                    this.getObject().material.color.setHex(BlockColor[this.type][2]);
+                    this.getObject().material.opacity = 0.4;
+                }
             }
-            if(type === BlockType.PULLABLE){
-                this.getObject().material.color.setHex(0xff44dd);
-                this.getObject().material.opacity = 0.4;
+            else{
+                if(type === BlockType.PUSHABLE){
+                    this.getObject().material.color.setHex(BlockColor[this.type][3]);
+                    this.getObject().material.opacity = 0.5;
+                }
+                if(type === BlockType.PULLABLE){
+                    this.getObject().material.color.setHex(BlockColor[this.type][4]);
+                    this.getObject().material.opacity = 0.4;
+                }
             }
         }
         else{
-            this.getObject().material.color.setHex(BlockColor[this.type]);
+            this.getObject().material.color.setHex(BlockColor[this.type][0]);
             this.getObject().material.opacity = 0.8;
         }
     }
@@ -418,19 +467,18 @@ export class Teleporter extends Enterable{
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(BlockColor[this.type]);
+        this._object = this.createMeshObject(BlockColor[this.type][0]);
         Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
 
-    setFilled(status){
-        super.setFilled(status);
+    setDestinationOccupied(status){
         if(status == true){
-            this.getObject().material.color.setHex(0x333333);
+            this.getObject().material.color.setHex(BlockColor[this.type][1]);
             this.getObject().material.opacity = 0.8;
         }
         else{
-            this.getObject().material.color.setHex(BlockColor[this.type]);
+            this.getObject().material.color.setHex(BlockColor[this.type][0]);
             this.getObject().material.opacity = 0.8;
         }
     }
