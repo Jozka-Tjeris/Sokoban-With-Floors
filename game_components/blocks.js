@@ -20,8 +20,7 @@ export const PlayerAction = {
     LEFT: 2,
     RIGHT: 3,
     PULL: 4,
-    INTERACT: 5,
-    TELEPORT: 6
+    TELEPORT: 5
 }
 
 const BlockRenderOrder = {
@@ -173,8 +172,8 @@ export class Player extends Block{
     solid = true;
     pushable = false;
     pullable = false;
-    //up, down, left, right, pull, interact, teleport
-    #currentStates = [false, false, false, false, false, false, false];
+    //up, down, left, right, pull, teleport
+    #currentStates = [false, false, false, false, false, false];
 
     createMeshObject(colorParam){
         const geometry = new THREE.SphereGeometry(0.25, 10, 10);
@@ -429,7 +428,6 @@ export class Teleporter extends Enterable{
         if(status == true){
             this.getObject().material.color.setHex(0x333333);
             this.getObject().material.opacity = 0.8;
-            console.log("E")
         }
         else{
             this.getObject().material.color.setHex(BlockColor[this.type]);

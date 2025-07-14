@@ -115,7 +115,6 @@ export class ListOfGrids {
         const oldBlock = oldGrid.getBlock(...oldPosition);
         if(oldBlock == null) return false;
         const ajustedNewPos = newPosition.map(value => value - 1);
-        console.log(newGrid.getBlock(...ajustedNewPos))
         if(newGrid.getBlock(...ajustedNewPos)){
             console.warn(`Block already occupies destination of teleporter for grid ${newGrid.getGridID()} at position ${newPosition}`);
             return false;
@@ -129,7 +128,6 @@ export class ListOfGrids {
         }
         const adjustedOldPos = oldPosition.map(value => value + 1);
         oldGrid.removeBlock(...adjustedOldPos);
-        console.log(oldGrid.getGridID(), newGrid.getGridID(), this.getCurrentGrid().getGridID(), newPosition)
         newGrid.addBlockToGrid(oldBlock.type, ...newPosition);
         if(isPlayer){
             for (const value in PlayerAction) {
@@ -141,7 +139,6 @@ export class ListOfGrids {
 
     checkAllTeleporters(){
         this.#teleporterBlocks.forEach(value => {
-            console.log(value.getFilled())
             if(value.getFilled()){
                 let oldBlock = this.getCurrentGrid().getBlock(...value.getPosition());
                 const successful = this.transportBlockToGrid(this.getCurrentGrid(), this.#grids.get(value.getTargetGridID()), value.getPosition(), value.getTargetGridPosition());
@@ -274,7 +271,9 @@ export class ListOfGrids {
             return;
         }
 
-        const keyNames = [...this.#playerController.getMovementKeys(), "Shift", "e"]
+        const keyNames = [...this.#playerController.getMovementKeys(), 
+            this.#playerController.getPullingKey()
+        ]
 
         for(let i = 0; i < keyNames.length; i++){
             if(keyStates.hasOwnProperty(keyNames[i]) != true){
@@ -284,7 +283,7 @@ export class ListOfGrids {
         }
 
         //check player interaction for pulling
-        grid.getPlayer().toggleActionState(keyStates["Shift"], PlayerAction.PULL);
+        grid.getPlayer().toggleActionState(keyStates[this.#playerController.getPullingKey()], PlayerAction.PULL);
 
         for(const { keys, action } of this.#playerController.getMovementBindings()){
             const isKeyHeld = keys.some(keyValue => keyStates[keyValue]);

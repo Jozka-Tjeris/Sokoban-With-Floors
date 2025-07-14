@@ -77,8 +77,7 @@ const keyStates = {
     "a": false, "ArrowLeft": false, 
     "s": false, "ArrowDown": false, 
     "d": false, "ArrowRight": false,
-    "Shift": false, 
-    "e": false
+    "Shift": false
 };
 
 const cameraBindings = [

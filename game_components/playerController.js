@@ -21,6 +21,10 @@ export class PlayerController{
         return ["w", "s", "a", "d"];
     }
 
+    getPullingKey(){
+        return "Shift";
+    }
+
     movePlayerInGrid(grid, player, direction){
         //stop if grid is null
         if(!grid) return;
@@ -49,22 +53,12 @@ export class PlayerController{
             return;
         }
     
-        //Future idea: When checking to change floors, two options: make a special case for checking in bounds
-        //or make the grid size n+1 * m, n+1 denoting the position where the changing floor block resides
-    
         //check if player's next tile is a walkable tile
         if(grid.isBlockBelowWalkable(...newPosition) == false){
             return;
         }
-        //check if player attempts to use multiple actions at once
-        if(player.getActionState(PlayerAction.PULL) == true 
-            && player.getActionState(PlayerAction.INTERACT) == true){
-            console.log("Player is not allowed to perform two actions at the same time");
-            return;
-        }
-        //check if player is not pulling or interacting (default move = pushing)
-        else if(player.getActionState(PlayerAction.PULL) == false 
-            && player.getActionState(PlayerAction.INTERACT) == false){
+        //check if player is not pulling (default move = pushing)
+        else if(player.getActionState(PlayerAction.PULL) == false){
             //check if a pushable block is in front of the player
             if(grid.isBlockPushable(...newPosition)){
                 //check if pushable block will stay in bounds
@@ -117,9 +111,8 @@ export class PlayerController{
                 console.log("Current target spaces all filled: " + grid.verifyTargetSpaces());
             }
         }
-        //checks if the player is pulling and not interacting
-        else if(player.getActionState(PlayerAction.PULL) == true
-            && player.getActionState(PlayerAction.INTERACT) == false){
+        //checks if the player is pulling
+        else if(player.getActionState(PlayerAction.PULL) == true){
             //check if position to pull from is in bounds
             if(grid.checkCoordinateInBounds(...newPullableBlockPosition) == false){
                 console.log("Pullable block can't be out of bounds");
@@ -158,13 +151,5 @@ export class PlayerController{
         }
     
         this.#level.checkAllTeleporters();
-    
-        /*
-        Possible future cases:
-        - Pushing/pulling from elevated levels (if floors can be different heights).
-        - Multiple input state conflicts (e.g. if Shift + Interact is a future mechanic).
-        - Undo history support (you may want to store previous positions of both player and block).
-        - Simultaneous move requests (from holding a key).
-        */
     }
 }
