@@ -115,7 +115,8 @@ export class Block{
     }
 
     setObjectID(id){
-        this.#objectID = id.toString();
+        if(!id) this.#objectID = null;
+        else this.#objectID = id.toString();
     }
 
     getObjectID(){
@@ -436,6 +437,7 @@ export class TargetSpace extends Enterable{
                     this.getObject().material.color.setHex(BlockColor[this.type][2]);
                     this.getObject().material.opacity = 0.4;
                 }
+                return true;
             }
             else{
                 if(type === BlockType.PUSHABLE){
@@ -446,12 +448,14 @@ export class TargetSpace extends Enterable{
                     this.getObject().material.color.setHex(BlockColor[this.type][4]);
                     this.getObject().material.opacity = 0.4;
                 }
+                return false;
             }
         }
         else{
             this.getObject().material.color.setHex(BlockColor[this.type][0]);
             this.getObject().material.opacity = 0.8;
         }
+        return false;
     }
 }
 

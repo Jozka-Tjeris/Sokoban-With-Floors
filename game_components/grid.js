@@ -327,21 +327,25 @@ export class GridOfBlocks{
                 const position = value.getPosition();
                 const currentBlock = this.getBlock(...position);
                 const isMovableBlock = currentBlock instanceof Blocks.Block && (currentBlock.type === Blocks.BlockType.PUSHABLE || currentBlock.type === Blocks.BlockType.PULLABLE);
-                state &&= isMovableBlock;
                 if(isMovableBlock){
-                    value.setFilled(true, currentBlock.type, currentBlock.getObjectID());
+                    //important to do these separately to prevent early falsy evaluation
+                    const isCorrectlyFilled = value.setFilled(true, currentBlock.type, currentBlock.getObjectID());
+                    state &&= isCorrectlyFilled;
                 }
                 else{
-                    value.setFilled(false, null, null);
+                    const isCorrectlyFilled = value.setFilled(false, null, null);
+                    state &&= isCorrectlyFilled;
                 }
             }
             if(value instanceof Blocks.Teleporter){
                 const currPosition = value.getPosition();
                 if(this.getBlock(...currPosition)){
-                    value.setFilled(true);
+                    const isCorrectlyFilled = value.setFilled(true);
+                    state &&= isCorrectlyFilled;
                 }
                 else{
-                    value.setFilled(false);
+                    const isCorrectlyFilled = value.setFilled(false);
+                    state &&= isCorrectlyFilled;
                 }
             }
         });
