@@ -145,7 +145,6 @@ export class GridOfBlocks{
         }
         this.#gridArray[height - 1][col - 1][row - 1] = null;
         if(isPlayer){
-            console.log("EEE")
             this.#playerObject = null;
         }
     }
@@ -344,8 +343,6 @@ export class GridOfBlocks{
                 const currPosition = value.getPosition();
                 if(this.getBlock(...currPosition)){
                     value.setFilled(true);
-                    console.log(value, this.#gridID)
-                    console.log("HI")
                 }
                 else{
                     value.setFilled(false);
