@@ -326,17 +326,13 @@ export class GridOfBlocks{
             if(value instanceof Blocks.TargetSpace){
                 const position = value.getPosition();
                 const currentBlock = this.getBlock(...position);
-                const containsPushable = currentBlock instanceof Blocks.PushableBlock;
-                const containsPullable = currentBlock instanceof Blocks.PullableBlock;
-                state &&= containsPushable || containsPullable;
-                if(containsPushable){
-                    value.setFilled(true, Blocks.BlockType.PUSHABLE);
-                }
-                else if(containsPullable){
-                    value.setFilled(true, Blocks.BlockType.PULLABLE);
+                const isMovableBlock = currentBlock instanceof Blocks.Block && (currentBlock.type === Blocks.BlockType.PUSHABLE || currentBlock.type === Blocks.BlockType.PULLABLE);
+                state &&= isMovableBlock;
+                if(isMovableBlock){
+                    value.setFilled(true, currentBlock.type, currentBlock.getObjectID());
                 }
                 else{
-                    value.setFilled(false, null);
+                    value.setFilled(false, null, null);
                 }
             }
             if(value instanceof Blocks.Teleporter){
