@@ -89,7 +89,8 @@ export class PlayerController{
                 //apply change if prerequisites are met
                 grid.swapBlocks(...newPosition, ...newPushableBlockPosition);
                 grid.swapBlocks(...player.getPosition(), ...newPosition);
-                console.log("Current target spaces all filled from pushable block: " + grid.verifyTargetSpaces());
+                grid.updateTeleporters();
+                console.log("Pushable block has moved.");
             }
             else{
                 //non-pushable block, check if block is passable instead
@@ -108,7 +109,8 @@ export class PlayerController{
                     }
                 }
                 grid.swapBlocks(...player.getPosition(), ...newPosition);
-                console.log("Current target spaces all filled: " + grid.verifyTargetSpaces());
+                grid.updateTeleporters();
+                console.log("Player has moved.");
             }
         }
         //checks if the player is pulling
@@ -147,9 +149,9 @@ export class PlayerController{
             //apply change if prerequisites are met
             grid.swapBlocks(...player.getPosition(), ...newPosition);
             grid.swapBlocks(...newPullableBlockPosition, ...oldPlayerPosition);
-            console.log("Current target spaces all filled from pullable block: " + grid.verifyTargetSpaces());
+            grid.updateTeleporters();
+            console.log("Pullable block has moved");
         }
-    
         this.#level.checkAllTeleporters();
     }
 }

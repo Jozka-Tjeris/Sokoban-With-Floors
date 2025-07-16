@@ -315,6 +315,13 @@ export class ListOfGrids {
             if(isKeyHeld && grid.getPlayer() && !grid.getPlayer().getActionState(action)){
                 grid.getPlayer().toggleActionState(true, action);
                 this.#playerController.movePlayerInGrid(grid, grid.getPlayer(), action);
+                //check all grids
+                let areAllTargetsFilled = true;
+                this.#grids.values().forEach(value => {
+                    const expression = value.verifyTargetSpaces();
+                    areAllTargetsFilled &&= expression;
+                })
+                console.log("All target spaces filled: " + areAllTargetsFilled);
             }
             //check if key is no longer held down, unlocks movement for future keypresses
             if(!isKeyHeld && grid.getPlayer()){

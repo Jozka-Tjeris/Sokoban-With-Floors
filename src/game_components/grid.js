@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import * as Helpers from '../utilities/helpers';
-import * as Blocks from './blocks';
+import * as Helpers from '../utilities/helpers.js';
+import * as Blocks from './blocks.js';
 
 export class GridOfBlocks{
     //Outermost layer stores floors
@@ -340,16 +340,29 @@ export class GridOfBlocks{
             if(value instanceof Blocks.Teleporter){
                 const currPosition = value.getPosition();
                 if(this.getBlock(...currPosition)){
-                    const isCorrectlyFilled = value.setFilled(true);
-                    state &&= isCorrectlyFilled;
+                    value.setFilled(true);
                 }
                 else{
-                    const isCorrectlyFilled = value.setFilled(false);
-                    state &&= isCorrectlyFilled;
+                    value.setFilled(false);
                 }
             }
         });
         return state;
+    }
+
+    updateTeleporters(){
+        //checks if every target space is filled
+        this.#enterableSpaces.forEach((value, key) => {
+            if(value instanceof Blocks.Teleporter){
+                const currPosition = value.getPosition();
+                if(this.getBlock(...currPosition)){
+                    value.setFilled(true);
+                }
+                else{
+                    value.setFilled(false);
+                }
+            }
+        });
     }
 
     getCols(){ 
