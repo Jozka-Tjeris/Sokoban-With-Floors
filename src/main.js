@@ -89,10 +89,10 @@ const keyStates = {
 };
 
 const cameraBindings = [
-    { keys: ["ArrowUp"], action: [0, 1, 0] },
-    { keys: ["ArrowLeft"], action: [-1, 0, 0] },
-    { keys: ["ArrowRight"], action: [1, 0, 0] },
-    { keys: ["ArrowDown"], action: [0, -1, 0] }
+    { keys: ["ArrowUp"], action: [0, 0.05, 0] },
+    { keys: ["ArrowLeft"], action: [-0.05, 0, 0] },
+    { keys: ["ArrowRight"], action: [0.05, 0, 0] },
+    { keys: ["ArrowDown"], action: [0, -0.05, 0] }
 ];
 
 function updateAnimationList(currentTime){
@@ -119,14 +119,12 @@ function updateAnimationList(currentTime){
     }
 }
 
-function updateCameraPosition(camera){
+function updateCameraPosition(){
     for(const { keys, action } of cameraBindings){
         const isKeyHeld = keys.some(keyValue => keyStates[keyValue]);
         //check if key is held down and action is not perfomed yet
         if(isKeyHeld){
-            camera.position.x += action[0];
-            camera.position.y += action[1];
-            camera.position.z += action[2];
+            listOfGrids.moveCameraInGrid(...action);
         }
     }
 }
@@ -218,6 +216,8 @@ async function loadLevel(levelName) {
             alert("Level file has errors. See console.");
             throw new Error("Invalid file format");
         }
+        console.log(THREE.Cache.files); // Any leftover files
+        console.log(renderer.info.memory);
         //Level loading starts here
         listOfGrids.initLevelFromJSON(levelData, legends);
     }
