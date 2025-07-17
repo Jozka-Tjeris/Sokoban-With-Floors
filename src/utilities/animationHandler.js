@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { activeAnimationList, animationDuration, teleportAnimationDuration } from '../main';
 
 export function animatePositionOffsetToItem(item, x, y, z){
