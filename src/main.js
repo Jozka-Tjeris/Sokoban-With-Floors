@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import * as Blocks from './game_components/blocks.js';
 import { saveLevelFile, sendLevelData } from './utilities/exportLevel.js';
 import { triggerFileImport } from './utilities/importLevel.js';
 import { ListOfGrids } from './game_components/listOfGrids.js';
@@ -53,6 +52,9 @@ function createLight(colorParam){
 }
 
 const ORTHOGRAPHIC_CAMERA_HALF_HEIGHT = 5;
+export const activeAnimationList = [];
+export const animationDuration = 200;
+export const teleportAnimationDuration = 500;
 
 const [gameContainer, canvas, scene, camera, renderer] = initApplication();
 scene.background = new THREE.Color("rgb(150, 150, 150)");
@@ -87,6 +89,30 @@ const cameraBindings = [
     { keys: ["ArrowDown"], action: [0, -1, 0] }
 ];
 
+function updateAnimationList(currentTime){
+    for(let i = activeAnimationList.length - 1; i >= 0; i--){
+        const currentAnimation = activeAnimationList[i];
+        const elapsedTime = currentTime - currentAnimation.startTime;
+        //the phase of animation (0 to duration)
+        const t = Math.min(elapsedTime / currentAnimation.duration, 1);
+
+        currentAnimation.object.position.lerpVectors(currentAnimation.startPos, currentAnimation.endPos, t);
+        currentAnimation.changeOpacity?.(t);
+
+        if (t >= 1){
+            currentAnimation.object.position.copy(currentAnimation.endPos);
+            currentAnimation.finalizeOpacity?.();
+            //remove finished animation
+            activeAnimationList.splice(i, 1);
+            currentAnimation.onComplete?.();
+        }
+    }
+    if(listOfGrids.getCheckTeleporters() && activeAnimationList.length === 0){
+        listOfGrids.checkAllTeleporters();
+        listOfGrids.setCheckTeleporters(false);
+    }
+}
+
 function updateCameraPosition(camera){
     for(const { keys, action } of cameraBindings){
         const isKeyHeld = keys.some(keyValue => keyStates[keyValue]);
@@ -99,8 +125,9 @@ function updateCameraPosition(camera){
     }
 }
 
-function animate(){
+function animate(now){
     updateCameraIfResized();
+    updateAnimationList(now);
     listOfGrids.updatePlayerActions(keyStates);
     updateCameraPosition(camera);
     renderer.render(scene, camera);

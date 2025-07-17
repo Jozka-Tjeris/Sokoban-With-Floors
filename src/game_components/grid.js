@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as Helpers from '../utilities/helpers.js';
 import * as Blocks from './blocks.js';
+import { BlockType } from './blockConstants.js';
 
 export class GridOfBlocks{
     //Outermost layer stores floors
@@ -15,6 +16,7 @@ export class GridOfBlocks{
     #cols;
     #rows;
     #gridID;
+    #newAnimationCall;
 
     constructor(height, col, row){
         this.#gridGroup = new THREE.Group();
@@ -31,6 +33,10 @@ export class GridOfBlocks{
                 this.#gridArray[k][i] = new Array(row).fill(null);
             }
         }
+    }
+
+    setAnimationCall(func){
+        this.#newAnimationCall = func;
     }
 
     setGridID(newID){
@@ -77,38 +83,38 @@ export class GridOfBlocks{
 
         let cttrClass = null;
         switch(blockType){
-            case Blocks.BlockType.FLOOR:
+            case BlockType.FLOOR:
                 cttrClass = Blocks.Floor; 
                 break;
-            case Blocks.BlockType.WALL:
+            case BlockType.WALL:
                 cttrClass = Blocks.Wall;
                 break;
-            case Blocks.BlockType.PLAYER:
+            case BlockType.PLAYER:
                 cttrClass = Blocks.Player;
                 if(this.#playerObject instanceof Blocks.Player){
                     console.log("Player already exists in the grid");
                     return;
                 }
                 break;
-            case Blocks.BlockType.PUSHABLE:
+            case BlockType.PUSHABLE:
                 cttrClass = Blocks.PushableBlock;
                 break;
-            case Blocks.BlockType.PULLABLE:
+            case BlockType.PULLABLE:
                 cttrClass = Blocks.PullableBlock;
                 break;
-            case Blocks.BlockType.TARGET:
+            case BlockType.TARGET:
                 const targetBlock = new Blocks.TargetSpace(...dimensionParams);
                 const keyPosition = dimensionParams.toString().replaceAll(',', ':');
                 this.#enterableSpaces.set(keyPosition, targetBlock);
                 this.#gridGroup.add(targetBlock.getObject());
                 return targetBlock;
-            case Blocks.BlockType.TELEPORTER:
+            case BlockType.TELEPORTER:
                 const elevChangeBlock = new Blocks.Teleporter(...dimensionParams);
                 const elevChangePosition = dimensionParams.toString().replaceAll(',', ':');
                 this.#enterableSpaces.set(elevChangePosition, elevChangeBlock);
                 this.#gridGroup.add(elevChangeBlock.getObject());
                 return elevChangeBlock;
-            case Blocks.BlockType.NONE:
+            case BlockType.NONE:
                 return;
             default:
                 console.log("Block type: " + blockType + " unsupported");
@@ -167,11 +173,20 @@ export class GridOfBlocks{
         this.#gridArray[height2][col2][row2] = block1;
 
         //use coordinate system to move blocks around
+        // if(block1 != null){
+        //     block1.addDistanceToObject(height2 - height1, col2 - col1, row2 - row1);
+        // }
+        // if(block2 != null){
+        //     block2.addDistanceToObject(height1 - height2, col1 - col2, row1 - row2);
+        // }
+
         if(block1 != null){
-            block1.addDistanceToObject(height2 - height1, col2 - col1, row2 - row1);
+            block1.addAnimationToObject(height2 - height1, col2 - col1, row2 - row1);
+            this.#newAnimationCall?.();
         }
         if(block2 != null){
-            block2.addDistanceToObject(height1 - height2, col1 - col2, row1 - row2);
+            block2.addAnimationToObject(height1 - height2, col1 - col2, row1 - row2);
+            this.#newAnimationCall?.();
         }
     }
 
@@ -312,7 +327,7 @@ export class GridOfBlocks{
             console.log("Position already occupied");
             return;
         }
-        if(this.#playerObject instanceof Blocks.Player && blocktype == Blocks.BlockType.PLAYER){
+        if(this.#playerObject instanceof Blocks.Player && blocktype == BlockType.PLAYER){
             console.log("Player already exists");
             return;
         }
@@ -326,7 +341,7 @@ export class GridOfBlocks{
             if(value instanceof Blocks.TargetSpace){
                 const position = value.getPosition();
                 const currentBlock = this.getBlock(...position);
-                const isMovableBlock = currentBlock instanceof Blocks.Block && (currentBlock.type === Blocks.BlockType.PUSHABLE || currentBlock.type === Blocks.BlockType.PULLABLE);
+                const isMovableBlock = currentBlock instanceof Blocks.Block && (currentBlock.type === BlockType.PUSHABLE || currentBlock.type === BlockType.PULLABLE);
                 if(isMovableBlock){
                     //important to do these separately to prevent early falsy evaluation
                     const isCorrectlyFilled = value.setFilled(true, currentBlock.type, currentBlock.getObjectID());
@@ -406,6 +421,7 @@ export class GridOfBlocks{
         this.#gridGroup.clear();
         this.#gridArray = [];
         this.#playerObject = null;
+        this.#newAnimationCall = null;
     }
 
     convertToJSONString(legendData){
