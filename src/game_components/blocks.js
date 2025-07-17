@@ -86,13 +86,17 @@ export class Block{
     freeBlockMemory(){
         if(this._object){
             this._object.traverse((child) => {
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) {
-                    if (Array.isArray(child.material)) {
+                if(child.geometry) child.geometry.dispose();
+                if(child.material){
+                    if(Array.isArray(child.material)){
                         child.material.forEach((mat) => mat.dispose());
-                    } else {
+                    } 
+                    else{
                         child.material.dispose();
                     }
+                }
+                if(child.texture){
+                    child.texture.dispose();
                 }
             });
             this._object.clear();
