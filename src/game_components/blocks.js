@@ -1,54 +1,7 @@
 import * as THREE from 'three';
 import * as Helpers from '../utilities/helpers';
-
-export const BlockType = {
-    NONE: 'none',
-    BLOCK: 'block',
-    ENTERABLE: 'enterable',
-    PLAYER: 'player',
-    PUSHABLE: 'pushable',
-    PULLABLE: 'pullable',
-    WALL: 'wall',
-    FLOOR: 'floor',
-    TARGET: 'target',
-    TELEPORTER: 'teleporter'
-};
-
-export const PlayerAction = {
-    UP: 0,
-    DOWN: 1,
-    LEFT: 2,
-    RIGHT: 3,
-    PULL: 4,
-    TELEPORT: 5
-}
-
-const BlockRenderOrder = {
-    NONE: 0,
-    FLOOR: 0,
-    WALL: 1,
-    TRANSPARENT_BLOCK: 2,
-    TARGET: 3,
-    BORDER: 4,
-    PLAYER: 5
-}
-
-const BlockColor = {
-    [BlockType.NONE]: 0x0,
-    [BlockType.BLOCK]: 0x222222,
-    [BlockType.PLAYER]: 0xffff00,
-    [BlockType.PUSHABLE]: 0x0000ff,
-    [BlockType.PULLABLE]: 0xff9911,
-    //alternating colors depending on parity
-    [BlockType.WALL]: [0xff0000, 0x00ff00],
-    [BlockType.FLOOR]: [0x444444, 0xbcbcbc],
-    //placeholder followed by border color
-    [BlockType.ENTERABLE]: [0x0, 0x371300],
-    //default color, push correct, pull correct, push incorrect, pull incorrect
-    [BlockType.TARGET]: [0xa8ffff, 0xff88ff, 0xff44dd, 0xc2185b, 0xd70000],
-    //active color, occupied color
-    [BlockType.TELEPORTER]: [0xfcba03, 0xa8914a]
-}
+import * as AnimHelpers from '../utilities/animationHandler.js';
+import { BlockType, PlayerAction, BlockRenderOrder, BlockColor, BlockOpacity } from './blockConstants.js';
 
 export class Block{
     type = BlockType.BLOCK;
@@ -62,9 +15,9 @@ export class Block{
     #row;
     #objectID;
 
-    createMeshObject(colorParam){
+    createMeshObject(colorParam, opacityParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam} );
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, opacity: opacityParam} );
         const cube = new THREE.Mesh(geometry, material);
         cube.renderOrder = BlockRenderOrder.NONE;
         return cube;
@@ -75,6 +28,13 @@ export class Block{
         this.#col += addCol;
         this.#row += addRow;
         Helpers.addPositionToItem(this._object, addCol, addHeight, -1*addRow);
+    }
+
+    addAnimationToObject(addHeight, addCol, addRow){
+        this.#height += addHeight;
+        this.#col += addCol;
+        this.#row += addRow;
+        AnimHelpers.animatePositionOffsetToItem(this._object, addCol, addHeight, -1*addRow);
     }
 
     constructor(height, col, row){
@@ -148,9 +108,9 @@ export class Floor extends Block{
     pushable = false;
     pullable = false;
 
-    createMeshObject(colorParam){
+    createMeshObject(colorParam, opacityParam){
         const geometry = new THREE.BoxGeometry(1, 0.5, 1);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam} );
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, opacity: opacityParam} );
         const cube = new THREE.Mesh(geometry, material);
         return cube;
     }
@@ -158,7 +118,7 @@ export class Floor extends Block{
     constructor(height, col, row){
         super(height, col, row);
         const option = (height + col + row) % 2;
-        this._object = this.createMeshObject(BlockColor[this.type][option]);
+        this._object = this.createMeshObject(BlockColor[this.type][option], BlockOpacity[this.type]);
         Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.addDistanceToObject(0.25, 0, 0);
         this.getObject().renderOrder = BlockRenderOrder.FLOOR;
@@ -175,8 +135,8 @@ export class Wall extends Block{
     constructor(height, col, row){
         super(height, col, row);
         const option = (height + col + row) % 2;
-        this._object = this.createMeshObject(BlockColor[this.type][option]);
-         Helpers.setPositionToItem(this._object, col, height, -1*row);
+        this._object = this.createMeshObject(BlockColor[this.type][option], BlockOpacity[this.type]);
+        Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.WALL;
     }
 }
@@ -190,9 +150,9 @@ export class Player extends Block{
     //up, down, left, right, pull, teleport
     #currentStates = [false, false, false, false, false, false];
 
-    createMeshObject(colorParam){
+    createMeshObject(colorParam, opacityParam){
         const geometry = new THREE.SphereGeometry(0.25, 10, 10);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam} );
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, opacity: opacityParam, transparent: true} );
         const sphere = new THREE.Mesh(geometry, material);
         Helpers.addPositionToItem(sphere, 0, 0.55, 0);
         const baseGeometry = new THREE.CylinderGeometry(0.2, 0.25, 0.45, 10, 1, false);
@@ -203,8 +163,8 @@ export class Player extends Block{
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(BlockColor[this.type]);
-         Helpers.setPositionToItem(this._object, col, height, -1*row);
+        this._object = this.createMeshObject(BlockColor[this.type], BlockOpacity[this.type]);
+        Helpers.setPositionToItem(this._object, col, height, -1*row);
         Helpers.addPositionToItem(this._object, 0, -0.3, 0);
         this.getObject().renderOrder = BlockRenderOrder.PLAYER;
     }
@@ -225,17 +185,19 @@ export class PushableBlock extends Block{
     pushable = true;
     pullable = false;
 
-    createMeshObject(colorParam){
+    createMeshObject(colorParam, opacityParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.7} );
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: opacityParam} );
         const cube = new THREE.Mesh(geometry, material);
         return cube;
     }
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(BlockColor[this.type]);
-         Helpers.setPositionToItem(this._object, col, height, -1*row);
+        this._object = this.createMeshObject(BlockColor[this.type], BlockOpacity[this.type]);
+        Helpers.setPositionToItem(this._object, col, height, -1*row);
+        //set to lower priority in drawing order to prevent z-fighting with target spaces when animating
+        Helpers.addPositionToItem(this._object, -0.0005, -0.0005, -0.0005);
         this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
 }
@@ -247,17 +209,19 @@ export class PullableBlock extends Block{
     pushable = false;
     pullable = true;
 
-    createMeshObject(colorParam){
+    createMeshObject(colorParam, opacityParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: 0.8} );
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, transparent: true, opacity: opacityParam} );
         const cube = new THREE.Mesh(geometry, material);
         return cube;
     }
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(BlockColor[this.type]);
-         Helpers.setPositionToItem(this._object, col, height, -1*row);
+        this._object = this.createMeshObject(BlockColor[this.type], BlockOpacity[this.type]);
+        Helpers.setPositionToItem(this._object, col, height, -1*row);
+        //set to lower priority in drawing order to prevent z-fighting with target spaces when animating
+        Helpers.addPositionToItem(this._object, -0.0005, -0.0005, -0.0005);
         this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
 }
@@ -274,9 +238,9 @@ class Enterable extends Block{
     #isOccupied = false;
     #canTeleportIntoSpace = true;
 
-    createMeshObject(colorParam){
+    createMeshObject(colorParam, opacityParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshPhongMaterial({color: colorParam, transparent: true, opacity: 0.8});
+        const material = new THREE.MeshPhongMaterial({color: colorParam, transparent: true, opacity: opacityParam});
         const cube = new THREE.Mesh(geometry, material);
 
         const offsetConstant = 0.6;
@@ -397,8 +361,8 @@ export class TargetSpace extends Enterable{
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(BlockColor[this.type][0]);
-         Helpers.setPositionToItem(this._object, col, height, -1*row);
+        this._object = this.createMeshObject(BlockColor[this.type][0], BlockOpacity[this.type][0]);
+        Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.TARGET;
     }
 
@@ -431,29 +395,29 @@ export class TargetSpace extends Enterable{
             if(this.checkID(id)){
                 if(type === BlockType.PUSHABLE){
                     this.getObject().material.color.setHex(BlockColor[this.type][1]);
-                    this.getObject().material.opacity = 0.5;
+                    this.getObject().material.opacity = BlockOpacity[this.type][1];
                 }
                 if(type === BlockType.PULLABLE){
                     this.getObject().material.color.setHex(BlockColor[this.type][2]);
-                    this.getObject().material.opacity = 0.4;
+                    this.getObject().material.opacity = BlockOpacity[this.type][2];
                 }
                 return true;
             }
             else{
                 if(type === BlockType.PUSHABLE){
                     this.getObject().material.color.setHex(BlockColor[this.type][3]);
-                    this.getObject().material.opacity = 0.5;
+                    this.getObject().material.opacity = BlockOpacity[this.type][3];
                 }
                 if(type === BlockType.PULLABLE){
                     this.getObject().material.color.setHex(BlockColor[this.type][4]);
-                    this.getObject().material.opacity = 0.4;
+                    this.getObject().material.opacity = BlockOpacity[this.type][4];
                 }
                 return false;
             }
         }
         else{
             this.getObject().material.color.setHex(BlockColor[this.type][0]);
-            this.getObject().material.opacity = 0.8;
+            this.getObject().material.opacity = BlockOpacity[this.type][0];
         }
         return false;
     }
@@ -471,7 +435,7 @@ export class Teleporter extends Enterable{
 
     constructor(height, col, row){
         super(height, col, row);
-        this._object = this.createMeshObject(BlockColor[this.type][0]);
+        this._object = this.createMeshObject(BlockColor[this.type][0], BlockOpacity[this.type][0]);
         Helpers.setPositionToItem(this._object, col, height, -1*row);
         this.getObject().renderOrder = BlockRenderOrder.TRANSPARENT_BLOCK;
     }
@@ -479,11 +443,11 @@ export class Teleporter extends Enterable{
     setDestinationOccupied(status){
         if(status == true){
             this.getObject().material.color.setHex(BlockColor[this.type][1]);
-            this.getObject().material.opacity = 0.8;
+            this.getObject().material.opacity = BlockOpacity[this.type][0];
         }
         else{
             this.getObject().material.color.setHex(BlockColor[this.type][0]);
-            this.getObject().material.opacity = 0.8;
+            this.getObject().material.opacity = BlockOpacity[this.type][1];
         }
     }
 
