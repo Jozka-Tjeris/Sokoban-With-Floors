@@ -1,4 +1,6 @@
-import { PlayerAction, Player, BlockType} from "./blocks.js";
+import { Player } from "./blocks.js";
+import { activeAnimationList } from "../main.js";
+import { PlayerAction, BlockType } from "./blockConstants.js";
 
 export class PlayerController{
     #level;
@@ -26,6 +28,9 @@ export class PlayerController{
     }
 
     movePlayerInGrid(grid, player, direction){
+        //stop if animations are happening
+        if(activeAnimationList.length > 0) return;
+
         //stop if grid is null
         if(!grid) return;
     
@@ -89,7 +94,6 @@ export class PlayerController{
                 //apply change if prerequisites are met
                 grid.swapBlocks(...newPosition, ...newPushableBlockPosition);
                 grid.swapBlocks(...player.getPosition(), ...newPosition);
-                grid.updateTeleporters();
                 console.log("Pushable block has moved.");
             }
             else{
@@ -109,7 +113,6 @@ export class PlayerController{
                     }
                 }
                 grid.swapBlocks(...player.getPosition(), ...newPosition);
-                grid.updateTeleporters();
                 console.log("Player has moved.");
             }
         }
@@ -149,9 +152,7 @@ export class PlayerController{
             //apply change if prerequisites are met
             grid.swapBlocks(...player.getPosition(), ...newPosition);
             grid.swapBlocks(...newPullableBlockPosition, ...oldPlayerPosition);
-            grid.updateTeleporters();
             console.log("Pullable block has moved");
         }
-        this.#level.checkAllTeleporters();
     }
 }
