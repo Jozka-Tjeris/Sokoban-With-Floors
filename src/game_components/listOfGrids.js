@@ -32,21 +32,22 @@ export class ListOfGrids {
         return jsonData;
     }
 
-    initLevelFromJSON(configFile, legends){
+    async initLevelFromJSON(configFile, legends){
         if(!configFile) return;
         this.#numberOfGrids = configFile.grids.length;
         this.#teleporterBlocks = [];
         this.#currentGridID = null;
         this.#containsPlayer = false;
         let generateGrid = true;
-        this.#grids.clear();
-        configFile.grids.forEach(element => {
+        this.destroyLevels();
+
+        for(const element of configFile.grids){
             if(generateGrid){
                 if(!this.#currentGridID){
                     this.#currentGridID = element.gridID;
                 }
                 const newGrid = new GridOfBlocks(0, 0, 0);
-                const generatedCorrectly = this.generateLevelFromJSON(newGrid, element, this.#sceneObj, legends);
+                const generatedCorrectly = await this.generateLevelFromJSON(newGrid, element, this.#sceneObj, legends);
                 if(generatedCorrectly !== true){
                     this.destroyLevels();
                     generateGrid = false;
@@ -55,14 +56,19 @@ export class ListOfGrids {
                     this.#grids.set(element.gridID, newGrid);
                     this.#grids.get(element.gridID).setAnimationCall(() => {
                         this.setCheckTeleporters(true);
-                    })
+                    });
                 }
             }
-        });
+        }
         if(generateGrid){
             this.validateAllTeleporters();
             this.getCurrentGrid().attachToItem(this.#sceneObj);
+            this.#sceneObj.add(this.getCurrentGrid().getTitle());
         }
+    }
+
+    moveCameraInGrid(x, y, z){
+        Helpers.addPositionToItem(this.getCurrentGrid().getGroup(), x, y, z);
     }
 
     destroyLevels(){
@@ -210,7 +216,7 @@ export class ListOfGrids {
         });
     }
 
-    generateLevelFromJSON(grid, levelData, scene, legends){
+    async generateLevelFromJSON(grid, levelData, scene, legends){
         if(!levelData || !Array.isArray(levelData.layers) || !levelData.gridSize || !levelData.gridID){
             console.error("Invalid level data format");
             alert("Invalid level data format");
@@ -228,6 +234,7 @@ export class ListOfGrids {
         grid.setCenter();
         grid.addIsometricRotation();
         grid.setGridID(levelData.gridID);
+        await grid.setTitle(levelData.gridTitle);
         //place in blocks
         for(let i = 0; i < height; i++){
             const currLayer = levelData.layers[i];
@@ -328,8 +335,11 @@ export class ListOfGrids {
             return false;
         }
         this.getCurrentGrid().detachFromItem(scene);
+        this.#sceneObj.remove(this.getCurrentGrid().getTitle());
         this.#currentGridID = newGridID;
         this.getCurrentGrid().attachToItem(scene);
+        this.getCurrentGrid().setCenter();
+        this.#sceneObj.add(this.getCurrentGrid().getTitle());
         return true;
     }
 
