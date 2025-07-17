@@ -2,6 +2,7 @@
     "grids": [
         {
             "gridID": "Level4",
+            "gridTitle": "Level 4",
             "gridSize": {"height": 2, "columns": 6, "rows": 6},
             "layers": [
                 {

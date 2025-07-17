@@ -2,6 +2,7 @@
     "grids": [
         {
             "gridID": "Level3-A",
+            "gridTitle": "Level 3 - A",
             "gridSize": {"height": 2, "columns": 4, "rows": 5},
             "layers": [
                 {
@@ -30,6 +31,7 @@
         },
         {
             "gridID": "Level3-B",
+            "gridTitle": "Level 3 - B",
             "gridSize": {"height": 2, "columns": 4, "rows": 5},
             "layers": [
                 {
