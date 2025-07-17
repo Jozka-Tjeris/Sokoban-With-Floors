@@ -9,6 +9,12 @@ function resizeRendererToDisplaySize(renderer) {
     const pixelRatio = window.devicePixelRatio;
     const width  = Math.floor( canvas.clientWidth  * pixelRatio );
     const height = Math.floor( canvas.clientHeight * pixelRatio );
+
+    if (!canvas.clientWidth || !canvas.clientHeight || isNaN(width) || isNaN(height)) {
+        console.warn("resizeRendererToDisplaySize: invalid canvas dimensions", canvas.clientWidth, canvas.clientHeight);
+        return false;
+    }
+
     const needResize = canvas.width !== width || canvas.height !== height;
     if (needResize) {
     renderer.setSize(width, height, false);
