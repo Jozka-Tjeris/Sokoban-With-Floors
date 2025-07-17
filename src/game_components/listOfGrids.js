@@ -1,6 +1,9 @@
-import { PlayerAction, BlockType, Player, Block} from "./blocks.js";
+import { Player, Block} from "./blocks.js";
+import { PlayerAction, BlockType, BlockOpacity } from "./blockConstants.js";
 import { GridOfBlocks } from "./grid.js";
 import { PlayerController } from "./playerController.js";
+import * as Helpers from "../utilities/helpers.js";
+import * as AnimHelpers from '../utilities/animationHandler.js';
 
 export class ListOfGrids {
     #grids = new Map();
@@ -10,6 +13,7 @@ export class ListOfGrids {
     #playerController;
     #teleporterBlocks;
     #containsPlayer;
+    #checkTeleporters;
 
     constructor(scene){
         this.#containsPlayer = false;
@@ -35,6 +39,7 @@ export class ListOfGrids {
         this.#currentGridID = null;
         this.#containsPlayer = false;
         let generateGrid = true;
+        this.#grids.clear();
         configFile.grids.forEach(element => {
             if(generateGrid){
                 if(!this.#currentGridID){
@@ -48,6 +53,9 @@ export class ListOfGrids {
                 }
                 else{
                     this.#grids.set(element.gridID, newGrid);
+                    this.#grids.get(element.gridID).setAnimationCall(() => {
+                        this.setCheckTeleporters(true);
+                    })
                 }
             }
         });
@@ -65,6 +73,14 @@ export class ListOfGrids {
             value.clearAll();
         });
         this.#grids.clear();
+    }
+
+    setCheckTeleporters(status){
+        this.#checkTeleporters = status;
+    }
+
+    getCheckTeleporters(){
+        return this.#checkTeleporters;
     }
 
     validateAllTeleporters(){
@@ -137,26 +153,60 @@ export class ListOfGrids {
         return true;
     }
 
+    checkDestinationOccupied(teleporter){
+        //check target destination if occupied
+        const targetDest = this.#grids.get(teleporter.getTargetGridID());
+        if(targetDest){
+            if(targetDest.getBlock(...teleporter.getTargetGridPosition().map(value => value - 1)) instanceof Block){
+                teleporter.setDestinationOccupied(true);
+            }else{
+                teleporter.setDestinationOccupied(false);
+            }
+        }
+    }
+
     checkAllTeleporters(){
+        if(!this.#teleporterBlocks) return;
+
+        //update all teleporters in all grids
+        this.#grids.values().forEach(value => {
+            value.updateTeleporters();
+        })
+
         this.#teleporterBlocks.forEach(value => {
             if(value.getFilled()){
                 let oldBlock = this.getCurrentGrid().getBlock(...value.getPosition());
-                const successful = this.transportBlockToGrid(this.getCurrentGrid(), this.#grids.get(value.getTargetGridID()), value.getPosition(), value.getTargetGridPosition());
+                const oldGridID = this.getCurrentGrid().getGridID();
                 value.setFilled(false);
-                if(successful){
-                    if(oldBlock.type === BlockType.PLAYER){
-                        console.log(`Changing to grid ${value.getTargetGridID()}`)
-                        this.changeToGrid(value.getTargetGridID(), this.#sceneObj);
-                    }
-                }
+                AnimHelpers.animateTeleportToItemExitBlock(oldBlock.getObject(), BlockOpacity[oldBlock.type], () => {
+                    //wait on the original grid first
+                    setTimeout(() => {
+                        const successful = this.transportBlockToGrid(this.getCurrentGrid(), this.#grids.get(value.getTargetGridID()), value.getPosition(), value.getTargetGridPosition());
+                        if(successful){
+                            const newBlock = this.#grids.get(value.getTargetGridID()).getBlock(...value.getTargetGridPosition().map(value => value - 1));
+                            Helpers.addPositionToItem(newBlock.getObject(), 0, 1, 0);
+                            newBlock.getObject().material.opacity = 0;
+
+                            console.log(`Changing to grid ${value.getTargetGridID()}`)
+                            this.changeToGrid(value.getTargetGridID(), this.#sceneObj);
+                            //wait on the destination grid first
+                            setTimeout(() => {
+                                AnimHelpers.animateTeleportToItemEnterBlock(newBlock.getObject(), BlockOpacity[newBlock.type], () => {
+                                    if(oldBlock.type !== BlockType.PLAYER){
+                                        //wait before changing back to the original grid
+                                        setTimeout(() => {
+                                            console.log(`Changing back to grid ${oldGridID}`)
+                                            this.changeToGrid(oldGridID, this.#sceneObj);
+                                        }, 500);
+                                    }
+                                    this.checkDestinationOccupied(value);
+                                });
+                            }, 300)
+                        }
+                    }, 500)
+                })
             }
-            //check target destination if occupied
-            const targetDest = this.#grids.get(value.getTargetGridID());
-            if(targetDest.getBlock(...value.getTargetGridPosition().map(value => value - 1)) instanceof Block){
-                value.setDestinationOccupied(true);
-            }else{
-                value.setDestinationOccupied(false);
-            }
+            this.checkDestinationOccupied(value);
         });
     }
 
@@ -291,7 +341,7 @@ export class ListOfGrids {
         }
 
         if(grid.getPlayer() instanceof Player == false){
-            console.error("Current grid doesn't have a valid player, aborting");
+            console.log("Current grid doesn't have a valid player, aborting");
             return;
         }
 
