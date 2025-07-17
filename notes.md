@@ -95,3 +95,4 @@ Notes:
 
 17 July:
 - Added opacity-changing for teleporter animation
+- Added titles to display per grid
