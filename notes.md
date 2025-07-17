@@ -87,3 +87,11 @@ Notes:
 - Checked both origin and destination for teleporters for visual updates
 - Added level that demonstrates ID-specific interactions
 - Added condition to check IDs for level completion
+
+16 July:
+- Added animations to basic movements and block interactions
+- Added teleport-specific animations (partial)
+- Added checks to prevent unnecessary teleport checks during animations
+
+17 July:
+- Added opacity-changing for teleporter animation
