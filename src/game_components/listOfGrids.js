@@ -191,7 +191,11 @@ export class ListOfGrids {
                         if(successful){
                             const newBlock = this.#grids.get(value.getTargetGridID()).getBlock(...value.getTargetGridPosition().map(value => value - 1));
                             Helpers.addPositionToItem(newBlock.getObject(), 0, 1, 0);
+                            //disable opacity and depthWrite
                             newBlock.getObject().material.opacity = 0;
+                            newBlock.getObject().traverse(object => {
+                                object.material.depthWrite = false;
+                            })
 
                             console.log(`Changing to grid ${value.getTargetGridID()}`)
                             this.changeToGrid(value.getTargetGridID(), this.#sceneObj);

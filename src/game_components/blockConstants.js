@@ -27,7 +27,7 @@ export const BlockRenderOrder = {
     TRANSPARENT_BLOCK: 2,
     TARGET: 3,
     BORDER: 4,
-    PLAYER: 5
+    PLAYER: 0
 }
 
 export const BlockColor = {
