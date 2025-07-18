@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import * as Helpers from '../utilities/helpers';
 import * as AnimHelpers from '../utilities/animationHandler.js';
 import { BlockType, PlayerAction, BlockRenderOrder, BlockColor, BlockOpacity } from './blockConstants.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 
 export class Block{
     type = BlockType.BLOCK;
@@ -14,6 +16,7 @@ export class Block{
     #col;
     #row;
     #objectID;
+    #objectIDObj;
 
     createMeshObject(colorParam, opacityParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -74,9 +77,53 @@ export class Block{
         return this.pullable;
     }
 
+    clearID(){
+        if(this.#objectIDObj){
+            if(this.#objectIDObj.parent){
+                this.#objectIDObj.parent.remove(this.#objectIDObj);
+            }
+            this.#objectIDObj.traverse((child) => {
+                // console.log(child)
+                if(child.geometry) child.geometry.dispose();
+                if(child.material){
+                    if(Array.isArray(child.material)){
+                        child.material.forEach((mat) => mat.dispose());
+                    } 
+                    else{
+                        child.material.dispose();
+                    }
+                }
+            });
+            this.#objectIDObj.clear();
+            this.#objectIDObj = null;
+        }
+        this.#objectID = null;
+    }
+
     setObjectID(id){
-        if(!id) this.#objectID = null;
-        else this.#objectID = id.toString();
+        this.clearID();
+        this.#objectID = id?.toString();
+        if(!this.#objectID) return;
+        const loader = new FontLoader();
+        loader.load( '/fonts/helvetiker_regular.typeface.json', ( font ) => {
+            const material = new THREE.MeshPhongMaterial( {color: new THREE.Color("rgb(205, 205, 205)")} );
+            const geometry = new TextGeometry(this.#objectID, {
+                font: font,
+                size: 0.15,
+                depth: 0,
+                curveSegments: 12,
+                bevelEnabled: true,
+                bevelThickness: 0.05,
+                bevelSize: 0.01,
+                bevelOffset: 0,
+                bevelSegments: 5
+            } );
+            this.#objectIDObj = new THREE.Mesh(geometry, material);
+            this.#objectIDObj.castShadow = true;
+            Helpers.QRotateDegreesObject3DAxis(this.#objectIDObj, new THREE.Vector3(1, 0, 0), -90);
+            Helpers.addPositionToItem(this.#objectIDObj, -0.1, 1, 0.4);
+            this._object.add(this.#objectIDObj);
+        });
     }
 
     getObjectID(){

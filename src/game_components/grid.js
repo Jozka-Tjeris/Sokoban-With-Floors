@@ -45,17 +45,16 @@ export class GridOfBlocks{
                 this.#gridTitleObj.parent.remove(this.#gridTitleObj);
             }
             this.#gridTitleObj.traverse((child) => {
-                // console.log(child)
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) {
-                    if (Array.isArray(child.material)) {
+                if(child.geometry) child.geometry.dispose();
+                if(child.material){
+                    if(Array.isArray(child.material)){
                         child.material.forEach((mat) => mat.dispose());
                     } 
-                    else {
+                    else{
                         child.material.dispose();
                     }
                 }
-            })
+            });
             this.#gridTitleObj.clear();
             this.#gridTitleObj = null;
         }
