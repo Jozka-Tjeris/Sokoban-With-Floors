@@ -136,14 +136,19 @@ export class Block{
                 if(child.geometry) child.geometry.dispose();
                 if(child.material){
                     if(Array.isArray(child.material)){
-                        child.material.forEach((mat) => mat.dispose());
+                        child.material.forEach((mat) => {
+                            if(mat.map){
+                                mat.map.dispose();
+                            }
+                            mat.dispose();
+                        });
                     } 
                     else{
+                        if(child.material.map){
+                            child.material.map.dispose();
+                        }
                         child.material.dispose();
                     }
-                }
-                if(child.texture){
-                    child.texture.dispose();
                 }
             });
             this._object.clear();
@@ -161,7 +166,11 @@ export class Floor extends Block{
 
     createMeshObject(colorParam, opacityParam){
         const geometry = new THREE.BoxGeometry(1, 0.5, 1);
-        const material = new THREE.MeshPhongMaterial( {color: colorParam, opacity: opacityParam} );
+        const texture = new THREE.TextureLoader().load('/floor_tile.png');
+        const material = new THREE.MeshPhongMaterial( {color: colorParam, opacity: opacityParam, map: texture} );
+        texture.repeat.set(1, 1);
+        texture.wrapS = THREE.ClampToEdgeWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
         const cube = new THREE.Mesh(geometry, material);
         return cube;
     }
@@ -217,7 +226,9 @@ export class Player extends Block{
         this._object = this.createMeshObject(BlockColor[this.type], BlockOpacity[this.type]);
         Helpers.setPositionToItem(this._object, col, height, -1*row);
         Helpers.addPositionToItem(this._object, 0, -0.3, 0);
-        this.getObject().renderOrder = BlockRenderOrder.PLAYER;
+        this.getObject().traverse(object => {
+            object.renderOrder = BlockRenderOrder.PLAYER;
+        })
     }
 
     toggleActionState(state, action){
@@ -380,11 +391,20 @@ class Enterable extends Block{
         for (const border of this.#borders) {
             if (!border) continue;
             border.traverse((child) => {
-                if (child.geometry) child.geometry.dispose();
-                if (child.material) {
-                    if (Array.isArray(child.material)) {
-                        child.material.forEach((mat) => mat.dispose());
-                    } else {
+                if(child.geometry) child.geometry.dispose();
+                if(child.material){
+                    if(Array.isArray(child.material)){
+                        child.material.forEach((mat) => {
+                            if(mat.map){
+                                mat.map.dispose();
+                            }
+                            mat.dispose();
+                        });
+                    } 
+                    else{
+                        if(child.material.map){
+                            child.material.map.dispose();
+                        }
                         child.material.dispose();
                     }
                 }
