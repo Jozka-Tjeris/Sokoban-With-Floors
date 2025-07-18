@@ -66,6 +66,7 @@ export function animateTeleportToItemEnterBlock(item, endOpacity, onComplete){
 
     const material = object.material;
     material.transparent = true;
+
     let finalOpacity = 1;
 
     if(Array.isArray(endOpacity)){
@@ -78,12 +79,15 @@ export function animateTeleportToItemEnterBlock(item, endOpacity, onComplete){
     //needs to grab original opacity of object for this to work
     function changeOpacity(t){
         material.opacity = finalOpacity*t;
+        //set depthWrite = true for when object is already halfway through the animation
+        if(t >= 0.5){
+            object.traverse((object) => {
+                object.material.depthWrite = true;
+            })
+        }
     }
     function finalizeOpacity(){
         material.opacity = finalOpacity;
-         object.traverse((object) => {
-            object.material.depthWrite = true;
-        })
     }
 
     activeAnimationList.push({
