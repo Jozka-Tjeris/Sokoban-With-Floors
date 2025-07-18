@@ -166,12 +166,22 @@ export class Floor extends Block{
 
     createMeshObject(colorParam, opacityParam){
         const geometry = new THREE.BoxGeometry(1, 0.5, 1);
-        const texture = new THREE.TextureLoader().load('/floor_tile.png');
-        const material = new THREE.MeshPhongMaterial( {color: colorParam, opacity: opacityParam, map: texture} );
+        const texture = new THREE.TextureLoader().load('/resources/textures/floor_tile.png');
+        const texturedMaterial = new THREE.MeshPhongMaterial({ color: colorParam, opacity: opacityParam, map: texture });
+        const sideMaterial = new THREE.MeshPhongMaterial({ color: colorParam });
+
+        const materials = [
+        sideMaterial, // right
+        sideMaterial, // left
+        texturedMaterial, // top
+        sideMaterial, // bottom
+        sideMaterial, // front
+        sideMaterial  // back
+        ];
         texture.repeat.set(1, 1);
         texture.wrapS = THREE.ClampToEdgeWrapping;
         texture.wrapT = THREE.RepeatWrapping;
-        const cube = new THREE.Mesh(geometry, material);
+        const cube = new THREE.Mesh(geometry, materials);
         return cube;
     }
 
@@ -512,6 +522,7 @@ export class Teleporter extends Enterable{
     }
 
     setDestinationOccupied(status){
+        if(!this.#isUsable) return;
         if(status == true){
             this.getObject().material.color.setHex(BlockColor[this.type][1]);
             this.getObject().material.opacity = BlockOpacity[this.type][0];
@@ -537,6 +548,8 @@ export class Teleporter extends Enterable{
 
     setDisabled(){
         this.#isUsable = false;
+        this.getObject().material.color.setHex(BlockColor[this.type][1]);
+        this.getObject().material.opacity = BlockOpacity[this.type][0];
     }
 
     getUsable(){
