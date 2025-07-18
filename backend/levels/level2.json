@@ -32,7 +32,7 @@
                         {"position": [4, 3], "directions": "111101"},
                         {"position": [6, 3], "directions": "111111"},
                         {"position": [3, 5], "directions": "111110"},
-                        {"position": [5, 7], "directions": "111111"}
+                        {"position": [5, 7], "directions": "011111"}
                     ]
                 }
             ]
