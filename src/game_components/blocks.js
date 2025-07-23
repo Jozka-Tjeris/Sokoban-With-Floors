@@ -17,6 +17,7 @@ export class Block{
     #row;
     #objectID;
     #objectIDObj;
+    #objectIDMarker;
 
     createMeshObject(colorParam, opacityParam){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -98,6 +99,35 @@ export class Block{
             this.#objectIDObj = null;
         }
         this.#objectID = null;
+
+        if(this.#objectIDMarker){
+            if(this.#objectIDMarker.parent){
+                this.#objectIDMarker.parent.remove(this.#objectIDMarker);
+            }
+            this.#objectIDMarker.traverse((child) => {
+                // console.log(child)
+                if(child.geometry) child.geometry.dispose();
+                if(child.material){
+                    if(Array.isArray(child.material)){
+                        child.material.forEach((mat) => mat.dispose());
+                    } 
+                    else{
+                        child.material.dispose();
+                    }
+                }
+            });
+            this.#objectIDMarker.clear();
+            this.#objectIDMarker = null;
+        }
+    }
+
+    #addObjectIDMarker(){
+        const geometry = new THREE.BoxGeometry(0.7, 0.7, 0.7);
+        const coreTexture = new THREE.TextureLoader().load(BlockTextures["ID_Core"]);
+        const material = new THREE.MeshStandardMaterial( {color: BlockColor["ID_Core"], transparent: true, opacity: 0.8, roughness: 0.1, metalness: 0.3, emissive: 0x33ff33, emissiveIntensity: 0.4, depthWrite: false, bumpMap: coreTexture, bumpScale: 1} );
+        this.#objectIDMarker = new THREE.Mesh(geometry, material);
+        this.getObject().add(this.#objectIDMarker);
+        this.#objectIDMarker.renderOrder = BlockRenderOrder.NONE;
     }
 
     setObjectID(id){
@@ -109,7 +139,7 @@ export class Block{
             const material = new THREE.MeshPhongMaterial( {color: new THREE.Color("rgb(205, 205, 205)")} );
             const geometry = new TextGeometry(this.#objectID, {
                 font: font,
-                size: 0.15,
+                size: 0.2,
                 depth: 0,
                 curveSegments: 12,
                 bevelEnabled: true,
@@ -119,10 +149,12 @@ export class Block{
                 bevelSegments: 5
             } );
             this.#objectIDObj = new THREE.Mesh(geometry, material);
-            this.#objectIDObj.castShadow = true;
+            this.#objectIDObj.visible = false;
+            this.#objectIDObj.userData.isID = true;
             Helpers.QRotateDegreesObject3DAxis(this.#objectIDObj, new THREE.Vector3(1, 0, 0), -90);
             Helpers.addPositionToItem(this.#objectIDObj, 0.13, 1, 0.4);
             this._object.add(this.#objectIDObj);
+            this.#addObjectIDMarker();
         });
     }
 
