@@ -137,15 +137,15 @@ export class Block{
                 if(child.material){
                     if(Array.isArray(child.material)){
                         child.material.forEach((mat) => {
-                            if(mat.map){
-                                mat.map.dispose();
+                            if(mat.bumpMap){
+                                mat.bumpMap.dispose();
                             }
                             mat.dispose();
                         });
                     } 
                     else{
-                        if(child.material.map){
-                            child.material.map.dispose();
+                        if(child.material.bumpMap){
+                            child.material.bumpMap.dispose();
                         }
                         child.material.dispose();
                     }
@@ -395,15 +395,15 @@ class Enterable extends Block{
                 if(child.material){
                     if(Array.isArray(child.material)){
                         child.material.forEach((mat) => {
-                            if(mat.map){
-                                mat.map.dispose();
+                            if(mat.bumpMap){
+                                mat.bumpMap.dispose();
                             }
                             mat.dispose();
                         });
                     } 
                     else{
-                        if(child.material.map){
-                            child.material.map.dispose();
+                        if(child.material.bumpMap){
+                            child.material.bumpMap.dispose();
                         }
                         child.material.dispose();
                     }
