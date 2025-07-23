@@ -103,3 +103,7 @@ Notes:
 23 July:
 - Added textrues onto blocks
 - Moved grid titles onto html display
+
+24 July:
+- Added ID update (green crystal core) for better clarity
+- Hid ID labels behind toggleable button for visual simplicity
