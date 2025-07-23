@@ -63,7 +63,7 @@ export class ListOfGrids {
         if(generateGrid){
             this.validateAllTeleporters();
             this.getCurrentGrid().attachToItem(this.#sceneObj);
-            this.#sceneObj.add(this.getCurrentGrid().getTitle());
+            document.getElementById("level-title").innerText = "Current Grid: " + this.getCurrentGrid().getTitle();
         }
     }
 
@@ -339,11 +339,10 @@ export class ListOfGrids {
             return false;
         }
         this.getCurrentGrid().detachFromItem(scene);
-        this.#sceneObj.remove(this.getCurrentGrid().getTitle());
         this.#currentGridID = newGridID;
         this.getCurrentGrid().attachToItem(scene);
         this.getCurrentGrid().setCenter();
-        this.#sceneObj.add(this.getCurrentGrid().getTitle());
+        document.getElementById("level-title").innerText = "Current Grid: " + this.getCurrentGrid().getTitle();
         return true;
     }
 

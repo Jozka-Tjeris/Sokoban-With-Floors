@@ -42,6 +42,10 @@ label[for="level-file-input"] {
     height: 15vh;
 }
 
+#level-title{
+    font-size: 8vh;
+}
+
 #side-menu-bar{
     display: flex;
     flex-direction: column;
