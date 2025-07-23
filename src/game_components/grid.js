@@ -2,8 +2,6 @@ import * as THREE from 'three';
 import * as Helpers from '../utilities/helpers.js';
 import * as Blocks from './blocks.js';
 import { BlockType } from './blockConstants.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 
 export class GridOfBlocks{
     //Outermost layer stores floors
@@ -18,7 +16,7 @@ export class GridOfBlocks{
     #cols;
     #rows;
     #gridID;
-    #gridTitleObj;
+    #gridTitle;
     #newAnimationCall;
 
     constructor(height, col, row){
@@ -30,7 +28,7 @@ export class GridOfBlocks{
         this.#gridID = "None";
         this.#playerObject = null;
         this.#gridArray = new Array(height);
-        this.#gridTitleObj = null;
+        this.#gridTitle = "";
         for(let k = 0; k < this.#height; k++){
             this.#gridArray[k] = new Array(col);
             for(let i = 0; i < this.#cols; i++){
@@ -39,60 +37,12 @@ export class GridOfBlocks{
         }
     }
 
-    clearTitle(){
-        if(this.#gridTitleObj){
-            if(this.#gridTitleObj.parent){
-                this.#gridTitleObj.parent.remove(this.#gridTitleObj);
-            }
-            this.#gridTitleObj.traverse((child) => {
-                if(child.geometry) child.geometry.dispose();
-                if(child.material){
-                    if(Array.isArray(child.material)){
-                        child.material.forEach((mat) => mat.dispose());
-                    } 
-                    else{
-                        child.material.dispose();
-                    }
-                }
-            });
-            this.#gridTitleObj.clear();
-            this.#gridTitleObj = null;
-        }
-    }
-
     setTitle(title){
-        this.clearTitle();
-        return new Promise((resolve, reject) => {
-            const loader = new FontLoader();
-            loader.load( '/fonts/helvetiker_regular.typeface.json', ( font ) => {
-                const material = new THREE.MeshPhongMaterial( {color: new THREE.Color("rgb(235, 233, 233)")} );
-                const geometry = new TextGeometry(title?.toString() ?? "", {
-                    font: font,
-                    size: 0.7,
-                    depth: 0,
-                    curveSegments: 12,
-                    bevelEnabled: true,
-                    bevelThickness: 0.05,
-                    bevelSize: 0.01,
-                    bevelOffset: 0,
-                    bevelSegments: 5
-                } );
-                this.#gridTitleObj = new THREE.Mesh(geometry, material);
-                this.#gridTitleObj.castShadow = true;
-                Helpers.addPositionToItem(this.#gridTitleObj, -9, 4, 0);
-
-                const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x0, side: THREE.BackSide });
-                const outlineMesh = new THREE.Mesh(geometry, outlineMaterial);
-                outlineMesh.position.add(new THREE.Vector3(0.05, 0, 0));
-
-                this.#gridTitleObj.add(outlineMesh);
-                resolve(this.#gridTitleObj);
-            }, undefined, err => reject(err));
-        });
+        this.#gridTitle = title?.toString() ?? "";
     }
 
     getTitle(){
-        return this.#gridTitleObj;
+        return this.#gridTitle;
     }
 
     getGroup(){
@@ -491,7 +441,6 @@ export class GridOfBlocks{
         this.#gridArray = [];
         this.#playerObject = null;
         this.#newAnimationCall = null;
-        this.clearTitle();
     }
 
     convertToJSONString(legendData){
