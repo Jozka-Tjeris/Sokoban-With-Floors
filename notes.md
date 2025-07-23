@@ -102,3 +102,4 @@ Notes:
 
 23 July:
 - Added textrues onto blocks
+- Moved grid titles onto html display
