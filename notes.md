@@ -96,3 +96,9 @@ Notes:
 17 July:
 - Added opacity-changing for teleporter animation
 - Added titles to display per grid
+
+18 July:
+- Displayed IDs on blocks and target spaces
+
+23 July:
+- Added textrues onto blocks
