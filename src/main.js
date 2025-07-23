@@ -60,7 +60,7 @@ function createLight(colorParam){
 const ORTHOGRAPHIC_CAMERA_HALF_HEIGHT = 5;
 export const activeAnimationList = [];
 export const animationDuration = 200;
-export const teleportAnimationDuration = 500;
+export const teleportAnimationDuration = 1000;
 
 const [gameContainer, canvas, scene, camera, renderer] = initApplication();
 scene.background = new THREE.Color("rgb(150, 150, 150)");
