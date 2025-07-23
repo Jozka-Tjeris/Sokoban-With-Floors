@@ -14,9 +14,11 @@ export class ListOfGrids {
     #teleporterBlocks;
     #containsPlayer;
     #checkTeleporters;
+    #areLabelsPresent;
 
     constructor(scene){
         this.#containsPlayer = false;
+        this.#areLabelsPresent = false;
         this.#sceneObj = scene;
         this.#playerController = new PlayerController(this);
     }
@@ -65,6 +67,18 @@ export class ListOfGrids {
             this.getCurrentGrid().attachToItem(this.#sceneObj);
             document.getElementById("level-title").innerText = "Current Grid: " + this.getCurrentGrid().getTitle();
         }
+    }
+
+    toggleIDLabels(state){
+        if(!this.getCurrentGrid()) return;
+        if(this.#areLabelsPresent == state) return;
+        this.#areLabelsPresent = state;
+        console.log("Peeking at labels: " + this.#areLabelsPresent);
+        this.getCurrentGrid().getGroup().traverse(object => {
+            if(object.userData?.isID){
+                object.visible = this.#areLabelsPresent;
+            }
+        })
     }
 
     moveCameraInGrid(x, y, z){

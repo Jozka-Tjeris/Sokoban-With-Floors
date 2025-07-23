@@ -85,7 +85,8 @@ const keyStates = {
     "a": false, "ArrowLeft": false, 
     "s": false, "ArrowDown": false, 
     "d": false, "ArrowRight": false,
-    "Shift": false
+    "Shift": false, 
+    "p": false
 };
 
 const cameraBindings = [
@@ -133,6 +134,7 @@ function animate(now){
     updateCameraIfResized();
     updateAnimationList(now);
     listOfGrids.updatePlayerActions(keyStates);
+    listOfGrids.toggleIDLabels(keyStates["p"]);
     updateCameraPosition(camera);
     renderer.render(scene, camera);
 }
@@ -233,7 +235,7 @@ buttons.forEach(button => {
     });
 })
 
-loadLevel('level3');
+loadLevel('level4');
 
 const exportButton = document.getElementById("level-file-export");
 exportButton.addEventListener("click", () => {
