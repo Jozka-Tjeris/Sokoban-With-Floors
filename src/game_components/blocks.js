@@ -121,7 +121,7 @@ export class Block{
             this.#objectIDObj = new THREE.Mesh(geometry, material);
             this.#objectIDObj.castShadow = true;
             Helpers.QRotateDegreesObject3DAxis(this.#objectIDObj, new THREE.Vector3(1, 0, 0), -90);
-            Helpers.addPositionToItem(this.#objectIDObj, -0.1, 1, 0.4);
+            Helpers.addPositionToItem(this.#objectIDObj, 0.13, 1, 0.4);
             this._object.add(this.#objectIDObj);
         });
     }
@@ -301,7 +301,7 @@ class Enterable extends Block{
     createMeshObject(colorParam, opacityParam, blockTexturePath, borderTexturePath){
         const geometry = new THREE.BoxGeometry(1, 1, 1);
         const patternTexture = new THREE.TextureLoader().load(blockTexturePath);
-        const material = new THREE.MeshPhongMaterial({color: colorParam, transparent: true, opacity: opacityParam, bumpMap: patternTexture ?? null, bumpScale: 0.2, specular: 0x888888, shininess: 30});
+        const material = new THREE.MeshPhongMaterial({color: colorParam, transparent: true, opacity: opacityParam, bumpMap: patternTexture ?? null, bumpScale: 0.3, specular: 0x888888, shininess: 30});
         const cube = new THREE.Mesh(geometry, material);
 
         const offsetConstant = 0.6;
