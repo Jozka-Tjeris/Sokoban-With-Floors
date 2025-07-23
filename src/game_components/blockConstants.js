@@ -42,7 +42,7 @@ export const BlockColor = {
     //placeholder followed by border color
     [BlockType.ENTERABLE]: [0x0, 0x371300],
     //default color, push correct, pull correct, push incorrect, pull incorrect
-    [BlockType.TARGET]: [0xa8ffff, 0xff88ff, 0xff44dd, 0xc2185b, 0xd70000],
+    [BlockType.TARGET]: [0x88ffff, 0xff88ff, 0xff44dd, 0xc2185b, 0xd70000],
     //active color, occupied color
     [BlockType.TELEPORTER]: [0xfcba03, 0xa8914a]
 }
@@ -60,4 +60,17 @@ export const BlockOpacity = {
     [BlockType.TARGET]: [0.8, 0.5, 0.4, 0.5, 0.4],
     //active color, occupied color
     [BlockType.TELEPORTER]: [0.8, 0.8]
+}
+
+export const BlockTextures = {
+    [BlockType.NONE]: null,
+    [BlockType.BLOCK]: null,
+    [BlockType.PLAYER]: null,
+    [BlockType.PUSHABLE]: "/kenney_pattern-pack-2/PNG/Thick/Double\ \(512px\)/pattern_0016.png",
+    [BlockType.PULLABLE]: "/kenney_pattern-pack-2/PNG/Thick/Double\ \(512px\)/pattern_0018.png",
+    [BlockType.WALL]: null,
+    [BlockType.FLOOR]: null,
+    [BlockType.ENTERABLE]: [null, "/kenney_pattern-pack-2/PNG/Thick/Double\ \(512px\)/pattern_0028.png"],
+    [BlockType.TARGET]: "/kenney_pattern-pack-2/PNG/Thick/Double\ \(512px\)/pattern_0020.png",
+    [BlockType.TELEPORTER]: "/kenney_pattern-pack-2/PNG/Thick/Double\ \(512px\)/pattern_0024.png"
 }
