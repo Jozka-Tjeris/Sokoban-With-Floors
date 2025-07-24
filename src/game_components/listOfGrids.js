@@ -15,10 +15,12 @@ export class ListOfGrids {
     #containsPlayer;
     #checkTeleporters;
     #areLabelsPresent;
+    #levelCompleted;
 
     constructor(scene){
         this.#containsPlayer = false;
         this.#areLabelsPresent = false;
+        this.#levelCompleted = false;
         this.#sceneObj = scene;
         this.#playerController = new PlayerController(this);
     }
@@ -41,6 +43,7 @@ export class ListOfGrids {
         this.#currentGridID = null;
         this.#containsPlayer = false;
         let generateGrid = true;
+        this.#levelCompleted = false;
         this.destroyLevels();
 
         for(const element of configFile.grids){
@@ -372,6 +375,10 @@ export class ListOfGrids {
             return;
         }
 
+        if(this.#levelCompleted){
+            return;
+        }
+
         const keyNames = [...this.#playerController.getMovementKeys(), 
             this.#playerController.getPullingKey()
         ]
@@ -399,11 +406,22 @@ export class ListOfGrids {
                     areAllTargetsFilled &&= expression;
                 })
                 console.log("All target spaces filled: " + areAllTargetsFilled);
+                this.#levelCompleted = areAllTargetsFilled;
+                if(this.#levelCompleted){
+                    document.getElementById("level-status").innerText = "Level Status: Completed";
+                }
+                else{
+                    document.getElementById("level-status").innerText = "Level Status: Unsolved";
+                }
             }
             //check if key is no longer held down, unlocks movement for future keypresses
             if(!isKeyHeld && grid.getPlayer()){
                 grid.getPlayer().toggleActionState(false, action);
             }
         }
+    }
+
+    isLevelComplete(){
+        return this.#levelCompleted;
     }
 }

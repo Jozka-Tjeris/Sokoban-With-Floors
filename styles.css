@@ -40,10 +40,14 @@ label[for="level-file-input"] {
 #top-menu-bar{
     width: 100vw;
     height: 15vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 #level-title{
     font-size: 8vh;
+    overflow: hidden;
 }
 
 #side-menu-bar{

@@ -222,6 +222,7 @@ async function loadLevel(levelName) {
         console.log(renderer.info.memory);
         //Level loading starts here
         listOfGrids.initLevelFromJSON(levelData, legends);
+        document.getElementById("level-status").innerText = "Level Status: Unsolved";
     }
 }
 
