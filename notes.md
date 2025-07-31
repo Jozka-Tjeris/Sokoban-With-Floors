@@ -107,3 +107,7 @@ Notes:
 24 July:
 - Added ID update (green crystal core) for better clarity
 - Hid ID labels behind toggleable button for visual simplicity
+
+31 July:
+- Added tutorial section
+- Added CSS styling to webpage
