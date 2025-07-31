@@ -8,13 +8,53 @@ html, body {
    height: 100%;
 }
 
+body {
+  background-color: #111111;
+  color: #e0e0e0;
+  font-family: 'Inconsolata', 'Courier New', monospace;
+}
+
+h1, h2 {
+  color: #ffe75e;
+}
+
+#level-info {
+  padding-left: 0.8rem;
+}
+
+#list-of-levels-label{
+    text-align: center;
+    font-size: 18pt;
+}
+
+a{
+    text-decoration: none;
+    color: #00bfff;
+    font-size: 20pt;
+    text-align: center;
+}
+
 button, label {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 10pt;
 }
 
+button{
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border: 2px solid #444;
+    padding: 0.5rem 0.2rem;
+    transition: background 0.2s ease-in-out;
+    border-radius: 4px;
+}
+
+button:hover {
+  background-color: #444444;
+  cursor: pointer;
+}
+
 .loadLevel-btn{
-    width: 48%;
+    width: 30%;
 }
 
 #import-export-btn{
@@ -31,18 +71,36 @@ button, label {
 
 label[for="level-file-input"] {
     background: #eee;
-    border: 1px solid #aaa;
+    border: 1px solid hsl(0, 0%, 67%);
     border-radius: 5px;
     cursor: pointer;
     text-align: center;
 }
 
 #top-menu-bar{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
     width: 100vw;
     height: 15vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+}
+
+#level-info{
+    width: 80%;
+}
+
+#tutorial-button{
+    width: 20%;
+    height: 100%;
+    background-color: #555555;
+}
+
+.tutorial-text{
+    display: block;
+    width: 100%;
+    height: 50%;
+    margin: 12% 0 10% 0;
 }
 
 #level-title{
@@ -54,13 +112,19 @@ label[for="level-file-input"] {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 15vw;
+    width: 20vw;
     height: 85vh;
     overflow: hidden;
 }
 
+.level-list{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
 #game-container{
-    width: 85vw;
+    width: 80vw;
     height: 85vh;
 }
 
@@ -68,4 +132,8 @@ label[for="level-file-input"] {
     width: 100%;
     height: 100%;
     display: block;
+}
+
+.tutorial-section{
+    padding: 1rem;
 }

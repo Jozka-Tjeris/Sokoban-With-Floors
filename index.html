@@ -10,23 +10,31 @@
   </head>
   <body>
     <div id="top-menu-bar">
-      <h1 id="level-title">
-        Current Grid: -
-      </h1>
-      <h2 id="level-status">
-        Level Status: Unsolved
-      </h2>
+      <div id="tutorial-button">
+        <a class="tutorial-text" href="tutorial.html">
+          Tutorial
+        </a>
+      </div>
+      <div id="level-info">
+        <h1 id="level-title">
+          Current Grid: -
+        </h1>
+        <h2 id="level-status">
+          Level Status: Unsolved
+        </h2>
+      </div>
     </div>
     <div style="display: flex;">
         <div id="side-menu-bar">
-          <h1>
+          <h1 id="list-of-levels-label">
             List of Levels
           </h1>
-          <button class="loadLevel-btn" data-value="1">Level 1</button>
-          <button class="loadLevel-btn" data-value="2">Level 2</button>
-          <button class="loadLevel-btn" data-value="3">Level 3</button>
-          <button class="loadLevel-btn" data-value="4">Level 4</button>
-
+          <div id="level-list">
+            <button class="loadLevel-btn" data-value="1">Level 1</button>
+            <button class="loadLevel-btn" data-value="2">Level 2</button>
+            <button class="loadLevel-btn" data-value="3">Level 3</button>
+            <button class="loadLevel-btn" data-value="4">Level 4</button>
+          </div>
           <div id="import-export-btn">
             <button id="level-file-export">Export Level Data</button>
             <button id="level-file-import">Import Level Data</button>
