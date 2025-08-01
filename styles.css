@@ -1,3 +1,6 @@
+/* ===============================
+   Global Reset and Base Styles
+=============================== */
 * {
   margin: 0;
   padding: 0;
@@ -5,11 +8,11 @@
 }
 
 html, body {
-   height: 100%;
+  height: 100%;
 }
 
 body {
-  background-color: #111111;
+  background-color: #111;
   color: #e0e0e0;
   font-family: 'Inconsolata', 'Courier New', monospace;
 }
@@ -18,145 +21,160 @@ h1, h2 {
   color: #ffe75e;
 }
 
-#level-info {
-  padding-left: 0.8rem;
+a {
+  text-decoration: none;
+  color: #00bfff;
+  font-size: 20pt;
+  text-align: center;
 }
 
-#list-of-levels-label{
-    text-align: center;
-    font-size: 18pt;
-    margin: 1.2rem 0.4rem;
+ul {
+  padding: 0.4rem;
+  margin-top: 0.4rem;
+  margin-left: 1.2rem;
+  width: 70%;
+  border: 2px solid #444;
+  list-style-type: none;
 }
 
-a{
-    text-decoration: none;
-    color: #00bfff;
-    font-size: 20pt;
-    text-align: center;
-}
-
+/* ===============================
+   Buttons
+=============================== */
 button, label {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-size: 10pt;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 10pt;
 }
 
-button{
-    background-color: #2a2a2a;
-    color: #e0e0e0;
-    border: 2px solid #444;
-    padding: 0.5rem 0.2rem;
-    transition: background 0.2s ease-in-out;
-    border-radius: 4px;
+button {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border: 2px solid #444;
+  padding: 0.5rem 0.2rem;
+  transition: background 0.2s ease-in-out;
+  border-radius: 4px;
 }
 
 button:hover {
-  background-color: #444444;
+  background-color: #444;
   cursor: pointer;
 }
 
-.loadLevel-btn{
-    width: 33.333%;
+/* ===============================
+   Top Bar Layout
+=============================== */
+#top-menu-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100vw;
+  height: 15vh;
 }
 
-#import-export-btn{
-    height: 100%;
-    margin-top: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+#top-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+#level-info {
+  padding-left: 0.8rem;
+  width: 80%;
+}
+
+#level-title {
+  font-size: 8vh;
+  overflow: hidden;
+}
+
+#tutorial-button {
+  width: 20%;
+  height: 100%;
+  background-color: #555;
+}
+
+/* ===============================
+   Side Menu Layout
+=============================== */
+#side-menu-bar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 20vw;
+  height: 85vh;
+  overflow: hidden;
+}
+
+#list-of-levels-label {
+  text-align: center;
+  font-size: 18pt;
+  margin: 1.2rem 0.4rem;
+}
+
+#level-list {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.loadLevel-btn {
+  width: 33.333%;
+}
+
+/* ===============================
+   Import / Export Section
+=============================== */
+#import-export-btn {
+  height: 100%;
+  margin-top: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 #level-file-input {
-    display: none;
+  display: none;
 }
 
 label[for="level-file-input"] {
-    background: #eee;
-    border: 1px solid hsl(0, 0%, 67%);
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
+  background: #eee;
+  border: 1px solid hsl(0, 0%, 67%);
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
 }
 
-#top-menu-bar{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    width: 100vw;
-    height: 15vh;
+/* ===============================
+   Game Canvas Area
+=============================== */
+#game-container {
+  width: 80vw;
+  height: 85vh;
 }
 
-#level-info{
-    width: 80%;
+#game-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
-#tutorial-button{
-    width: 20%;
-    height: 100%;
-    background-color: #555555;
+/* ===============================
+   Tutorial Section
+=============================== */
+.tutorial-text {
+  display: block;
+  width: 100%;
+  height: 50%;
+  margin: 12% 0 10% 0;
 }
 
-#link-to-main{
-    height: 100%;
-    background-color: #555555;
+.tutorial-section {
+  padding: 1rem;
 }
 
-.tutorial-text{
-    display: block;
-    width: 100%;
-    height: 50%;
-    margin: 12% 0 10% 0;
-}
-
-#level-title{
-    font-size: 8vh;
-    overflow: hidden;
-}
-
-#side-menu-bar{
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 20vw;
-    height: 85vh;
-    overflow: hidden;
-}
-
-#level-list{
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-#game-container{
-    width: 80vw;
-    height: 85vh;
-}
-
-#game-canvas{
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-
-.tutorial-section{
-    padding: 1rem;
-}
-
-ul{
-    padding: 0.4rem;
-    margin-top: 0.4rem;
-    margin-left: 1.2rem;
-    width: 70%;
-    border: 2px solid #444;
-    list-style-type: none;
-}
-
-#top-header{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-end;
+#link-to-main {
+  height: 100%;
+  background-color: #555;
 }
