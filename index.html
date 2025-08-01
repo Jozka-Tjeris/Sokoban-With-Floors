@@ -10,7 +10,7 @@
   </head>
   <body>
     <div id="top-menu-bar">
-      <div id="tutorial-button">
+      <div class="corner-button">
         <a class="tutorial-text" href="tutorial.html">
           Tutorial
         </a>
@@ -23,10 +23,15 @@
           Level Status: -
         </h2>
       </div>
+      <div class="corner-button">
+        <a class="tutorial-text" href="">
+          About
+        </a>
+      </div>
     </div>
     <div style="display: flex;">
         <div id="side-menu-bar">
-          <h1 id="list-of-levels-label">
+          <h1 class="sub-menu-bar-label">
             List of Levels
           </h1>
           <div id="level-list">
@@ -41,6 +46,42 @@
           </div>
         </div>
         <div id="game-container"><canvas id="game-canvas"></canvas></div>
+        <div id="controls-menu">
+          <h1 class="sub-menu-bar-label">
+            Controls
+          </h1>
+          <div class="keys-menu">
+            <div class="key-layout">
+              <div class="multi-row-key-layout">
+                <button class="single-button-row">Shift</button>
+              </div>
+            </div>
+            <div class="key-layout">
+              <div class="multi-row-key-layout">
+                <button class="triple-button-row no-show-button"></button>
+                <button class="triple-button-row">W</button>
+                <button class="triple-button-row no-show-button"></button>
+              </div>
+              <div class="multi-row-key-layout">
+                <button class="triple-button-row">A</button>
+                <button class="triple-button-row">S</button>
+                <button class="triple-button-row">D</button>
+              </div>
+            </div>
+            <div class="key-layout">
+              <div class="multi-row-key-layout">
+                <button class="triple-button-row no-show-button"></button>
+                <button class="triple-button-row">&#8593;</button>
+                <button class="triple-button-row no-show-button"></button>
+              </div>
+              <div class="multi-row-key-layout">
+                <button class="triple-button-row">&#8592;</button>
+                <button class="triple-button-row">&#8595;</button>
+                <button class="triple-button-row">&#8594;</button>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

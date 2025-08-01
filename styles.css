@@ -2,179 +2,220 @@
    Global Reset and Base Styles
 =============================== */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 html, body {
-  height: 100%;
+    height: 100%;
 }
 
 body {
-  background-color: #111;
-  color: #e0e0e0;
-  font-family: 'Inconsolata', 'Courier New', monospace;
+    background-color: #111;
+    color: #e0e0e0;
+    font-family: 'Inconsolata', 'Courier New', monospace;
 }
 
 h1, h2 {
-  color: #ffe75e;
+    color: #ffe75e;
 }
 
 a {
-  text-decoration: none;
-  color: #00bfff;
-  font-size: 20pt;
-  text-align: center;
+    text-decoration: none;
+    color: #00bfff;
+    font-size: 20pt;
+    text-align: center;
 }
 
 ul {
-  padding: 0.4rem;
-  margin-top: 0.4rem;
-  margin-left: 1.2rem;
-  width: 70%;
-  border: 2px solid #444;
-  list-style-type: none;
+    padding: 0.4rem;
+    margin-top: 0.4rem;
+    margin-left: 1.2rem;
+    width: 70%;
+    border: 2px solid #444;
+    list-style-type: none;
 }
 
 /* ===============================
    Buttons
 =============================== */
 button, label {
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-size: 10pt;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 10pt;
 }
 
 button {
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-  border: 2px solid #444;
-  padding: 0.5rem 0.2rem;
-  transition: background 0.2s ease-in-out;
-  border-radius: 4px;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    border: 2px solid #444;
+    padding: 0.5rem 0.2rem;
+    transition: background 0.2s ease-in-out;
+    border-radius: 4px;
 }
 
 button:hover {
-  background-color: #444;
-  cursor: pointer;
+    background-color: #444;
+    cursor: pointer;
+}
+
+.no-show-button {
+    visibility: hidden;
 }
 
 /* ===============================
    Top Bar Layout
 =============================== */
 #top-menu-bar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 100vw;
-  height: 15vh;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100vw;
+    height: 15vh;
 }
 
 #top-header {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
 }
 
 #level-info {
-  padding-left: 0.8rem;
-  width: 80%;
+    padding: 0.4rem 0.8rem;
+    width: 60%;
+    height: 100%;
 }
 
 #level-title {
-  font-size: 8vh;
-  overflow: hidden;
+    font-size: 6vh;
+    overflow: hidden;
 }
 
-#tutorial-button {
-  width: 20%;
-  height: 100%;
-  background-color: #555;
+#level-status {
+    font-size: 4vh;
+}
+
+.corner-button {
+    width: 20%;
+    height: 100%;
+    background-color: #555;
 }
 
 /* ===============================
    Side Menu Layout
 =============================== */
 #side-menu-bar {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 20vw;
-  height: 85vh;
-  overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 20vw;
+    height: 85vh;
+    overflow: hidden;
 }
 
-#list-of-levels-label {
-  text-align: center;
-  font-size: 18pt;
-  margin: 1.2rem 0.4rem;
+.sub-menu-bar-label {
+    text-align: center;
+    font-size: 4vh;
+    margin: 1.2rem 0.4rem;
 }
 
 #level-list {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-  justify-content: space-between;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 .loadLevel-btn {
-  width: 33.333%;
+    font-size: 2.4vh;
+    width: 33.333%;
 }
 
 /* ===============================
    Import / Export Section
 =============================== */
 #import-export-btn {
-  height: 100%;
-  margin-top: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+    height: 100%;
+    margin-top: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 #level-file-input {
-  display: none;
+    display: none;
 }
 
 label[for="level-file-input"] {
-  background: #eee;
-  border: 1px solid hsl(0, 0%, 67%);
-  border-radius: 5px;
-  cursor: pointer;
-  text-align: center;
+    background: #eee;
+    border: 1px solid hsl(0, 0%, 67%);
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
 }
 
 /* ===============================
    Game Canvas Area
 =============================== */
 #game-container {
-  width: 80vw;
-  height: 85vh;
+    width: 60vw;
+    height: 85vh;
 }
 
 #game-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
 /* ===============================
    Tutorial Section
 =============================== */
 .tutorial-text {
-  display: block;
-  width: 100%;
-  height: 50%;
-  margin: 12% 0 10% 0;
+    display: block;
+    height: 100%;
+    margin: 4vh;
+    font-size: 5vh;
 }
 
 .tutorial-section {
-  padding: 1rem;
+    padding: 1rem;
 }
 
 #link-to-main {
-  height: 100%;
-  background-color: #555;
+    height: 100%;
+    background-color: #555;
+}
+
+/* ===============================
+    Controls Menu
+=============================== */
+#controls-menu {
+    height: 85vh;
+    width: 20vw;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.key-layout {
+    width: 100%;
+    padding: 5vh 0;
+}
+
+.multi-row-key-layout {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.single-button-row {
+    width: 100%;
+}
+
+.triple-button-row {
+    width: 33.333%;
 }
