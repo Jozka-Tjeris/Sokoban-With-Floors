@@ -71,7 +71,8 @@ let listOfGrids = new ListOfGrids(scene);
 
 function updateCameraIfResized(){
     if (resizeRendererToDisplaySize(renderer)) {
-        const aspect = window.innerWidth / window.innerHeight;
+        // const aspect = window.innerWidth / window.innerHeight;
+        const aspect = 1.4;
         camera.left   = -ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect;
         camera.right  =  ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect;
         camera.top    =  ORTHOGRAPHIC_CAMERA_HALF_HEIGHT;
