@@ -25,6 +25,7 @@ h1, h2 {
 #list-of-levels-label{
     text-align: center;
     font-size: 18pt;
+    margin: 1.2rem 0.4rem;
 }
 
 a{
@@ -54,7 +55,7 @@ button:hover {
 }
 
 .loadLevel-btn{
-    width: 30%;
+    width: 33.333%;
 }
 
 #import-export-btn{
@@ -96,6 +97,11 @@ label[for="level-file-input"] {
     background-color: #555555;
 }
 
+#link-to-main{
+    height: 100%;
+    background-color: #555555;
+}
+
 .tutorial-text{
     display: block;
     width: 100%;
@@ -117,9 +123,10 @@ label[for="level-file-input"] {
     overflow: hidden;
 }
 
-.level-list{
+#level-list{
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    flex-direction: row;
     justify-content: space-between;
 }
 
@@ -136,4 +143,20 @@ label[for="level-file-input"] {
 
 .tutorial-section{
     padding: 1rem;
+}
+
+ul{
+    padding: 0.4rem;
+    margin-top: 0.4rem;
+    margin-left: 1.2rem;
+    width: 70%;
+    border: 2px solid #444;
+    list-style-type: none;
+}
+
+#top-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
 }
