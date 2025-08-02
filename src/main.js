@@ -256,3 +256,23 @@ importButton.addEventListener("click", () => {
         console.error("Import failed:", err);
     });
 });
+
+const aboutButton = document.getElementById('about-button');
+const modal = document.getElementById('about-modal');
+const closeModal = document.getElementById('close-modal');
+
+aboutButton.addEventListener('click', (event) => {
+    event.preventDefault();
+    modal.style.display = 'flex';
+});
+
+closeModal.addEventListener('click', () => {
+modal.style.display = 'none';
+});
+
+
+window.addEventListener('click', (e) => {
+if (e.target === modal) {
+    modal.style.display = 'none';
+}
+});
