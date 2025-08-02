@@ -111,3 +111,6 @@ Notes:
 31 July:
 - Added tutorial section
 - Added CSS styling to webpage
+
+2 August:
+- Added about section
