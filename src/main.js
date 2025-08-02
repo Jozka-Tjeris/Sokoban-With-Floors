@@ -71,12 +71,23 @@ let listOfGrids = new ListOfGrids(scene);
 
 function updateCameraIfResized(){
     if (resizeRendererToDisplaySize(renderer)) {
-        // const aspect = window.innerWidth / window.innerHeight;
-        const aspect = 1.4;
-        camera.left   = -ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect;
-        camera.right  =  ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect;
-        camera.top    =  ORTHOGRAPHIC_CAMERA_HALF_HEIGHT;
-        camera.bottom = -ORTHOGRAPHIC_CAMERA_HALF_HEIGHT;
+        const largerDimension = Math.max(window.innerWidth, window.innerHeight);
+        const smallerDimension = Math.min(window.innerWidth, window.innerHeight);
+        let aspect = largerDimension / smallerDimension;
+        if(largerDimension == window.innerWidth){
+            aspect *= 0.75;
+            camera.left   = -ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect;
+            camera.right  =  ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect;
+            camera.top    =  ORTHOGRAPHIC_CAMERA_HALF_HEIGHT;
+            camera.bottom = -ORTHOGRAPHIC_CAMERA_HALF_HEIGHT;
+        }
+        else{
+            aspect *= 1.25;
+            camera.left   = -ORTHOGRAPHIC_CAMERA_HALF_HEIGHT;
+            camera.right  =  ORTHOGRAPHIC_CAMERA_HALF_HEIGHT;
+            camera.top    =  ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect;
+            camera.bottom = -ORTHOGRAPHIC_CAMERA_HALF_HEIGHT * aspect;
+        }
         camera.updateProjectionMatrix();
     }
 }
@@ -276,3 +287,35 @@ if (e.target === modal) {
     modal.style.display = 'none';
 }
 });
+
+const controlButtons = document.getElementsByClassName("triple-button-row");
+for(let i = 0; i < controlButtons.length; i++){
+    if(controlButtons[i].getAttribute("data-value")
+    && keyStates.hasOwnProperty(controlButtons[i].getAttribute("data-value"))){
+        controlButtons[i].addEventListener('pointerdown', () => {
+            keyStates[controlButtons[i].getAttribute("data-value")] = true;
+        });
+        controlButtons[i].addEventListener('pointerup', () => {
+            keyStates[controlButtons[i].getAttribute("data-value")] = false;
+        });
+        controlButtons[i].addEventListener('pointerleave', () => {
+            keyStates[controlButtons[i].getAttribute("data-value")] = false;
+        });
+    }
+}
+
+const auxButtons = document.getElementsByClassName("double-button-row");
+for(let i = 0; i < auxButtons.length; i++){
+    if(auxButtons[i].getAttribute("data-value")
+    && keyStates.hasOwnProperty(auxButtons[i].getAttribute("data-value"))){
+        auxButtons[i].addEventListener('pointerdown', () => {
+            keyStates[auxButtons[i].getAttribute("data-value")] = true;
+        });
+        auxButtons[i].addEventListener('pointerup', () => {
+            keyStates[auxButtons[i].getAttribute("data-value")] = false;
+        });
+        auxButtons[i].addEventListener('pointerleave', () => {
+            keyStates[auxButtons[i].getAttribute("data-value")] = false;
+        });
+    }
+}
