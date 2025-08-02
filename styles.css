@@ -116,9 +116,10 @@ button:hover {
 }
 
 .sub-menu-bar-label {
+    width: 80%;
     text-align: center;
-    font-size: 4vh;
-    margin: 1.2rem 0.4rem;
+    font-size: 3.2vh;
+    margin: 10% 10%;
 }
 
 #level-list {
@@ -202,7 +203,7 @@ label[for="level-file-input"] {
 
 .key-layout {
     width: 100%;
-    padding: 5vh 0;
+    padding: 6.5vh 0;
 }
 
 .multi-row-key-layout {
@@ -218,4 +219,51 @@ label[for="level-file-input"] {
 
 .triple-button-row {
     width: 33.333%;
+}
+
+.keys-menu {
+    height: 80%;
+}
+
+/* ===============================
+    About Section
+=============================== */
+.pop-up-window {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: #1e1e1e;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 2px solid #444;
+  width: 90%;
+  max-width: 500px;
+  color: #e0e0e0;
+  font-family: 'Inconsolata', monospace;
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 1rem;
+  font-size: 2rem;
+  color: #999;
+  cursor: pointer;
+}
+
+/* targets "a" tags which are nested inside .modal-content tags */
+.modal-content a {
+  color: #00bfff;
+  text-decoration: underline;
 }

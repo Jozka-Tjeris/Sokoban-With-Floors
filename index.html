@@ -24,9 +24,24 @@
         </h2>
       </div>
       <div class="corner-button">
-        <a class="tutorial-text" href="">
+        <a class="tutorial-text" id="about-button" href="" type="button">
           About
         </a>
+      </div>
+      <div id="about-modal" class="pop-up-window">
+        <div class="modal-content">
+          <span id="close-modal" class="close-button">&times;</span>
+          <h2>About This Project</h2>
+          <p>This grid-based puzzle game was built using Three.js and vanilla JavaScript.</p>
+          <br>
+          <p>Created by: Jozka N. T.</p>
+          <br>
+          <p>
+            View the project on
+            <!--_blank opens in new tab/window, noopener prevents new page from gaining access to window.opener (prevents new tab from controlling original tab via JS), noreferrer does everything noopener does plus preventing new page from knowing where it came from-->
+            <a href="https://github.com/Jozka-Tjeris/Sokoban-With-Floors" target="_blank" rel="noopener noreferrer">GitHub</a>.
+          </p>
+        </div>
       </div>
     </div>
     <div style="display: flex;">
