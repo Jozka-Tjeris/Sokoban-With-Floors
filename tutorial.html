@@ -9,9 +9,9 @@
     <body>
         <div id="top-header">
             <div class="tutorial-section">
-                <p>
+                <h1>
                     Mechanics:
-                </p>
+                </h1>
             </div>
             <div class="tutorial-section" id="link-to-main">
                 <a href="index.html">Back to the main page</a>
@@ -19,80 +19,123 @@
         </div>
 
         <div class="tutorial-section">
-            <p>
-                - Movement<br>
-                <ul>
-                    <li>Use the following keys to move around the board:</li>
-                    <li>W = move forward</li>
-                    <li>A = move left</li>
-                    <li>S = move down</li>
-                    <li>D = move right</li>
-                </ul>
-            </p>
+            <div class="tutorial-section-row">
+                <div class="tutorial-section-col">
+                    <p>- Movement</p>
+                    <ul>
+                        <li>Use the following keys to move around the board:</li>
+                        <li>W = move forward</li>
+                        <li>A = move left</li>
+                        <li>S = move down</li>
+                        <li>D = move right</li>
+                    </ul>
+                </div>
+                <img src="resources/tutorial_gifs/player-movement.gif" alt="gif with player movement demonstration" class="grid-gif">
+            </div>
         </div>
 
         <div class="tutorial-section">
-            <p>
-                - Camera<br>
-                <ul>
-                    <li>Use the following arrow keys to move around the grid:</li>
-                    <li>UP = move grid up</li>
-                    <li>LEFT = move grid left </li>
-                    <li>DOWN = move grid down</li>
-                    <li>RIGHT = move grid right</li>
-                </ul>
-            </p>
+            <div class="tutorial-section-row">
+                <div class="tutorial-section-col">
+                    <p>- Camera</p>
+                    <ul>
+                        <li>Use the following arrow keys to move around the grid:</li>
+                        <li>UP = move grid up</li>
+                        <li>LEFT = move grid left </li>
+                        <li>DOWN = move grid down</li>
+                        <li>RIGHT = move grid right</li>
+                    </ul>
+                </div>
+                <img src="resources/tutorial_gifs/camera-movement.gif" alt="gif with player movement demonstration" class="grid-gif">
+            </div>
         </div>
 
         <div class="tutorial-section">
-            <p>
-                - Pushable blocks
-                <ul><li>Use the movement keys and move into a pushable block 
+            <div class="tutorial-section-row">
+                <div class="tutorial-section-col">
+                    <p>- Pushable blocks</p>
+                    <ul><li>Use the movement keys and move into a pushable block 
                 to push the block in the direction of movement</li></ul>
-            </p>
+                </div>
+                <img src="resources/tutorial_gifs/pushable-block.gif" alt="gif with player movement demonstration" class="grid-gif">
+            </div>
         </div>
         
         <div class="tutorial-section">
-            <p>
-                - Target spaces
-                <ul><li>Target spaces should be filled with pushable blocks 
+            <div class="tutorial-section-row">
+                <div class="tutorial-section-col">
+                    <p>- Target spaces</p>
+                    <ul><li>Target spaces should be filled with pushable blocks 
                 to advance to the next level</li></ul>
-            </p>
+                </div>
+                <img src="resources/tutorial_gifs/target-space.gif" alt="gif with player movement demonstration" class="grid-gif">
+            </div>
         </div>
 
         <div class="tutorial-section">
-            <p>
-                - Pullable blocks
-                <ul><li>Pull these blocks using SHIFT + movement keys
-                the block will be pulled in the direction of movement<br>
-                Target spaces can also be filled using these blocks</li></ul>
-            </p>
+            <div class="tutorial-section-row">
+                <div class="tutorial-section-col">
+                    <p>- Pullable blocks</p>
+                    <ul>
+                        <li>Pull these blocks using SHIFT + movement keys
+                the block will be pulled in the direction of movement</li>
+                        <li>Target spaces can also be filled using these blocks</li>
+                    </ul>
+                </div>
+                <img src="resources/tutorial_gifs/pullable-block.gif" alt="gif with player movement demonstration" class="grid-gif">
+            </div>
         </div>
 
         <div class="tutorial-section">
-            <p>
-                - Borders
-                <ul><li>Target spaces can have borders around them which prevent
-                blocks from entering in that direction</li></ul>
-            </p>
+            <div class="tutorial-section-row">
+                <div class="tutorial-section-col">
+                    <p>- Pullable blocks (cont.)</p>
+                    <ul>
+                        <li>Pullable blocks occupy the same target spaces with pushable blocks</li>
+                        <li>Either one can occupy a target space</li>
+                    </ul>
+                </div>
+                <img src="resources/tutorial_gifs/pullable-target-space.gif" alt="gif with player movement demonstration" class="grid-gif">
+            </div>
         </div>
 
         <div class="tutorial-section">
-            <p>
-                - Teleporters
-                <ul><li>These blocks can teleport pushable and pullable blocks
+            <div class="tutorial-section-row">
+                <div class="tutorial-section-col">
+                    <p>- Borders</p>
+                    <ul>
+                        <li>Target spaces can have borders around them which prevent
+                blocks from entering in that direction</li>
+                    </ul>
+                </div>
+                <img src="resources/tutorial_gifs/target-space-border.gif" alt="gif with player movement demonstration" class="grid-gif">
+            </div>
+        </div>
+
+        <div class="tutorial-section">
+            <div class="tutorial-section-row">
+                <div class="tutorial-section-col">
+                    <p>- Teleporters</p>
+                    <ul><li>These blocks can teleport pushable and pullable blocks
                 from one space to another (including the player)</li></ul>
-            </p>
+                </div>
+                <img src="resources/tutorial_gifs/teleporter-blocks.gif" alt="gif with player movement demonstration" class="grid-gif">
+            </div>
         </div>
 
         <div class="tutorial-section">
-            <p>
-                - ID blocks
-                <ul><li>IDs can occur in blocks and target spaces<br>
-                Blocks with matching IDs should be moved to target spaces
-                with matching IDs<br>
-                Blocks and targets with mismatching IDs will light up as a diferent color</li></ul>
-            </p>
+            <div class="tutorial-section-row">
+                <div class="tutorial-section-col">
+                    <p>- ID blocks</p>
+                    <ul>
+                        <li>IDs can occur in blocks and target spaces</li>
+                        <li>Blocks with matching IDs should be moved to target spaces
+                with matching IDs</li>
+                        <li>Blocks and targets with mismatching IDs will light up as a different color</li>
+                    </ul>
+                </div>
+                <img src="resources/tutorial_gifs/id-blocks.gif" alt="gif with player movement demonstration" class="grid-gif">
+            </div>
         </div>
 
         <div class="tutorial-section">

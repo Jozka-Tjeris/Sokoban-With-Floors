@@ -32,7 +32,7 @@ ul {
     padding: 0.4rem;
     margin-top: 0.4rem;
     margin-left: 1.2rem;
-    width: 70%;
+    width: 95%;
     border: 2px solid #444;
     list-style-type: none;
 }
@@ -208,6 +208,21 @@ label[for="level-file-input"] {
     background-color: #555;
 }
 
+.grid-gif {
+    padding-left: 0.2%;
+    width: 32%;
+}
+
+.tutorial-section-row {
+    display: flex;
+    align-items: center;
+}
+
+.tutorial-section-col {
+    display: block;
+    width: 70%;
+}
+
 /* ===============================
     Controls Menu
 =============================== */
@@ -307,7 +322,9 @@ label[for="level-file-input"] {
 }
 
 
-
+/* ===============================
+    Sync Keys to Buttons
+=============================== */
 
 .toggle-switch {
     display: flex;
