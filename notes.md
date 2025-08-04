@@ -114,3 +114,10 @@ Notes:
 
 2 August:
 - Added about section
+- Updated styling, resizing and controls section
+
+3 August:
+- Added switch to show/hide key presses
+
+4 August:
+- Added GIF images to supplement tutorial section
