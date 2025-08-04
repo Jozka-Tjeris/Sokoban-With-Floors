@@ -37,7 +37,7 @@ export const BlockColor = {
     [BlockType.PUSHABLE]: 0x0000ff,
     [BlockType.PULLABLE]: 0xff9911,
     //alternating colors depending on parity
-    [BlockType.WALL]: [0xff0000, 0x00ff00],
+    [BlockType.WALL]: [0x333333, 0x8c8c8c],
     [BlockType.FLOOR]: [0x444444, 0xbcbcbc],
     //placeholder followed by border color
     [BlockType.ENTERABLE]: [0x0, 0x371300],
