@@ -244,7 +244,7 @@ buttons.forEach(button => {
     button.addEventListener("click", (value) => {
         const levelNum = value.currentTarget.dataset.value;
         listOfGrids.destroyLevels();
-        loadLevel('level' + levelNum);
+        loadLevel(levelNum);
     });
 })
 
@@ -268,6 +268,7 @@ importButton.addEventListener("click", () => {
     });
 });
 
+//Customizes "about" button
 const aboutButton = document.getElementById('about-button');
 const modal = document.getElementById('about-modal');
 const closeModal = document.getElementById('close-modal');
@@ -288,34 +289,47 @@ if (e.target === modal) {
 }
 });
 
+//Customizes "Control" buttons
 const controlButtons = document.getElementsByClassName("triple-button-row");
-for(let i = 0; i < controlButtons.length; i++){
-    if(controlButtons[i].getAttribute("data-value")
-    && keyStates.hasOwnProperty(controlButtons[i].getAttribute("data-value"))){
-        controlButtons[i].addEventListener('pointerdown', () => {
-            keyStates[controlButtons[i].getAttribute("data-value")] = true;
+const auxButtons = document.getElementsByClassName("double-button-row");
+const shouldLightUp = document.querySelector(".check");
+
+const allButtons = Array.from(controlButtons).concat(Array.from(auxButtons));
+
+for(let i = 0; i < allButtons.length; i++){
+    if(allButtons[i].getAttribute("data-value")
+    && keyStates.hasOwnProperty(allButtons[i].getAttribute("data-value"))){
+        allButtons[i].addEventListener('pointerdown', () => {
+            keyStates[allButtons[i].getAttribute("data-value")] = true;
         });
-        controlButtons[i].addEventListener('pointerup', () => {
-            keyStates[controlButtons[i].getAttribute("data-value")] = false;
+        allButtons[i].addEventListener('pointerup', () => {
+            keyStates[allButtons[i].getAttribute("data-value")] = false;
         });
-        controlButtons[i].addEventListener('pointerleave', () => {
-            keyStates[controlButtons[i].getAttribute("data-value")] = false;
+        allButtons[i].addEventListener('pointerleave', () => {
+            keyStates[allButtons[i].getAttribute("data-value")] = false;
         });
     }
 }
 
-const auxButtons = document.getElementsByClassName("double-button-row");
-for(let i = 0; i < auxButtons.length; i++){
-    if(auxButtons[i].getAttribute("data-value")
-    && keyStates.hasOwnProperty(auxButtons[i].getAttribute("data-value"))){
-        auxButtons[i].addEventListener('pointerdown', () => {
-            keyStates[auxButtons[i].getAttribute("data-value")] = true;
-        });
-        auxButtons[i].addEventListener('pointerup', () => {
-            keyStates[auxButtons[i].getAttribute("data-value")] = false;
-        });
-        auxButtons[i].addEventListener('pointerleave', () => {
-            keyStates[auxButtons[i].getAttribute("data-value")] = false;
-        });
+//Link the keypresses to Control buttons
+window.addEventListener('keydown', (event) => {
+    let key = event.key;
+    if(key.length === 1) key = key.toLowerCase();
+    if(keyStates.hasOwnProperty(key)){
+        const button = document.querySelector(`[data-value="${key}"]`);
+        if(button && shouldLightUp?.checked){
+            button.classList.add('active-key-css');
+        }
     }
-}
+});
+
+window.addEventListener('keyup', (event) => {
+    let key = event.key;
+    if(key.length === 1) key = key.toLowerCase();
+    if(keyStates.hasOwnProperty(key)){
+        const button = document.querySelector(`[data-value="${key}"]`);
+        if(button){
+            button.classList.remove('active-key-css');
+        }
+    }
+});

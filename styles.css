@@ -142,6 +142,11 @@ button:hover {
     padding-top: 2%;
 }
 
+.loadLevel-btn:active {
+    background-color: #e0e0e0;
+    color: #303030;
+}
+
 /* ===============================
    Import / Export Section
 =============================== */
@@ -216,7 +221,7 @@ label[for="level-file-input"] {
 
 .key-layout {
     width: 100%;
-    padding: 0 0 10% 0;
+    padding: 0 0 5% 0;
 }
 
 .multi-row-key-layout {
@@ -250,7 +255,7 @@ label[for="level-file-input"] {
 }
 
 .keys-menu {
-    height: 60%;
+    height: 68%;
 }
 
 /* ===============================
@@ -294,4 +299,36 @@ label[for="level-file-input"] {
 .modal-content a {
   color: #00bfff;
   text-decoration: underline;
+}
+
+.active-key-css {
+    background-color: #e0e0e0;
+    color: #303030;
+}
+
+
+
+
+.toggle-switch {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 8%;
+}
+
+.check {
+    width: 10%;
+    height: 40%;
+    margin-left: 3%;
+}
+
+.option-text {
+    display: flex;
+    align-items: center;
+    margin-left: 2%;
+    width: 85%;
+    height: 50%;
+    font-size: 70%;
 }
