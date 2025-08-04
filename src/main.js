@@ -294,22 +294,38 @@ const controlButtons = document.getElementsByClassName("triple-button-row");
 const auxButtons = document.getElementsByClassName("double-button-row");
 const shouldLightUp = document.querySelector(".check");
 
-const allButtons = Array.from(controlButtons).concat(Array.from(auxButtons));
-
-for(let i = 0; i < allButtons.length; i++){
-    if(allButtons[i].getAttribute("data-value")
-    && keyStates.hasOwnProperty(allButtons[i].getAttribute("data-value"))){
-        allButtons[i].addEventListener('pointerdown', () => {
-            keyStates[allButtons[i].getAttribute("data-value")] = true;
+for(let i = 0; i < controlButtons.length; i++){
+    if(controlButtons[i].getAttribute("data-value")
+    && keyStates.hasOwnProperty(controlButtons[i].getAttribute("data-value"))){
+        controlButtons[i].addEventListener('pointerdown', () => {
+            keyStates[controlButtons[i].getAttribute("data-value")] = true;
         });
-        allButtons[i].addEventListener('pointerup', () => {
-            keyStates[allButtons[i].getAttribute("data-value")] = false;
+        controlButtons[i].addEventListener('pointerup', () => {
+            keyStates[controlButtons[i].getAttribute("data-value")] = false;
         });
-        allButtons[i].addEventListener('pointerleave', () => {
-            keyStates[allButtons[i].getAttribute("data-value")] = false;
+        controlButtons[i].addEventListener('pointerleave', () => {
+            keyStates[controlButtons[i].getAttribute("data-value")] = false;
         });
     }
 }
+
+//Sticky keys for Shift and P buttons
+for(let i = 0; i < auxButtons.length; i++){
+    if(auxButtons[i].getAttribute("data-value")
+    && keyStates.hasOwnProperty(auxButtons[i].getAttribute("data-value"))){
+        auxButtons[i].addEventListener('pointerdown', () => {
+            keyStates[auxButtons[i].getAttribute("data-value")] = !keyStates[auxButtons[i].getAttribute("data-value")];
+            if(keyStates[auxButtons[i].getAttribute("data-value")]){
+                auxButtons[i].classList.add('active-key-css');
+            }
+            else{
+                auxButtons[i].classList.remove('active-key-css');
+            }
+        });
+    }
+}
+
+console.log(auxButtons)
 
 //Link the keypresses to Control buttons
 window.addEventListener('keydown', (event) => {
