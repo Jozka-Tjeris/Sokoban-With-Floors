@@ -55,6 +55,7 @@ button {
 
 button:hover {
     background-color: #444;
+    color: #e0e0e0;
     cursor: pointer;
 }
 
@@ -145,6 +146,18 @@ button:hover {
 .loadLevel-btn:active {
     background-color: #e0e0e0;
     color: #303030;
+}
+
+.current-level-btn {
+    border-color: #808000;
+    background-color: #ffff00;
+    color: #000000;
+}
+
+.completed-level-btn {
+    border-color: #008000;
+    background-color: #00ff00;
+    color: #000000;
 }
 
 /* ===============================

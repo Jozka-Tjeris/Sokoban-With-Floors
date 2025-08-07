@@ -154,6 +154,9 @@ renderer.setAnimationLoop(animate);
 
 window.addEventListener('keydown', (event) => {
     let key = event.key;
+    if (key === " ") {
+        event.preventDefault();  //Stop spacebar from scrolling or reloading
+    }
     if(key.length === 1) key = key.toLowerCase();
     if(keyStates.hasOwnProperty(key)){
         keyStates[key] = true;
@@ -233,6 +236,7 @@ async function loadLevel(levelName) {
         console.log(THREE.Cache.files); // Any leftover files
         console.log(renderer.info.memory);
         //Level loading starts here
+        listOfGrids.currLevelName = levelName;
         listOfGrids.initLevelFromJSON(levelData, legends);
         document.getElementById("level-status").innerText = "Level Status: Unsolved";
     }
@@ -242,6 +246,8 @@ const buttons = document.querySelectorAll(".loadLevel-btn");
 
 buttons.forEach(button => {
     button.addEventListener("click", (value) => {
+        document.querySelector(`[data-value="${listOfGrids.currLevelName}"]`)?.classList.remove("current-level-btn");
+        button.classList.add("current-level-btn");
         const levelNum = value.currentTarget.dataset.value;
         listOfGrids.destroyLevels();
         loadLevel(levelNum);
@@ -324,8 +330,6 @@ for(let i = 0; i < auxButtons.length; i++){
         });
     }
 }
-
-console.log(auxButtons)
 
 //Link the keypresses to Control buttons
 window.addEventListener('keydown', (event) => {

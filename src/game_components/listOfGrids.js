@@ -16,11 +16,13 @@ export class ListOfGrids {
     #checkTeleporters;
     #areLabelsPresent;
     #levelCompleted;
+    currLevelName;
 
     constructor(scene){
         this.#containsPlayer = false;
         this.#areLabelsPresent = false;
         this.#levelCompleted = false;
+        this.currLevelName = null;
         this.#sceneObj = scene;
         this.#playerController = new PlayerController(this);
     }
@@ -409,6 +411,7 @@ export class ListOfGrids {
                 this.#levelCompleted = areAllTargetsFilled;
                 if(this.#levelCompleted){
                     document.getElementById("level-status").innerText = "Level Status: Completed";
+                    document.querySelector(`[data-value="${this.currLevelName}"]`)?.classList.add("completed-level-btn");
                 }
                 else{
                     document.getElementById("level-status").innerText = "Level Status: Unsolved";
