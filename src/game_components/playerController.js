@@ -81,6 +81,11 @@ export class PlayerController{
                     console.log("Player can't push current pushable block");
                     return;
                 }
+                //check if the pushable block position is passable
+                if(grid.isBlockPassable(...newPosition, direction, true) == false){
+                    console.log("Player can't push current pushable block: new player position not passable");
+                    return;
+                }
                 //specific to teleporters: check if its destination spot is unoccupied
                 const block = grid.getEnterable(...newPushableBlockPosition);
                 if(block && block.type === BlockType.TELEPORTER){

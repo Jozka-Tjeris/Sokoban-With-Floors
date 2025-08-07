@@ -263,7 +263,7 @@ export class GridOfBlocks{
         return true;
     }
 
-    isBlockPassable(height, col, row, direction){
+    isBlockPassable(height, col, row, direction, overrideSolidCheck = false){
         const blockToCheck = this.getBlock(height, col, row);
         const targetToCheck = this.#enterableSpaces.get(height + ":" + col + ":" + row) ?? null;
         const isBlock = blockToCheck instanceof Blocks.Block;
@@ -272,7 +272,7 @@ export class GridOfBlocks{
         if(isBlock == false && isTargetBlock == false){
             return true;
         }
-        if(isBlock == true){
+        if(isBlock == true && !overrideSolidCheck){
             //the player check makes sure that it doesn't treat the player as an impassable block
             //the player will be moving away from their current position after a movement update
             //so it's acceptable to ignore the player position
@@ -296,8 +296,9 @@ export class GridOfBlocks{
             console.log("Can enter target space from direction: " + direction);
             return true;
         }
-        console.log("Error: Undefined case for passability");
-        return false;
+        //only reached when player is pushing a pushable block (for now)
+        console.log("Assumption: Player is moving into pushable block's location");
+        return true;
     }
 
     isBlockPushable(height, col, row){
