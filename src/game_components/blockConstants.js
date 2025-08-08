@@ -38,7 +38,8 @@ export const BlockColor = {
     [BlockType.PULLABLE]: 0xff9911,
     //alternating colors depending on parity
     [BlockType.WALL]: [0x333333, 0x8c8c8c],
-    [BlockType.FLOOR]: [0x444444, 0xbcbcbc],
+    //first 2 are regular colors, last 2 are teleport destination colors
+    [BlockType.FLOOR]: [0x444444, 0xbcbcbc, 0xe0bb00, 0xe0e000],
     //placeholder followed by border color
     [BlockType.ENTERABLE]: [0x0, 0x371300],
     //default color, push correct, pull correct, push incorrect, pull incorrect

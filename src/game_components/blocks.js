@@ -211,6 +211,26 @@ export class Floor extends Block{
         this.addDistanceToObject(0.25, 0, 0);
         this.getObject().renderOrder = BlockRenderOrder.FLOOR;
     }
+
+    setAsTeleportDestination(status){
+        console.log(this.getObject().material.color.getHex(), BlockColor[this.type][0], BlockColor[this.type][1])
+        if(status === true){
+            if(this.getObject().material.color.getHex() === BlockColor[this.type][0]){
+                this.getObject().material.color.setHex(BlockColor[this.type][2]);
+            }
+            else{
+                this.getObject().material.color.setHex(BlockColor[this.type][3]);
+            }
+        }
+        else{
+            if(this.getObject().material.color.getHex() === BlockColor[this.type][2]){
+                this.getObject().material.color.setHex(BlockColor[this.type][0]);
+            }
+            else{
+                this.getObject().material.color.setHex(BlockColor[this.type][1]);
+            }
+        }
+    }
 }
 
 export class Wall extends Block{

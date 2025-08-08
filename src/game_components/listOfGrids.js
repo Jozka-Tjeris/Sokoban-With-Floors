@@ -147,7 +147,10 @@ export class ListOfGrids {
                 value.setDisabled();
             }
             else{
-                // console.log(`Teleport block pointing to grid ID ${gridID} to position ${gridPosition} is valid.`);
+                //set the block below the teleport destination as marked
+                const belowPos = internalPosition;
+                belowPos[0] -= 1;
+                this.#grids.get(gridID).getBlock(...belowPos).setAsTeleportDestination(true);
             }
         })
     }
