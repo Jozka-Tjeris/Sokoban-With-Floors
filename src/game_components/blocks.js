@@ -213,7 +213,6 @@ export class Floor extends Block{
     }
 
     setAsTeleportDestination(status){
-        console.log(this.getObject().material.color.getHex(), BlockColor[this.type][0], BlockColor[this.type][1])
         if(status === true){
             if(this.getObject().material.color.getHex() === BlockColor[this.type][0]){
                 this.getObject().material.color.setHex(BlockColor[this.type][2]);
