@@ -121,3 +121,13 @@ Notes:
 
 4 August:
 - Added GIF images to supplement tutorial section
+- Added sticky keys for some on-screen buttons for mobile functionality
+
+7 August:
+- Added first 12 levels (Basic, Pulls, Board)
+
+8 August:
+- Added 4 more levels (Warps)
+
+9 August:
+- Added 4 more levels (Label)
