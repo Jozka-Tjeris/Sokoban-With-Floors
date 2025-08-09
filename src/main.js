@@ -254,7 +254,7 @@ buttons.forEach(button => {
     });
 })
 
-loadLevel('level4');
+loadLevel('blank');
 
 const exportButton = document.getElementById("level-file-export");
 exportButton.addEventListener("click", () => {
