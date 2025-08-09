@@ -1,0 +1,37 @@
+{
+    "grids": [
+        {
+            "gridID": "Label1",
+            "gridTitle": "Label 1",
+            "gridSize": {"height": 2, "columns": 5, "rows": 4},
+            "layers": [
+                {
+                    "layout": [
+                        ".....",
+                        ".....",
+                        ".....",
+                        "....."
+                    ]
+                },
+                {
+                    "layout": [
+                        "     ",
+                        " TTT ",
+                        " AAA ",
+                        "P    "
+                    ],
+                    "targets": [
+                        {"position": [2, 3], "directions": "111111", "id": "A"},
+                        {"position": [3, 3], "directions": "111111", "id": "B"},
+                        {"position": [4, 3], "directions": "111111", "id": "C"}
+                    ],
+                    "blocks": [
+                        {"position": [2, 2], "id": "C"},
+                        {"position": [3, 2], "id": "A"},
+                        {"position": [4, 2], "id": "B"}
+                    ]
+                }
+            ]
+        }
+    ]
+}

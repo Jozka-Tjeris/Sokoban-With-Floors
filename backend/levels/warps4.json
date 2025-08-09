@@ -1,0 +1,139 @@
+{
+    "grids": [
+        {
+            "gridID": "Warps4-Center",
+            "gridTitle": "Warps 4 - Center",
+            "gridSize": {"height": 2, "columns": 6, "rows": 6},
+            "layers": [
+                {
+                    "layout": [
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......"
+                    ]
+                },
+                {
+                    "layout": [
+                        "W SS W",
+                        " A    ",
+                        "  A  S",
+                        "T  A S",
+                        " P  A ",
+                        "W T  W"
+                    ],
+                    "teleporters": [
+                        {"position": [3, 6], "targetGridID": "Warps4-North", "targetGridPosition": [2, 3, 4]},
+                        {"position": [4, 6], "targetGridID": "Warps4-North", "targetGridPosition": [2, 5, 2]},
+                        {"position": [6, 3], "targetGridID": "Warps4-East", "targetGridPosition": [2, 4, 4]},
+                        {"position": [6, 4], "targetGridID": "Warps4-East", "targetGridPosition": [2, 2, 2]}
+                    ]
+                }
+            ]
+        },
+        {
+            "gridID": "Warps4-North",
+            "gridTitle": "Warps 4 - North",
+            "gridSize": {"height": 3, "columns": 6, "rows": 10},
+            "layers": [
+                {
+                    "layout": [
+                        "      ",
+                        "      ",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......"
+                    ]
+                },
+                {
+                    "layout": [
+                        "......",
+                        "......",
+                        "W WW W",
+                        " SBT  ",
+                        "  T   ",
+                        "WTSB W",
+                        "W B TW",
+                        "   T  ",
+                        "  TB  ",
+                        "W WW W"
+                    ],
+                    "teleporters": [
+                        {"position": [2, 7], "targetGridID": "Warps4-Center", "targetGridPosition": [2, 2, 3]},
+                        {"position": [3, 5], "targetGridID": "Warps4-North", "targetGridPosition": [3, 6, 10]}
+                    ]
+                },
+                {
+                    "layout": [
+                        "S A   ",
+                        "S     ",
+                        "      ",
+                        "      ",
+                        "      ",
+                        "      ",
+                        "      ",
+                        "      ",
+                        "      ",
+                        "      "
+                    ],
+                    "teleporters": [
+                        {"position": [1, 9], "targetGridID": "Warps4-Center", "targetGridPosition": [2, 2, 3]},
+                        {"position": [1, 10], "targetGridID": "Warps4-Center", "targetGridPosition": [2, 1, 4]}
+                    ]
+                }
+            ]
+        },
+        {
+            "gridID": "Warps4-East",
+            "gridTitle": "Warps 4 - East",
+            "gridSize": {"height": 3, "columns": 10, "rows": 6},
+            "layers": [
+                {
+                    "layout": [
+                        "........  ",
+                        "........  ",
+                        "........  ",
+                        "........  ",
+                        "........  ",
+                        "........  "
+                    ]
+                },
+                {
+                    "layout": [
+                        "W  WW  W..",
+                        "    T S ..",
+                        "WT B TBW..",
+                        "WBTSB TW..",
+                        "   T    ..",
+                        "W  WW  W.."
+                    ],
+                    "teleporters": [
+                        {"position": [7, 5], "targetGridID": "Warps4-Center", "targetGridPosition": [2, 3, 2]},
+                        {"position": [4, 3], "targetGridID": "Warps4-East", "targetGridPosition": [3, 10, 1]}
+                    ]
+                },
+                {
+                    "layout": [
+                        "        SS",
+                        "          ",
+                        "         A",
+                        "          ",
+                        "          ",
+                        "          "
+                    ],
+                    "teleporters": [
+                        {"position": [9, 6], "targetGridID": "Warps4-Center", "targetGridPosition": [2, 2, 2]},
+                        {"position": [10, 6], "targetGridID": "Warps4-Center", "targetGridPosition": [2, 4, 1]}
+                    ]
+                }
+            ]
+        }
+    ]
+}

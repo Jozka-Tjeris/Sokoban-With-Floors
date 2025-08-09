@@ -1,0 +1,32 @@
+{
+    "grids": [
+        {
+            "gridID": "Board1",
+            "gridTitle": "Board 1",
+            "gridSize": {"height": 2, "columns": 5, "rows": 5},
+            "layers": [
+                {
+                    "layout": [
+                        ".....",
+                        ".....",
+                        ".....",
+                        ".....",
+                        "....."
+                    ]
+                },
+                {
+                    "layout": [
+                        "     ",
+                        "     ",
+                        "  T  ",
+                        " A   ",
+                        "P    "
+                    ],
+                    "targets": [
+                        {"position": [3, 3], "directions": "101100"}
+                    ]
+                }
+            ]
+        }
+    ]
+}

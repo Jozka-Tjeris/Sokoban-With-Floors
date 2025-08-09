@@ -1,0 +1,10 @@
+{
+    "grids": [
+        {
+            "gridID": "Blank",
+            "gridTitle": "Blank",
+            "gridSize": {"height": 0, "columns": 0, "rows": 0},
+            "layers": []
+        }
+    ]
+}

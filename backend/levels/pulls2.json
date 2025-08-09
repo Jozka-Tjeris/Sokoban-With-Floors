@@ -1,0 +1,31 @@
+{
+    "grids": [
+        {
+            "gridID": "Basic1",
+            "gridTitle": "Basic 1",
+            "gridSize": {"height": 2, "columns": 6, "rows": 6},
+            "layers": [
+                {
+                    "layout": [
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......"
+                    ]
+                },
+                {
+                    "layout": [
+                        "      ",
+                        "  TTT ",
+                        " PW W ",
+                        "  BBB ",
+                        "      ",
+                        "      "
+                    ]
+                }
+            ]
+        }
+    ]
+}

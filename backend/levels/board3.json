@@ -1,0 +1,45 @@
+{
+    "grids": [
+        {
+            "gridID": "Board3",
+            "gridTitle": "Board 3",
+            "gridSize": {"height": 2, "columns": 6, "rows": 9},
+            "layers": [
+                {
+                    "layout": [
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        "......"
+                    ]
+                },
+                {
+                    "layout": [
+                        "    B ",
+                        " T W  ",
+                        "T  W B",
+                        " T W  ",
+                        " BWWB ",
+                        "  WWT ",
+                        "B W  T",
+                        "  W T ",
+                        "PBW   "
+                    ],
+                    "targets": [
+                        {"position": [2, 6], "directions": "111110"},
+                        {"position": [2, 8], "directions": "111110"},
+                        {"position": [1, 7], "directions": "111110"},
+                        {"position": [5, 2], "directions": "111101"},
+                        {"position": [5, 4], "directions": "111101"},
+                        {"position": [6, 3], "directions": "111101"}
+                    ]
+                }
+            ]
+        }
+    ]
+}

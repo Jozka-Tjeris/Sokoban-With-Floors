@@ -1,0 +1,33 @@
+{
+    "grids": [
+        {
+            "gridID": "Basic3",
+            "gridTitle": "Basic 3",
+            "gridSize": {"height": 2, "columns": 9, "rows": 7},
+            "layers": [
+                {
+                    "layout": [
+                        ".........",
+                        ".........",
+                        ".........",
+                        ".........",
+                        ".........",
+                        ".........",
+                        "........."
+                    ]
+                },
+                {
+                    "layout": [
+                        "         ",
+                        " AAWWTTT ",
+                        " A     T ",
+                        " AW P WA ",
+                        " T     A ",
+                        " TTTWWAA ",
+                        "         "
+                    ]
+                }
+            ]
+        }
+    ]
+}

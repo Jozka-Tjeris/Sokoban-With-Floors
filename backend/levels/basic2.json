@@ -1,0 +1,31 @@
+{
+    "grids": [
+        {
+            "gridID": "Basic2",
+            "gridTitle": "Basic 2",
+            "gridSize": {"height": 2, "columns": 6, "rows": 6},
+            "layers": [
+                {
+                    "layout": [
+                        " .... ",
+                        "......",
+                        "......",
+                        "......",
+                        "......",
+                        " .... "
+                    ]
+                },
+                {
+                    "layout": [
+                        "   W  ",
+                        "   TT ",
+                        " A WT ",
+                        " A    ",
+                        " A W  ",
+                        " P    "
+                    ]
+                }
+            ]
+        }
+    ]
+}

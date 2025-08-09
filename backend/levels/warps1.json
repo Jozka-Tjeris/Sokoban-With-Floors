@@ -1,0 +1,61 @@
+{
+    "grids": [
+        {
+            "gridID": "Warps1-A",
+            "gridTitle": "Warps 1 - A",
+            "gridSize": {"height": 2, "columns": 4, "rows": 5},
+            "layers": [
+                {
+                    "layout": [
+                        "....",
+                        "....",
+                        "....",
+                        "....",
+                        "...."
+                    ]
+                },
+                {
+                    "layout": [
+                        "S  S",
+                        "    ",
+                        " A  ",
+                        "    ",
+                        "P   "
+                    ],
+                    "teleporters": [
+                        {"position": [4, 5], "targetGridID": "Warps1-B", "targetGridPosition": [2, 2, 2]},
+                        {"position": [1, 5], "targetGridID": "Warps1-B", "targetGridPosition": [2, 1, 2]}
+                    ]
+                }
+            ]
+        },
+        {
+            "gridID": "Warps1-B",
+            "gridTitle": "Warps 1 - B",
+            "gridSize": {"height": 2, "columns": 4, "rows": 5},
+            "layers": [
+                {
+                    "layout": [
+                        "....",
+                        "....",
+                        "....",
+                        "....",
+                        "...."
+                    ]
+                },
+                {
+                    "layout": [
+                        "  W ",
+                        "  T ",
+                        " S  ",
+                        "    ",
+                        "    "
+                    ],
+                    "teleporters": [
+                        {"position": [2, 3], "targetGridID": "Warps1-A", "targetGridPosition": [2, 1, 1]}
+                    ]
+                }
+            ]
+        }
+    ]
+}

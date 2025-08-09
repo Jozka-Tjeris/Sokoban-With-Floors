@@ -1,0 +1,94 @@
+{
+    "grids": [
+        {
+            "gridID": "Warps3-Right",
+            "gridTitle": "Warps 3 - Right Diagonal",
+            "gridSize": {"height": 2, "columns": 12, "rows": 12},
+            "layers": [
+                {
+                    "layout": [
+                        "      ......",
+                        "      ......",
+                        "      ......",
+                        "      ......",
+                        "      ......",
+                        "      ......",
+                        "......      ",
+                        "......      ",
+                        "......      ",
+                        "......      ",
+                        "......      ",
+                        "......      "
+                    ]
+                },
+                {
+                    "layout": [
+                        "            ",
+                        "       S  A ",
+                        "         A  ",
+                        "        A   ",
+                        "       A    ",
+                        "           S",
+                        "S           ",
+                        "    A       ",
+                        "   A        ",
+                        "  A         ",
+                        " A  S       ",
+                        "P           "
+                    ],
+                    "teleporters": [
+                        {"position": [5, 2], "targetGridID": "Warps3-Left", "targetGridPosition": [2, 11, 2]},
+                        {"position": [1, 6], "targetGridID": "Warps3-Left", "targetGridPosition": [2, 1, 12]},
+                        {"position": [12, 7], "targetGridID": "Warps3-Left", "targetGridPosition": [2, 12, 1]},
+                        {"position": [8, 11], "targetGridID": "Warps3-Left", "targetGridPosition": [2, 2, 11]}
+                    ]
+                }
+            ]
+        },
+        {
+            "gridID": "Warps3-Left",
+            "gridTitle": "Warps 3 - Left Diagonal",
+            "gridSize": {"height": 2, "columns": 12, "rows": 12},
+            "layers": [
+                {
+                    "layout": [
+                        "......      ",
+                        "......      ",
+                        "......      ",
+                        "......      ",
+                        "......      ",
+                        "......      ",
+                        "      ......",
+                        "      ......",
+                        "      ......",
+                        "      ......",
+                        "      ......",
+                        "      ......"
+                    ]
+                },
+                {
+                    "layout": [
+                        "     S      ",
+                        "            ",
+                        "            ",
+                        " T          ",
+                        "TST         ",
+                        " T          ",
+                        "          T ",
+                        "         TST",
+                        "          T ",
+                        "            ",
+                        "            ",
+                        "      S     "
+                    ],
+                    "teleporters": [
+                        {"position": [2, 8], "targetGridID": "Warps3-Right", "targetGridPosition": [2, 2, 2]},
+                        {"position": [6, 12], "targetGridID": "Warps3-Right", "targetGridPosition": [2, 12, 12]},
+                        {"position": [7, 1], "targetGridID": "Warps3-Right", "targetGridPosition": [2, 1, 1]},
+                        {"position": [11, 5], "targetGridID": "Warps3-Right", "targetGridPosition": [2, 11, 11]}
+                    ]
+                }
+            ]
+        }
+    ]
+}

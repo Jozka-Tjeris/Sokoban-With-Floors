@@ -1,0 +1,55 @@
+{
+    "grids": [
+        {
+            "gridID": "Label4",
+            "gridTitle": "Label 4",
+            "gridSize": {"height": 2, "columns": 11, "rows": 10},
+            "layers": [
+                {
+                    "layout": [
+                        "...........",
+                        "...........",
+                        "...........",
+                        "...........",
+                        "...........",
+                        "...........",
+                        "...........",
+                        "...........",
+                        "...........",
+                        "..........."
+                    ]
+                },
+                {
+                    "layout": [
+                        "  B        ",
+                        " TT  W A A ",
+                        "  T W  W   ",
+                        " BB T B T T",
+                        "   W  WWA  ",
+                        "  WWAB TT  ",
+                        "  W    TW B",
+                        "  TW  TTW  ",
+                        " AT    AB  ",
+                        "P          "
+                    ],
+                    "targets": [
+                        {"position": [8, 4], "directions": "111111", "id": "Box_1"},
+                        {"position": [9, 5], "directions": "111111", "id": "Box_2"},
+                        {"position": [5, 7], "directions": "111111", "id": "Box_3"},
+                        {"position": [3, 9], "directions": "111111", "id": "Box_4"},
+                        {"position": [8, 3], "directions": "111111", "id": "Box_Pull"},
+                        {"position": [9, 7], "directions": "111111", "id": "Box_Pull"}
+                    ],
+                    "blocks": [
+                        {"position": [5, 5], "id": "Box_1"},
+                        {"position": [8, 9], "id": "Box_2"},
+                        {"position": [8, 2], "id": "Box_3"},
+                        {"position": [10, 9], "id": "Box_4"},
+                        {"position": [3, 10], "id": "Box_Pull"},
+                        {"position": [9, 2], "id": "Box_Pull"}
+                    ]
+                }
+            ]
+        }
+    ]
+}
