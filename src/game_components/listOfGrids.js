@@ -330,7 +330,7 @@ export class ListOfGrids {
                     const [col, row] = currBlocks[p].position;
                     const id = currBlocks[p].id ?? null;
                     const block = grid.getBlock(i, col-1, row-1);
-                    if(block){
+                    if(block && !(block instanceof Player)){
                         block.setObjectID(id);
                     }
                     else{
@@ -376,7 +376,7 @@ export class ListOfGrids {
         }
 
         if(grid.getPlayer() instanceof Player == false){
-            console.log("Current grid doesn't have a valid player, aborting");
+            //Current grid doesn't have a valid player, abort
             return;
         }
 
