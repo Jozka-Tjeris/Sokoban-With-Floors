@@ -8,6 +8,7 @@
     "build": "vite build"
   },
   "dependencies": {
+    "ajv": "^8.17.1",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "json-stringify-pretty-compact": "^4.0.0",
