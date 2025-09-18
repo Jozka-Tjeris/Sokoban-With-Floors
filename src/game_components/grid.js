@@ -446,6 +446,8 @@ export class GridOfBlocks{
 
     convertToJSONString(legendData){
         let objString = {};
+        objString.gridID = this.#gridID;
+        objString.gridTitle = this.#gridTitle;
         objString.gridSize = {"height": this.#height, "columns": this.#cols, "rows": this.#rows};
         objString.layers = new Array(this.#height);
         //go through each height
@@ -467,14 +469,28 @@ export class GridOfBlocks{
                     }
                     if(target){
                         blockCode = legendData.typeToCode[target.type] ?? " ";
-                        //add target directions onto additional property "targets"
-                        if(!objString.layers[i].hasOwnProperty("targets")){
-                            objString.layers[i].targets = [];
+                        if(target.type == BlockType.TARGET){
+                            //add target directions onto additional property
+                            if(!objString.layers[i].hasOwnProperty("targets")){
+                                objString.layers[i].targets = [];
+                            }
+                            objString.layers[i].targets.push({
+                                "position": [j+1, k+1],
+                                "directions": target.getDirectionsAsJSONString().join("")
+                            })
                         }
-                        objString.layers[i].targets.push({
-                            "position": [j+1, k+1],
-                            "directions": target.getDirectionsAsJSONString().join("")
-                        })
+                        if(target.type == BlockType.TELEPORTER){
+                            //add target directions onto additional property
+                            if(!objString.layers[i].hasOwnProperty("teleporters")){
+                                objString.layers[i].teleporters = [];
+                            }
+                            objString.layers[i].teleporters.push({
+                                "position": [j+1, k+1],
+                                "directions": target.getDirectionsAsJSONString().join(""),
+                                "targetGridID": target.getTargetGridID(),
+                                "targetGridPosition": target.getTargetGridPosition()
+                            })
+                        }
                     }
                     rowLayout[j] = blockCode;
                 }

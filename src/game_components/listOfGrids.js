@@ -414,7 +414,9 @@ export class ListOfGrids {
                 this.#levelCompleted = areAllTargetsFilled;
                 if(this.#levelCompleted){
                     document.getElementById("level-status").innerText = "Level Status: Completed";
-                    document.querySelector(`[data-value="${this.currLevelName}"]`)?.classList.add("completed-level-btn");
+                    if(this.currLevelName){
+                        document.querySelector(`[data-value="${this.currLevelName}"]`)?.classList.add("completed-level-btn");
+                    }
                 }
                 else{
                     document.getElementById("level-status").innerText = "Level Status: Unsolved";

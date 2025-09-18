@@ -264,10 +264,16 @@ exportButton.addEventListener("click", () => {
 const importButton = document.getElementById("level-file-import");
 importButton.addEventListener("click", () => {
     triggerFileImport().
-    then((jsonData) => {
+    then(async (jsonData) => {
+        await loadLegends();
         console.log("Imported JSON: ", jsonData);
         listOfGrids.destroyLevels();
-        listOfGrids.generateLevelFromJSON(jsonData);
+        listOfGrids.initLevelFromJSON(jsonData, legends);
+        buttons.forEach(button => {
+            button.classList.remove("current-level-btn");
+        })
+        listOfGrids.currLevelName = null;
+        document.getElementById("level-status").innerText = "Level Status: Unsolved";
     })
     .catch((err) => {
         console.error("Import failed:", err);
