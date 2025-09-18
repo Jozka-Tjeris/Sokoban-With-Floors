@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { saveLevelFile, sendLevelData } from './utilities/exportLevel.js';
+import { saveLevelFile } from './utilities/exportLevel.js';
 import { triggerFileImport } from './utilities/importLevel.js';
 import { ListOfGrids } from './game_components/listOfGrids.js';
 import initCheckerFunction from './utilities/jsonChecker.js';
@@ -38,16 +38,13 @@ function initApplication(){
     );
     camera.position.set(0, 0, 100);
     camera.lookAt(scene.position);
+    camera.zoom = 0.75;
     scene.add(camera);
 
     const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
     renderer.setSize(gameContainer.clientWidth, gameContainer.clientHeight, false);
     renderer.sortObjects = true;
 
-    // window.addEventListener('resize', () => {
-    //     console.log('container size:', gameContainer.clientWidth, gameContainer.clientHeight);
-    //     console.log('canvas size:', canvas.clientWidth, canvas.clientHeight);
-    // });
     return [gameContainer, canvas, scene, camera, renderer];
 }
 
