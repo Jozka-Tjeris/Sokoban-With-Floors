@@ -205,7 +205,7 @@ async function loadLegends() {
     if(legends) return legends;
     let legendData = null;
     try{
-        const response = await fetch(`/api/legends.json`);
+        const response = await fetch(`/legends.json`);
         if(!response.ok) throw new Error('Legend not found');
         legendData = await response.json();
     } catch (err) {
@@ -221,7 +221,7 @@ async function loadLevel(levelName) {
     await loadLegends();
     let levelData = null;
     try{
-        const response = await fetch(`/api/levels/${levelName}`);
+        const response = await fetch(`/levels/${levelName}.json`);
         if(!response.ok) throw new Error('Level not found');
         levelData = await response.json();
     } catch (err) {
