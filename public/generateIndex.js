@@ -1,8 +1,8 @@
 import fs from "fs";
 import path from "path";
 
-const levelsDir = path.join(process.cwd(), "api", "data", "levels");
-const indexFile = path.join(process.cwd(), "api", "data", "levelIndex.js");
+const levelsDir = path.join(process.cwd(), "public", "levels");
+const indexFile = path.join(process.cwd(), "public", "levelIndex.js");
 
 // Get all JSON files in the levels folder
 const files = fs.readdirSync(levelsDir).filter(f => f.endsWith(".json"));
