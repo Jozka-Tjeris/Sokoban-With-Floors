@@ -19,6 +19,7 @@ A 3D Sokoban game that contains multiple mechanics like multiple floors, pulling
 Open a terminal in the same directory as the root of the project directory
 
 Run the following command: npm install (only needs to be done once)
+
 Then run: npm run dev
 
 Open the link displayed on the terminal afterwards
