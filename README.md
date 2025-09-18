@@ -15,18 +15,13 @@ A 3D Sokoban game that contains multiple mechanics like multiple floors, pulling
 - A browser
 - Node Package Manager (NPM)
 
-## Build Instructions:
+## Build Instructions for Local Usage:
 Open a terminal in the same directory as the root of the project directory
 
 Run the following command: npm install (only needs to be done once)
+Then run: npm run dev
 
-Open a second terminal
-
-In the first terminal: npm run dev
-
-In the second terminal: npx vite
-
-Open the link displayed on the terminal when entering "npx vite" onto a browser tab (It should be something like "http://localhost:5173/index.html")
+Open the link displayed on the terminal afterwards
 
 ## Usage:
 Launch the app, pick a level on the left menu, play the game
