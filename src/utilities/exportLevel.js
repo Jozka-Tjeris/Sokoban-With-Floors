@@ -12,25 +12,3 @@ export function saveLevelFile(data, filename = "exported_level.json") {
     link.click();
     URL.revokeObjectURL(link.href);
 }
-
-export async function sendLevelData(levelData){
-    try {
-        const response = await fetch('/api/save-level', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(levelData)
-        });
-
-        if (!response.ok) {
-            throw new Error(`Server responded with ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Level saved:', result);
-    } catch (err) {
-        console.error('Error saving level data:', err);
-    }
-}
-
