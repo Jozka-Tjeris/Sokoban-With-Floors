@@ -2,8 +2,8 @@ import fs from "fs";
 import path from "path";
 import stringify from "json-stringify-pretty-compact";
 
-const legendsPath = path.resolve("./backend/legends.json");
-const levelsPath = path.resolve("./backend/levels");
+const legendsPath = path.resolve("./legends.json");
+const levelsPath = path.resolve("./levels");
 
 export function getLegends() {
   if (fs.existsSync(legendsPath)) {
