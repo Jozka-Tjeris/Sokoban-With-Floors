@@ -2,11 +2,10 @@ import fs from "fs";
 import path from "path";
 import stringify from "json-stringify-pretty-compact";
 
-const legendsPath = path.join(process.cwd(), "backend", "legends.json");
-const levelsPath = path.join(process.cwd(), "backend", "levels");
+const legendsPath = path.join(process.cwd(), "api", "data", "legends.json");
+const levelsPath = path.join(process.cwd(), "api", "data", "levels");
 
 export function getLegends(){
-    console.log("HI", legendsPath)
     if(fs.existsSync(legendsPath)){
         const data = fs.readFileSync(legendsPath, "utf-8");
         return JSON.parse(data);

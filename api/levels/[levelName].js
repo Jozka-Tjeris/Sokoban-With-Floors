@@ -1,14 +1,14 @@
-import { getLevel } from "../../backend/utils/levelUtils.js";
+import { levels } from "../data/levelIndex.js";
 
-export default function handler(req, res) {
-  if (req.method !== "GET") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+export default function handler(req, res){
+    if(req.method !== "GET"){
+        return res.status(405).json({ error: "Method not allowed" });
+    }
+    const { levelName } = req.query;
+    const level = levels[levelName];
 
-  try {
-    const level = getLevel(req.query.levelName);
+    if(!level){
+        return res.status(404).json({ error: "Level not found" });
+    }
     res.status(200).json(level);
-  } catch (err) {
-    res.status(404).json({ error: err.message });
-  }
 }
