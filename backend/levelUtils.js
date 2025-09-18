@@ -2,8 +2,8 @@ import fs from "fs";
 import path from "path";
 import stringify from "json-stringify-pretty-compact";
 
-const legendsPath = path.resolve("./backend/legends.json");
-const levelsPath = path.resolve("./backend/levels");
+const legendsPath = path.resolve("./public/legends.json");
+const levelsPath = path.resolve("./public/levels");
 
 export function getLegends(){
     console.log("HI", legendsPath)
