@@ -1,4 +1,4 @@
-import { levels } from "../data/levelIndex.js";
+import { levels } from "../../data/levelIndex.js";
 
 export default function handler(req, res){
     if(req.method !== "GET"){

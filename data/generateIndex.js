@@ -13,7 +13,7 @@ let exportsMap = "export default {\n";
 
 files.forEach((file) => {
   const name = path.basename(file, ".json"); // e.g. "level1"
-  imports += `import ${name} from "./${file}";\n`;
+  imports += `import ${name} from "./levels/${file}";\n`;
   exportsMap += `  "${name}": ${name},\n`;
 });
 

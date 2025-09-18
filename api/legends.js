@@ -1,4 +1,4 @@
-import legends from "./data/legends.json";
+import legends from "../data/legends.json";
 
 export default function handler(req, res){
     if(req.method !== "GET"){
