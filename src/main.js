@@ -3,6 +3,7 @@ import { saveLevelFile } from './utilities/exportLevel.js';
 import { triggerFileImport } from './utilities/importLevel.js';
 import { ListOfGrids } from './game_components/listOfGrids.js';
 import initCheckerFunction from './utilities/jsonChecker.js';
+import { debugLog } from './utilities/debugMode.js';
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -173,7 +174,7 @@ window.addEventListener('keydown', (event) => {
                 event.preventDefault();
                 triggerFileImport().
                 then((jsonData) => {
-                    console.log("Imported JSON: ", jsonData);
+                    debugLog("Imported JSON file");
                     listOfGrids.initLevelFromJSON(jsonData, legends);
                 })
                 .catch((err) => {
@@ -230,8 +231,8 @@ async function loadLevel(levelName) {
             alert("Level file has errors. See console.");
             throw new Error("Invalid file format");
         }
-        console.log(THREE.Cache.files); // Any leftover files
-        console.log(renderer.info.memory);
+        debugLog(THREE.Cache.files); // Any leftover files
+        debugLog(renderer.info.memory);
         //Level loading starts here
         listOfGrids.currLevelName = levelName;
         listOfGrids.initLevelFromJSON(levelData, legends);
@@ -263,7 +264,7 @@ importButton.addEventListener("click", () => {
     triggerFileImport().
     then(async (jsonData) => {
         await loadLegends();
-        console.log("Imported JSON: ", jsonData);
+        debugLog("Imported JSON: ", jsonData);
         listOfGrids.destroyLevels();
         listOfGrids.initLevelFromJSON(jsonData, legends);
         buttons.forEach(button => {

@@ -84,7 +84,6 @@ export class Block{
                 this.#objectIDObj.parent.remove(this.#objectIDObj);
             }
             this.#objectIDObj.traverse((child) => {
-                // console.log(child)
                 if(child.geometry) child.geometry.dispose();
                 if(child.material){
                     if(Array.isArray(child.material)){
@@ -105,7 +104,6 @@ export class Block{
                 this.#objectIDMarker.parent.remove(this.#objectIDMarker);
             }
             this.#objectIDMarker.traverse((child) => {
-                // console.log(child)
                 if(child.geometry) child.geometry.dispose();
                 if(child.material){
                     if(Array.isArray(child.material)){

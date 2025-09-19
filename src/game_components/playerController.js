@@ -1,6 +1,7 @@
 import { Player } from "./blocks.js";
 import { activeAnimationList } from "../main.js";
 import { PlayerAction, BlockType } from "./blockConstants.js";
+import { debugLog } from "../utilities/debugMode.js";
 
 export class PlayerController{
     #level;
@@ -68,22 +69,22 @@ export class PlayerController{
             if(grid.isBlockPushable(...newPosition)){
                 //check if pushable block will stay in bounds
                 if(grid.checkCoordinateInBounds(...newPushableBlockPosition) == false){
-                    console.log("Pushable block can't go out of bounds");
+                    debugLog("Pushable block can't go out of bounds");
                     return;
                 }
                 //check if the new position is walkable
                 if(grid.isBlockBelowWalkable(...newPushableBlockPosition) == false){
-                    console.log("Pushable block can't enter non-walkable space");
+                    debugLog("Pushable block can't enter non-walkable space");
                     return;
                 }
                 //check if the new position is passable
                 if(grid.isBlockPassable(...newPushableBlockPosition, direction) == false){
-                    console.log("Player can't push current pushable block");
+                    debugLog("Player can't push current pushable block");
                     return;
                 }
                 //check if the pushable block position is passable
                 if(grid.isBlockPassable(...newPosition, direction, true) == false){
-                    console.log("Player can't push current pushable block: new player position not passable");
+                    debugLog("Player can't push current pushable block: new player position not passable");
                     return;
                 }
                 //specific to teleporters: check if its destination spot is unoccupied
@@ -92,19 +93,19 @@ export class PlayerController{
                     const targetGrid = this.#level.getGrid(block.getTargetGridID());
                     //adjust position to account for indexing
                     if(targetGrid && !targetGrid.isBlockPassable(...block.getTargetGridPosition().map(value => value - 1))){
-                        console.log("Currently can't teleport pushable block, teleporter destination is occupied");
+                        debugLog("Currently can't teleport pushable block, teleporter destination is occupied");
                         return;
                     }
                 }
                 //apply change if prerequisites are met
                 grid.swapBlocks(...newPosition, ...newPushableBlockPosition);
                 grid.swapBlocks(...player.getPosition(), ...newPosition);
-                console.log("Pushable block has moved.");
+                debugLog("Pushable block has moved.");
             }
             else{
                 //non-pushable block, check if block is passable instead
                 if(grid.isBlockPassable(...newPosition, direction) == false){
-                    console.log("Player attempting to move to impassable location");
+                    debugLog("Player attempting to move to impassable location");
                     return;
                 }
                 //specific to teleporters: check if its destination spot is unoccupied
@@ -113,34 +114,34 @@ export class PlayerController{
                     const targetGrid = this.#level.getGrid(block.getTargetGridID());
                     //adjust position to account for indexing
                     if(targetGrid && !targetGrid.isBlockPassable(...block.getTargetGridPosition().map(value => value - 1))){
-                        console.log("Currently can't teleport player, teleporter destination is occupied");
+                        debugLog("Currently can't teleport player, teleporter destination is occupied");
                         return;
                     }
                 }
                 grid.swapBlocks(...player.getPosition(), ...newPosition);
-                console.log("Player has moved.");
+                debugLog("Player has moved.");
             }
         }
         //checks if the player is pulling
         else if(player.getActionState(PlayerAction.PULL) == true){
             //check if position to pull from is in bounds
             if(grid.checkCoordinateInBounds(...newPullableBlockPosition) == false){
-                console.log("Pullable block can't be out of bounds");
+                debugLog("Pullable block can't be out of bounds");
                 return;
             }
             //check if block behind player is pullable
             if(grid.isBlockPullable(...newPullableBlockPosition) == false){
-                console.log("Block behind player is not pullable");
+                debugLog("Block behind player is not pullable");
                 return;
             }
             //check if block being pulled ends up in a passable position (specific to directional targets)
             if(grid.isBlockPassable(...player.getPosition(), direction) == false){
-                console.log("Player attempting to pull block into invalid direction");
+                debugLog("Player attempting to pull block into invalid direction");
                 return;
             }
             //check if new position of player is passable
             if(grid.isBlockPassable(...newPosition, direction) == false){
-                console.log("Player attempting to move to impassable location (currently pulling)");
+                debugLog("Player attempting to move to impassable location (currently pulling)");
                 return;
             }
             //specific to teleporters: check if its destination spot is unoccupied
@@ -149,7 +150,7 @@ export class PlayerController{
                 const targetGrid = this.#level.getGrid(block.getTargetGridID());
                 //adjust position to account for indexing
                 if(targetGrid && !targetGrid.isBlockPassable(...block.getTargetGridPosition().map(value => value - 1))){
-                    console.log("Currently can't teleport player (currently pulling), teleporter destination is occupied");
+                    debugLog("Currently can't teleport player (currently pulling), teleporter destination is occupied");
                     return;
                 }
             }
@@ -157,7 +158,7 @@ export class PlayerController{
             //apply change if prerequisites are met
             grid.swapBlocks(...player.getPosition(), ...newPosition);
             grid.swapBlocks(...newPullableBlockPosition, ...oldPlayerPosition);
-            console.log("Pullable block has moved");
+            debugLog("Pullable block has moved");
         }
     }
 }

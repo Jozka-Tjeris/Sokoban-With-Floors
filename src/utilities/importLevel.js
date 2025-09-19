@@ -19,7 +19,7 @@ export function triggerFileImport() {
             const jsonData = JSON.parse(text);
             if (!checkJSONFile(jsonData)) {
                 console.error(checkJSONFile.errors);
-                alert("Level file has errors. See console.");
+                alert("Level file has errors.");
                 reject(new Error("Invalid file format"));
                 return;
             }

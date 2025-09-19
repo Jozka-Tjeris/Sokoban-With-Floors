@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as Helpers from '../utilities/helpers.js';
 import * as Blocks from './blocks.js';
 import { BlockType } from './blockConstants.js';
+import { debugLog } from '../utilities/debugMode.js';
 
 export class GridOfBlocks{
     //Outermost layer stores floors
@@ -83,15 +84,15 @@ export class GridOfBlocks{
         //Assumes grid coordinates are already being used
         const dimensionParams = [height - 1, col - 1, row - 1];
         if(this.checkCoordinateInBounds(...dimensionParams) == false){
-            console.log("Block generation failed");
+            debugLog("Block generation failed");
             return;
         }
         if(this.#gridArray[height - 1][col - 1][row - 1] != null){
-            console.log("A block already exists at the position: ", height, col, row);
+            debugLog("A block already exists at the position: ", height, col, row);
             return;
         }
         if(this.#enterableSpaces.get(dimensionParams.toString().replaceAll(',', ':')) != null){
-            console.log("A target space already exists at the position: ", height, col, row);
+            debugLog("A target space already exists at the position: ", height, col, row);
             return;
         }
 
@@ -106,7 +107,7 @@ export class GridOfBlocks{
             case BlockType.PLAYER:
                 cttrClass = Blocks.Player;
                 if(this.#playerObject instanceof Blocks.Player){
-                    console.log("Player already exists in the grid");
+                    debugLog("Player already exists in the grid");
                     return;
                 }
                 break;
@@ -131,7 +132,7 @@ export class GridOfBlocks{
             case BlockType.NONE:
                 return;
             default:
-                console.log("Block type: " + blockType + " unsupported");
+                debugLog("Block type: " + blockType + " unsupported");
                 return;
         }
         const block = new cttrClass(...dimensionParams);
@@ -150,11 +151,11 @@ export class GridOfBlocks{
     removeBlock(height, col, row){
         //Assumes already in grid coordinates
         if(this.checkCoordinateInBounds(height - 1, col - 1, row - 1) == false){
-            console.log("Out of bounds removal");
+            debugLog("Out of bounds removal");
             return;
         }
         if(this.#gridArray[height - 1][col - 1][row - 1] == null){
-            console.log("Block is already removed");
+            debugLog("Block is already removed");
             return;
         }
         const object = this.#gridArray[height - 1][col - 1][row - 1].getObject?.();
@@ -172,11 +173,11 @@ export class GridOfBlocks{
     swapBlocks(height1, col1, row1, height2, col2, row2){
         //check grid coordinates
         if(this.checkCoordinateInBounds(height1, col1, row1) == false){
-            console.log("First set of coordinates are invalid");
+            debugLog("First set of coordinates are invalid");
             return;
         }
         if(this.checkCoordinateInBounds(height2, col2, row2) == false){
-            console.log("Second set of coordinates are invalid");
+            debugLog("Second set of coordinates are invalid");
             return;
         }
 
@@ -224,15 +225,15 @@ export class GridOfBlocks{
     checkCoordinateInBounds(height, col, row){
         //Assumes that coordinates follow grid coordinates
         if(height < 0 || height >= this.#height){
-            console.log("Out of bounds; target height: " + (height + 1) + ", max height: " + this.#height);
+            debugLog("Out of bounds; target height: " + (height + 1) + ", max height: " + this.#height);
             return false;
         }
         if(col < 0 || col >= this.#cols){
-            console.log("Out of bounds; column: " + (col + 1) + ", max cols: " + this.#cols);
+            debugLog("Out of bounds; column: " + (col + 1) + ", max cols: " + this.#cols);
             return false;
         }
         if(row < 0 || row >= this.#rows){
-            console.log("Out of bounds; row: " + (row + 1) + ", max rows: " + this.#rows);
+            debugLog("Out of bounds; row: " + (row + 1) + ", max rows: " + this.#rows);
             return false;
         }
         return true;
@@ -257,7 +258,7 @@ export class GridOfBlocks{
         }
         const isWalkable = blockToCheck.isWalkable();
         if(isWalkable == false){
-            console.log("Block below not walkable");
+            debugLog("Block below not walkable");
             return false;
         }
         return true;
@@ -278,7 +279,7 @@ export class GridOfBlocks{
             //so it's acceptable to ignore the player position
             const isSolid = blockToCheck.isSolid() && (blockToCheck instanceof Blocks.Player == false);
             if(isSolid == true){
-                console.log(`There is a block blocking the way at ${[height, col, row]}`);
+                debugLog(`There is a block blocking the way at ${[height, col, row]}`);
                 return false;
             }
             if(isTargetBlock == false){
@@ -290,14 +291,14 @@ export class GridOfBlocks{
             //check possible entrances
             const isEnterable = targetToCheck.canEnterFromDirection(direction);
             if(isEnterable == false){
-                console.log("Target space not allowed to be entered from direction: " + direction);
+                debugLog("Target space not allowed to be entered from direction: " + direction);
                 return false;
             }
-            console.log("Can enter target space from direction: " + direction);
+            debugLog("Can enter target space from direction: " + direction);
             return true;
         }
         //only reached when player is pushing a pushable block (for now)
-        console.log("Assumption: Player is moving into pushable block's location");
+        debugLog("Assumption: Player is moving into pushable block's location");
         return true;
     }
 
@@ -309,7 +310,7 @@ export class GridOfBlocks{
         }
         const isPushable = blockToCheck.isPushable();
         if(isPushable == false){
-            console.log("Block in front is not pushable");
+            debugLog("Block in front is not pushable");
             return false;
         }
         return true;
@@ -323,7 +324,7 @@ export class GridOfBlocks{
         }
         const isPushable = blockToCheck.isPullable();
         if(isPushable == false){
-            console.log("Block behind is not pullable");
+            debugLog("Block behind is not pullable");
             return false;
         }
         return true;
@@ -331,19 +332,19 @@ export class GridOfBlocks{
 
     addBlockToGridViaTeleport(blocktype, height, col, row){
         if(!this.checkCoordinateInBounds(height, col, row)){
-            console.log("Position not valid (out of bounds)");
+            debugLog("Position not valid (out of bounds)");
             return;
         }
         if(!this.isBlockBelowWalkable(height, col, row)){
-            console.log("Position not valid (not walkable)");
+            debugLog("Position not valid (not walkable)");
             return;
         }
         if(!this.isBlockPassable(height, col, row)){
-            console.log("Position already occupied");
+            debugLog("Position already occupied");
             return;
         }
         if(this.#playerObject instanceof Blocks.Player && blocktype == BlockType.PLAYER){
-            console.log("Player already exists");
+            debugLog("Player already exists");
             return;
         }
         this.addBlockToGrid(blocktype, height, col, row);

@@ -4,6 +4,7 @@ import { GridOfBlocks } from "./grid.js";
 import { PlayerController } from "./playerController.js";
 import * as Helpers from "../utilities/helpers.js";
 import * as AnimHelpers from '../utilities/animationHandler.js';
+import { debugLog } from "../utilities/debugMode.js";
 
 export class ListOfGrids {
     #grids = new Map();
@@ -78,7 +79,7 @@ export class ListOfGrids {
         if(!this.getCurrentGrid()) return;
         if(this.#areLabelsPresent == state) return;
         this.#areLabelsPresent = state;
-        console.log("Peeking at labels: " + this.#areLabelsPresent);
+        debugLog("Peeking at labels: " + this.#areLabelsPresent);
         this.getCurrentGrid().getGroup().traverse(object => {
             if(object.userData?.isID){
                 object.visible = this.#areLabelsPresent;
@@ -219,7 +220,7 @@ export class ListOfGrids {
                                 object.material.depthWrite = false;
                             })
 
-                            console.log(`Changing to grid ${value.getTargetGridID()}`)
+                            debugLog(`Changing to grid ${value.getTargetGridID()}`)
                             this.changeToGrid(value.getTargetGridID(), this.#sceneObj);
                             //wait on the destination grid first
                             setTimeout(() => {
@@ -227,7 +228,7 @@ export class ListOfGrids {
                                     if(oldBlock.type !== BlockType.PLAYER){
                                         //wait before changing back to the original grid
                                         setTimeout(() => {
-                                            console.log(`Changing back to grid ${oldGridID}`)
+                                            debugLog(`Changing back to grid ${oldGridID}`)
                                             this.changeToGrid(oldGridID, this.#sceneObj);
                                         }, 500);
                                     }
@@ -339,7 +340,7 @@ export class ListOfGrids {
                 }
             }
         }
-        console.log("Current level ID: ", grid.getGridID());
+        debugLog("Current level ID: ", grid.getGridID());
         return true;
     }
 
@@ -410,7 +411,7 @@ export class ListOfGrids {
                     const expression = value.verifyTargetSpaces();
                     areAllTargetsFilled &&= expression;
                 })
-                console.log("All target spaces filled: " + areAllTargetsFilled);
+                debugLog("All target spaces filled: " + areAllTargetsFilled);
                 this.#levelCompleted = areAllTargetsFilled;
                 if(this.#levelCompleted){
                     document.getElementById("level-status").innerText = "Level Status: Completed";
