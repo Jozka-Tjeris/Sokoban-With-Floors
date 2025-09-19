@@ -23,8 +23,6 @@ Functions:
 - Isometric (but rotatable camera), 30 degree-ish downward camera angle
 - 2.5D
 
-Add a level editor for easy testing and mockups.
-
 Notes:
 
 22 June: 
@@ -131,3 +129,10 @@ Notes:
 
 9 August:
 - Added 4 more levels (Label)
+
+18 & 19 September:
+- Deployed app using Vercel
+- Added debug mode to hide console log statements
+- Fixed import level bugs
+- Fixed level naming bugs
+- Removed unnecessary backend server

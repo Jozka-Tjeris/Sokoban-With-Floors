@@ -1,5 +1,0 @@
-{
-  "watch": ["backend"],
-  "ignore": ["src"],
-  "ext": "js,json"
-}
