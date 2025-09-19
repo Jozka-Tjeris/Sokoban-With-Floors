@@ -1,8 +1,8 @@
 {
     "grids": [
         {
-            "gridID": "Board3",
-            "gridTitle": "Board 3",
+            "gridID": "Board4",
+            "gridTitle": "Board 4",
             "gridSize": {"height": 2, "columns": 8, "rows": 8},
             "layers": [
                 {

@@ -1,8 +1,8 @@
 {
     "grids": [
         {
-            "gridID": "Basic1",
-            "gridTitle": "Basic 1",
+            "gridID": "Pulls3",
+            "gridTitle": "Pulls 3",
             "gridSize": {"height": 2, "columns": 8, "rows": 12},
             "layers": [
                 {
